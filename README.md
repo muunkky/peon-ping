@@ -18,6 +18,13 @@ curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/install.sh 
 
 One command. Takes 10 seconds. macOS, WSL2 (Windows), and Linux. Re-run to update (sounds and config preserved). Installs 10 curated English packs by default.
 
+**Or install via Homebrew** (macOS/Linux):
+
+```bash
+brew install PeonPing/tap/peon-ping
+peon-ping-setup
+```
+
 **Install all 40 packs** (every language and franchise):
 
 ```bash
