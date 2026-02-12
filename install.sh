@@ -9,7 +9,7 @@ SETTINGS="$HOME/.claude/settings.json"
 REPO_BASE="https://raw.githubusercontent.com/tonyyont/peon-ping/main"
 
 # All available sound packs (add new packs here)
-PACKS="peon peon_fr peon_pl peasant peasant_fr ra2_soviet_engineer sc_battlecruiser sc_kerrigan sc_scv sc_marine sc_firebat sc_medic sc_tank sc_vessel"
+PACKS="peon peon_fr peon_pl peasant peasant_fr ra2_soviet_engineer sc_battlecruiser sc_kerrigan sc_scv sc_firebat sc_medic sc_tank sc_vessel"
 
 # --- Platform detection ---
 detect_platform() {
