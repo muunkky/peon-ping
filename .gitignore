@@ -9,3 +9,5 @@ social-post.md
 .last_update_check
 .state.json
 homebrew-tap/
+PLAN-*.md
+checksums.txt
