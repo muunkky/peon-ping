@@ -2958,7 +2958,10 @@ msg_subtitle = ''
 if event == 'SessionStart':
     source = event_data.get('source', '')
     if source == 'compact':
-        # Compaction is mid-conversation — greeting makes no sense
+        # Compaction is mid-conversation — greeting makes no sense, but maintain title
+        print('PROJECT=' + q(project or ''))
+        print('STATUS=ready')
+        print('MARKER=')
         print('PEON_EXIT=true')
         sys.exit(0)
     category = 'session.start'
@@ -3031,6 +3034,10 @@ elif event == 'Notification':
         msg = project
         msg_subtitle = 'Question pending'
     else:
+        # Unknown notification type — maintain tab title (e.g. plan mode events)
+        print('PROJECT=' + q(project or ''))
+        print('STATUS=working')
+        print('MARKER=')
         print('PEON_EXIT=true')
         sys.exit(0)
 elif event == 'PermissionRequest':
@@ -3056,6 +3063,10 @@ elif event == 'PostToolUseFailure':
         category = 'task.error'
         status = 'error'
     else:
+        # Non-Bash tool failure — no sound, but maintain tab title
+        print('PROJECT=' + q(project or ''))
+        print('STATUS=working')
+        print('MARKER=')
         print('PEON_EXIT=true')
         sys.exit(0)
 elif event == 'SubagentStart':
@@ -3064,6 +3075,10 @@ elif event == 'SubagentStart':
     state_dirty = True
     os.makedirs(os.path.dirname(state_file) or '.', exist_ok=True)
     json.dump(state, open(state_file, 'w'))
+    # Maintain parent's tab title while subagent runs (no sound)
+    print('PROJECT=' + q(project or ''))
+    print('STATUS=working')
+    print('MARKER=')
     print('PEON_EXIT=true')
     sys.exit(0)
 elif event == 'PreCompact':
@@ -3090,7 +3105,10 @@ elif event == 'SessionEnd':
     print('PEON_EXIT=true')
     sys.exit(0)
 else:
-    # Unknown event — exit cleanly
+    # Unknown event (e.g. PreToolUse, PostToolUse, plan mode events) — no sound, but maintain tab title
+    print('PROJECT=' + q(project or ''))
+    print('STATUS=working')
+    print('MARKER=')
     print('PEON_EXIT=true')
     sys.exit(0)
 
@@ -3343,6 +3361,11 @@ if [ "${PEON_EXIT:-true}" = "true" ]; then
   # On session end, kill any lingering overlay popups (macOS only)
   if [ "${EVENT:-}" = "SessionEnd" ] && [ "$PLATFORM" = "mac" ]; then
     pkill -f "mac-overlay" 2>/dev/null || true
+  fi
+  # Maintain tab title even on suppressed events (plan mode, unknown events, subagent start).
+  # PROJECT is only emitted by paths that should maintain the title; agent/disabled paths omit it.
+  if [ -n "${PROJECT:-}" ] && [ "${EVENT:-}" != "SessionEnd" ]; then
+    printf '\033]0;%s\007' "${MARKER:-}${PROJECT}: ${STATUS:-working}" > /dev/tty 2>/dev/null || true
   fi
   exit 0
 fi
