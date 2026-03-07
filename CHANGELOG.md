@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.13.2 (2026-03-06)
+
+### Fixed
+- **`/peon-ping-rename` bleeds across tabs in same project** — names set in one terminal tab were appearing in all other tabs opened to the same project directory. Root cause: hooks run detached from the controlling terminal, so `tty` returned the same value across all tabs, collapsing the per-tab key. Switched to `$PPID` (Claude Code's process PID) as the stable tab identifier: different terminal tabs spawn separate Claude Code processes with different PIDs, while `/clear` within a tab reuses the same process. Composite key `ppid::cwd` replaces the previous `tty::cwd` key in `tty_names` state.
+
 ## v2.13.1 (2026-03-05)
 
 ### Fixed
