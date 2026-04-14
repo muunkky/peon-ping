@@ -207,13 +207,13 @@ in {
 
 | 事件 | CESP 分类 | 示例 |
 |---|---|---|
-| 会话开始 | `session.start` | *"Ready to work?"*, *"Yes?"*, *"What you want?"* |
-| 任务完成 | `task.complete` | *"Work, work."*, *"I can do that."*, *"Okie dokie."* |
-| 需要权限 | `input.required` | *"Something need doing?"*, *"Hmm?"*, *"What you want?"* |
-| 工具或命令错误 | `task.error` | *"I can't do that."*, *"Son of a bitch!"* |
-| 代理确认任务 | `task.acknowledge` | *"I read you."*, *"On it."* *（默认禁用）* |
-| 速率或 token 限制 | `resource.limit` | *"Zug zug."*（取决于语音包）|
-| 快速提示（10秒内3次以上）| `user.spam` | *"Me busy, leave me alone!"* |
+| 会话开始 | `session.start` | *"Ready to work!"*, *"Something need doing?"* |
+| 任务完成 | `task.complete` | *"Work complete."*, *"Work, work."* |
+| 代理确认任务 | `task.acknowledge` | *"I can do that."*, *"Be happy to."*, *"Okie dokie."* *（默认禁用）* |
+| 需要权限 | `input.required` | *"Hmm?"*, *"What you want?"*, *"Yes?"* |
+| 工具或命令错误 | `task.error` | *"Me not that kind of orc!"*, *"Ugh."* |
+| 速率或 token 限制 | `resource.limit` | *"Why not?"* |
+| 快速提示（10秒内3次以上）| `user.spam` | *"Whaaat?"*, *"Me busy, leave me alone!"*, *"No time for play."* |
 
 此外，还会在每个屏幕上显示**大型覆盖横幅**（macOS/WSL/MSYS2）和终端标签页标题（`● 项目: 完成`）——即使你在其他应用中，也能立即知道任务完成。
 

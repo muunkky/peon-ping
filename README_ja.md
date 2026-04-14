@@ -208,13 +208,13 @@ in {
 
 | イベント | CESP カテゴリ | 例 |
 |---|---|---|
-| セッション開始 | `session.start` | *"Ready to work?"*, *"Yes?"*, *"What you want?"* |
-| タスク完了 | `task.complete` | *"Work, work."*, *"I can do that."*, *"Okie dokie."* |
-| ツールまたはコマンドエラー | `task.error` | *"I can't do that."*, *"Son of a bitch!"* |
-| エージェントがタスクを確認 | `task.acknowledge` | *"I read you."*, *"On it."* *(デフォルトで無効)* |
-| 許可が必要 | `input.required` | *"Something need doing?"*, *"Hmm?"*, *"What you want?"* |
-| レートまたはトークン制限 | `resource.limit` | *"Zug zug."* *(パックによる)* |
-| 高速プロンプト（10秒以内に3回以上）| `user.spam` | *"Me busy, leave me alone!"* |
+| セッション開始 | `session.start` | *"Ready to work!"*, *"Something need doing?"* |
+| タスク完了 | `task.complete` | *"Work complete."*, *"Work, work."* |
+| エージェントがタスクを確認 | `task.acknowledge` | *"I can do that."*, *"Be happy to."*, *"Okie dokie."* *(デフォルトで無効)* |
+| 許可が必要 | `input.required` | *"Hmm?"*, *"What you want?"*, *"Yes?"* |
+| ツールまたはコマンドエラー | `task.error` | *"Me not that kind of orc!"*, *"Ugh."* |
+| レートまたはトークン制限 | `resource.limit` | *"Why not?"* |
+| 高速プロンプト（10秒以内に3回以上）| `user.spam` | *"Whaaat?"*, *"Me busy, leave me alone!"*, *"No time for play."* |
 
 さらに、すべての画面に**大型オーバーレイバナー**（macOS/WSL/MSYS2）とターミナルタブタイトル（`● project: done`）が表示され、他のアプリを使用中でも何か起きたことがすぐにわかります。
 

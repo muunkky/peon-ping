@@ -1,3 +1,22 @@
+## v2.19.0 (2026-04-14)
+
+### Added
+- **`peon setup` interactive wizard** — guided first-time setup covering volume, category toggles, desktop notifications, overlay theme, position, and auto-dismiss timing. PR #465, closes #283.
+- **Session-based notification stacking** — notifications from the same Claude session now stack into a single overlay with a count badge (`(3) project — needs approval`). Auto-dismisses when the user resumes interaction (UserPromptSubmit, Stop, PreToolUse, etc.). New config: `notification_stacking` (default `true`). PR #463, addresses #340.
+- **Visible X close button on overlays** — `glass`, `sakura`, and `jarvis` themes now show a discoverable `×` in the top-right. New config: `notification_close_button` (default `true`). PR #464.
+- **`notification_title_marker` config** — customize or disable the `●` shown before project names in notification titles and terminal tabs. Set to `""` to disable, or `"🔔"` to customize. PR #457.
+- **Expanded `peon status`** — structured sections (core, packs, categories, notifications, audio routing, behavior timings, trainer, TTS, debug, IDEs), resolved active pack display with path-rule reasoning, Linux player detection, relay status for SSH/devcontainer. PR #461.
+
+### Fixed
+- **NSPanel overlays no longer steal focus** — switched `glass`, `sakura`, `jarvis` themes to `NSPanel` with `NSWindowStyleMaskNonactivatingPanel` so clicking a notification doesn't dismiss iTerm2 hotkey/overlay windows. PR #462.
+- **Correct overlay labels for red/yellow notifications** — color-based fallback no longer mislabels permission requests as "LIMIT REACHED". Red → "APPROVAL NEEDED", yellow → "STANDING BY". Disabled categories now suppress both sound AND the overlay. PR #460.
+- **Pack sync robustness** — `pack-download.sh` now skips already-installed packs via on-disk checksum verification, probes the manifest URL before creating local directories, shows per-pack status (✓/✅/⚠️/❌), and includes a summary with counts and disk usage. Fixes a bug where filenames with spaces (e.g. `incoming (1).mp3`) re-downloaded every run due to incorrect checksum parsing. PR #453.
+- **Linux `notify-send` respects `notification_dismiss_seconds`** — previously hardcoded to 5000ms, now uses the configured value. PR #455.
+- **Nix home-manager zsh module** — updated `programs.zsh.initExtra` to `programs.zsh.initContent` for the current home-manager API. PR #456.
+
+### Docs
+- **Updated Warcraft III Orc peon mapping examples** in README (EN/zh/ja) to correctly reflect which voice lines belong to which CESP category. Closes #333.
+
 ## v2.18.0 (2026-04-11)
 
 ### Added

@@ -209,13 +209,13 @@ For packs listed on [openpeon.com](https://openpeon.com/), find the GitHub repos
 
 | Event | CESP Category | Examples |
 |---|---|---|
-| Session starts | `session.start` | *"Ready to work?"*, *"Yes?"*, *"What you want?"* |
-| Task finishes | `task.complete` | *"Work, work."*, *"I can do that."*, *"Okie dokie."* |
-| Permission needed | `input.required` | *"Something need doing?"*, *"Hmm?"*, *"What you want?"* |
-| Tool or command error | `task.error` | *"I can't do that."*, *"Son of a bitch!"* |
-| Agent acknowledged task | `task.acknowledge` | *"I read you."*, *"On it."* *(disabled by default)* |
-| Rate or token limit hit | `resource.limit` | *"Zug zug."* *(pack dependent)* |
-| Rapid prompts (3+ in 10s) | `user.spam` | *"Me busy, leave me alone!"* |
+| Session starts | `session.start` | *"Ready to work!"*, *"Something need doing?"* |
+| Task finishes | `task.complete` | *"Work complete."*, *"Work, work."* |
+| Agent acknowledged task | `task.acknowledge` | *"I can do that."*, *"Be happy to."*, *"Okie dokie."* *(disabled by default)* |
+| Permission needed | `input.required` | *"Hmm?"*, *"What you want?"*, *"Yes?"* |
+| Tool or command error | `task.error` | *"Me not that kind of orc!"*, *"Ugh."* |
+| Rate or token limit hit | `resource.limit` | *"Why not?"* |
+| Rapid prompts (3+ in 10s) | `user.spam` | *"Whaaat?"*, *"Me busy, leave me alone!"*, *"No time for play."* |
 
 Plus **large overlay banners** on every screen (macOS/WSL/MSYS2) and terminal tab titles (`● project: done`) — you'll know something happened even if you're in another app.
 
