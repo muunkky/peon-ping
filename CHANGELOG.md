@@ -1,3 +1,16 @@
+## v2.20.0 (2026-04-14)
+
+### Added
+- **Rich native macOS notifications** — `terminal-notifier` and osascript fallback now include a subtitle (CESP category) and group notifications by session so they replace each other in Notification Center instead of piling up. Uses `PEON_SESSION_ID` as the group key. PR #466.
+- **`peon packs rotation add --install`** — add one or more packs to rotation AND download them from the registry in one command. Works with the flag before or after the pack names. PR #468.
+
+### Changed
+- **Security hardening**: migrated inline `'$SHELL_VAR'` interpolation in `python3 -c "..."` blocks throughout `peon.sh` to `os.environ.get()` pattern. Prevents quote-injection on config values with special characters; no behavior change for normal usage. PR #469.
+- **Homebrew formula simplified**: delegates pack downloads in `peon-ping-setup` to the shared `pack-download.sh` engine rather than duplicating download/fallback logic in the Ruby formula. PR #15 (homebrew-tap).
+
+### Docs
+- **`peon setup` wizard guide added to README** — quickstart example, screenshots of the wizard flow, and a pointer back to per-setting `peon` subcommands for advanced users. PR #467.
+
 ## v2.19.0 (2026-04-14)
 
 ### Added
