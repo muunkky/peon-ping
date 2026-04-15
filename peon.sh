@@ -4912,7 +4912,7 @@ _relay_guidance() {
   fi
 }
 if [ "$EVENT" = "SessionStart" ] && { [ "$PEON_PLATFORM" = "devcontainer" ] || [ "$PEON_PLATFORM" = "ssh" ]; }; then
-  if [ "${PEON_TEST:-0}" = "1" ]; then
+  if [ "$_PEON_SYNC" = "true" ]; then
     _relay_guidance
   else
     _relay_guidance &
