@@ -14,3 +14,4 @@
 # Value can be inline text or a file path (e.g., ./my-profiling.md).
 # overrides:
 #   profiling: ./my-overrides/profiling.md      # used by: executor, planner, reviewer, router
+#   conventions: ./my-overrides/conventions.md   # used by: executor, reviewer

@@ -1,0 +1,42 @@
+{
+  "sprint_id": "sprint-ttsinteg-20260329",
+  "sprint_name": "TTSINTEG",
+  "sprint_folder": "sprint-ttsinteg-20260329",
+  "created_at": "2026-03-29T03:32:46.747003",
+  "start_date": null,
+  "end_date": "2026-03-29",
+  "archived_at": "2026-03-29T03:32:46.747003",
+  "card_ids": [
+    "kr62ia",
+    "geowa6",
+    "ia8id8",
+    "7g52mr",
+    "3c490l",
+    "s81ofk",
+    "p7hchj",
+    "gtuv06",
+    "02x5jy",
+    "zxp2my",
+    "09ynpe",
+    "od5a0c",
+    "cb0gpg",
+    "f4w9gu"
+  ],
+  "metrics": {
+    "total_cards": 14,
+    "by_priority": {
+      "P1": 11,
+      "P2": 3
+    },
+    "by_type": {
+      "feature": 6,
+      "chore": 4,
+      "refactor": 3,
+      "test": 1
+    },
+    "by_handle": {
+      "CAMERON": 8,
+      "Unassigned": 6
+    }
+  }
+}
