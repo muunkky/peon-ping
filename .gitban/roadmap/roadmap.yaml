@@ -548,6 +548,7 @@ versions:
             priority: high
             depends_on:
               - tts-integration
+            docs_ref: docs/designs/tts-native.md
           tts-cli:
             id: tts-cli
             title: TTS CLI commands and configuration

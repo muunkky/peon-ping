@@ -24,3 +24,8 @@ result
 result-*
 .direnv
 .envrc.local
+
+# gitban runtime artifacts
+.gitban/agents/traces/
+.claude/worktrees/
+bash.exe.stackdump
