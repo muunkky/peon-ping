@@ -258,6 +258,13 @@ case "$PEON_PLATFORM" in
         if [ "$all_screens" = "true" ]; then
           local screen_count
           screen_count=$(osascript -l JavaScript -e 'ObjC.import("Cocoa"); $.NSScreen.screens.count' 2>/dev/null || echo 1)
+          # Fall back to 1 if probe returned empty or non-numeric output
+          # (e.g. restricted Macs, test environments with mock osascript).
+          # Without this, `seq 0 -1` runs the overlay loop zero times and
+          # no notification displays.
+          if ! [[ "$screen_count" =~ ^[0-9]+$ ]] || [ "$screen_count" -lt 1 ]; then
+            screen_count=1
+          fi
           for _si in $(seq 0 $((screen_count - 1))); do
             osascript -l JavaScript "$overlay_script" "$msg" "$color" "$local_icon_arg" "$slot" "$dismiss_secs" "$bundle_id" "$ide_pid" "$session_tty" "$subtitle" "$notif_position" "$notify_type" "$all_screens" "$_si" "$close_button" >/dev/null 2>&1 &
             _overlay_pids="$_overlay_pids $!"
@@ -291,7 +298,12 @@ case "$PEON_PLATFORM" in
           wait "$_last_wd" 2>/dev/null || true
         done
         rm -rf "$slot_dir/slot-$slot"
-        [ -n "$session_file" ] && rm -f "$session_file"
+        # Use `if` instead of `&&` so the subshell's exit code is 0 even
+        # when session_file is empty (the `[ -n "" ]` test returns 1,
+        # which would propagate as notify.sh's exit code).
+        if [ -n "$session_file" ]; then
+          rm -f "$session_file"
+        fi
       )
       if [ "$use_bg" = true ]; then _run_overlay & else _run_overlay; fi
     else
@@ -307,8 +319,8 @@ case "$PEON_PLATFORM" in
           ;;
         *)
           # Native macOS Notification Center (grouped by session, rich subtitle)
-          local notif_subtitle="${PEON_MSG_SUBTITLE:-}"
-          local notif_group="peon-ping-${PEON_SESSION_ID:-default}"
+          notif_subtitle="${PEON_MSG_SUBTITLE:-}"
+          notif_group="peon-ping-${PEON_SESSION_ID:-default}"
           if command -v terminal-notifier &>/dev/null; then
             tn_icon_flag=""
             [ -f "$icon_path" ] && tn_icon_flag="-appIcon $icon_path"

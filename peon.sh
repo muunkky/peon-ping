@@ -1638,8 +1638,9 @@ print(f'peon-ping: label override set to "{label}"')
         _rc=$?; [ "$_rc" -ne 0 ] && exit "$_rc"
         sync_adapter_configs; exit 0 ;;
       marker)
-        MARKER_ARG="${3:-}"
-        if [ -z "$MARKER_ARG" ]; then
+        # Distinguish "no arg" (show current) from "explicit empty arg"
+        # (disable marker). `${3:-}` collapses both cases; use $# instead.
+        if [ "$#" -lt 3 ]; then
           python3 -c "
 import json, os
 config_path = os.environ.get('PEON_ENV_CONFIG', '')
@@ -1657,6 +1658,7 @@ except Exception:
 "
           exit 0
         fi
+        MARKER_ARG="$3"
         python3 -c "
 import json, sys, os
 config_path = os.environ.get('PEON_ENV_GLOBAL_CONFIG', '')
@@ -4912,7 +4914,7 @@ _relay_guidance() {
   fi
 }
 if [ "$EVENT" = "SessionStart" ] && { [ "$PEON_PLATFORM" = "devcontainer" ] || [ "$PEON_PLATFORM" = "ssh" ]; }; then
-  if [ "${PEON_TEST:-0}" = "1" ]; then
+  if [ "$_PEON_SYNC" = "true" ]; then
     _relay_guidance
   else
     _relay_guidance &
