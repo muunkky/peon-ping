@@ -298,7 +298,12 @@ case "$PEON_PLATFORM" in
           wait "$_last_wd" 2>/dev/null || true
         done
         rm -rf "$slot_dir/slot-$slot"
-        [ -n "$session_file" ] && rm -f "$session_file"
+        # Use `if` instead of `&&` so the subshell's exit code is 0 even
+        # when session_file is empty (the `[ -n "" ]` test returns 1,
+        # which would propagate as notify.sh's exit code).
+        if [ -n "$session_file" ]; then
+          rm -f "$session_file"
+        fi
       )
       if [ "$use_bg" = true ]; then _run_overlay & else _run_overlay; fi
     else
