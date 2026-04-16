@@ -295,11 +295,15 @@ Describe "win-play.ps1: WAV/MP3 Branching and Player Chain" {
         # No log file also means ffplay was not called -- pass
     }
 
-    # Scenario 11: MP3 file tries ffplay first with correct volume
-    It "Scenario 11: MP3 file uses ffplay with volume = vol * 100" {
+    # Scenarios 11-16 exercise the CLI player fallback chain. They use .ogg
+    # (an "exotic" extension) because wav/mp3/wma are now handled by the
+    # MediaPlayer branch in win-play.ps1 and would never reach the CLI chain.
+
+    # Scenario 11: exotic file tries ffplay first with correct volume
+    It "Scenario 11: exotic file uses ffplay with volume = vol * 100" {
         script:New-MockPlayer -Name "ffplay" -Dir $script:mockDir -LogFile $script:mockLog
-        $mp3File = Join-Path $script:wpDir "test.mp3"
-        script:Invoke-WinPlay -AudioPath $mp3File -Vol 0.7 -MockPath "$($script:mockDir);$env:PATH" | Out-Null
+        $oggFile = Join-Path $script:wpDir "test.ogg"
+        script:Invoke-WinPlay -AudioPath $oggFile -Vol 0.7 -MockPath "$($script:mockDir);$env:PATH" | Out-Null
 
         Test-Path $script:mockLog | Should -Be $true
         $logContent = Get-Content $script:mockLog -Raw
@@ -311,8 +315,8 @@ Describe "win-play.ps1: WAV/MP3 Branching and Player Chain" {
     # Scenario 12: Volume boundary vol=0.0 -> ffplay -volume 0
     It "Scenario 12: Volume clamped to 0 for ffplay when vol=0.0" {
         script:New-MockPlayer -Name "ffplay" -Dir $script:mockDir -LogFile $script:mockLog
-        $mp3File = Join-Path $script:wpDir "test.mp3"
-        script:Invoke-WinPlay -AudioPath $mp3File -Vol 0.0 -MockPath "$($script:mockDir);$env:PATH" | Out-Null
+        $oggFile = Join-Path $script:wpDir "test.ogg"
+        script:Invoke-WinPlay -AudioPath $oggFile -Vol 0.0 -MockPath "$($script:mockDir);$env:PATH" | Out-Null
 
         $logContent = Get-Content $script:mockLog -Raw
         $logContent | Should -Match "-volume 0"
@@ -321,8 +325,8 @@ Describe "win-play.ps1: WAV/MP3 Branching and Player Chain" {
     # Scenario 13: Volume boundary vol=1.0 -> ffplay -volume 100
     It "Scenario 13: Volume clamped to 100 for ffplay when vol=1.0" {
         script:New-MockPlayer -Name "ffplay" -Dir $script:mockDir -LogFile $script:mockLog
-        $mp3File = Join-Path $script:wpDir "test.mp3"
-        script:Invoke-WinPlay -AudioPath $mp3File -Vol 1.0 -MockPath "$($script:mockDir);$env:PATH" | Out-Null
+        $oggFile = Join-Path $script:wpDir "test.ogg"
+        script:Invoke-WinPlay -AudioPath $oggFile -Vol 1.0 -MockPath "$($script:mockDir);$env:PATH" | Out-Null
 
         $logContent = Get-Content $script:mockLog -Raw
         $logContent | Should -Match "-volume 100"
@@ -331,9 +335,9 @@ Describe "win-play.ps1: WAV/MP3 Branching and Player Chain" {
     # Scenario 14: Falls through to mpv when ffplay not available
     It "Scenario 14: Falls through to mpv when no ffplay" {
         script:New-MockPlayer -Name "mpv" -Dir $script:mockDir -LogFile $script:mockLog
-        $mp3File = Join-Path $script:wpDir "test.mp3"
+        $oggFile = Join-Path $script:wpDir "test.ogg"
         # Only mock dir in PATH, so ffplay is not found
-        script:Invoke-WinPlay -AudioPath $mp3File -Vol 0.5 -MockPath $script:mockDir | Out-Null
+        script:Invoke-WinPlay -AudioPath $oggFile -Vol 0.5 -MockPath $script:mockDir | Out-Null
 
         Test-Path $script:mockLog | Should -Be $true
         $logContent = Get-Content $script:mockLog -Raw
@@ -344,8 +348,8 @@ Describe "win-play.ps1: WAV/MP3 Branching and Player Chain" {
     # Scenario 15: Falls through to vlc when ffplay and mpv not available
     It "Scenario 15: Falls through to vlc when no ffplay or mpv" {
         script:New-MockPlayer -Name "vlc" -Dir $script:mockDir -LogFile $script:mockLog
-        $mp3File = Join-Path $script:wpDir "test.mp3"
-        script:Invoke-WinPlay -AudioPath $mp3File -Vol 0.5 -MockPath $script:mockDir | Out-Null
+        $oggFile = Join-Path $script:wpDir "test.ogg"
+        script:Invoke-WinPlay -AudioPath $oggFile -Vol 0.5 -MockPath $script:mockDir | Out-Null
 
         Test-Path $script:mockLog | Should -Be $true
         $logContent = Get-Content $script:mockLog -Raw
@@ -356,9 +360,9 @@ Describe "win-play.ps1: WAV/MP3 Branching and Player Chain" {
 
     # Scenario 16: Exits silently when no player available
     It "Scenario 16: Exits silently when no player available" {
-        $mp3File = Join-Path $script:wpDir "test.mp3"
+        $oggFile = Join-Path $script:wpDir "test.ogg"
         # Only mock dir (empty) in PATH -- no players
-        $r = script:Invoke-WinPlay -AudioPath $mp3File -Vol 0.5 -MockPath $script:mockDir
+        $r = script:Invoke-WinPlay -AudioPath $oggFile -Vol 0.5 -MockPath $script:mockDir
         $r.ExitCode | Should -Be 0
         if ($r.Output) {
             ($r.Output -join "`n") | Should -Not -Match "(?i)error|exception"

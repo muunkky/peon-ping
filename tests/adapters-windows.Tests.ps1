@@ -734,8 +734,10 @@ Describe "win-play.ps1 Audio Backend" {
         $script:winPlayContent | Should -Match '\[double\]\$vol'
     }
 
-    It "uses MediaPlayer for WAV files with volume control" {
-        $script:winPlayContent | Should -Match '\.wav\$'
+    It "uses MediaPlayer for WAV/MP3/WMA files with volume control" {
+        # Extension regex must include wav; mp3 and wma are also routed to MediaPlayer
+        # since the WSL/WMA support was added (see the MediaPlayer block in win-play.ps1).
+        $script:winPlayContent | Should -Match '\.\(wav\|mp3\|wma\)\$'
         $script:winPlayContent | Should -Match 'PresentationCore'
         $script:winPlayContent | Should -Match 'System\.Windows\.Media\.MediaPlayer'
         $script:winPlayContent | Should -Match '\$player\.Volume = \$vol'

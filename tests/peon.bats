@@ -3237,10 +3237,19 @@ json.dump(m, open('$TEST_DIR/packs/peon/manifest.json', 'w'))
   run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
   [ "$PEON_EXIT" -eq 0 ]
   [ -f "$TEST_DIR/overlay.log" ]
-  # Fields from end: ... bundle_id ide_pid session_tty subtitle notif_position notify_type all_screens
-  # With awk (empty fields collapse): ... bundle_id ide_pid session_tty notif_position notify_type all_screens
-  # ide_pid is NF-4 (session_tty=NF-3, notif_position=NF-2, notify_type=NF-1, all_screens=NF)
-  ide_pid=$(tail -1 "$TEST_DIR/overlay.log" | awk '{print $(NF-4)}')
+  # Extract ide_pid using notif_position (\"top-center\") as an anchor, since
+  # it is always present and always non-empty. ide_pid is the field
+  # immediately before notif_position when bundle_id/session_tty/subtitle
+  # are empty (the default in a bare test environment). Using a positional
+  # NF-N index is too brittle against msg token count and optional-field
+  # collapsing by awk.
+  ide_pid=$(tail -1 "$TEST_DIR/overlay.log" | awk '
+    {
+      for (i = 1; i <= NF; i++) {
+        if ($i == "top-center") { print $(i-1); exit }
+      }
+    }
+  ')
   [[ "$ide_pid" =~ ^[0-9]+$ ]]
 }
 
