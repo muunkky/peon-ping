@@ -35,18 +35,20 @@ Describe "win-play.ps1 PEON_DEBUG warnings" {
         }
     }
 
-    It "emits warning when no CLI player found for non-WAV file and PEON_DEBUG=1" {
+    It "emits warning when no CLI player found for exotic file and PEON_DEBUG=1" {
         $env:PEON_DEBUG = "1"
         try {
-            # Use a non-WAV extension to trigger the CLI player chain;
-            # mock all players unavailable by using a clean PATH
+            # Use an exotic extension (.ogg) that is NOT matched by the
+            # MediaPlayer regex (\.(wav|mp3|wma)$), so win-play.ps1 goes
+            # straight to the CLI player chain. Mock all players unavailable
+            # by using a clean PATH and nonexistent Program Files paths.
             $warnings = powershell -NoProfile -NonInteractive -Command "
                 `$env:PEON_DEBUG = '1'
                 `$env:PATH = 'C:\Windows\System32'
                 `$env:ProgramFiles = 'C:\nonexistent_programs'
                 `${env:ProgramFiles(x86)} = 'C:\nonexistent_programs_x86'
                 `$WarningPreference = 'Continue'
-                & '$($script:WinPlayPath)' -path 'C:\nonexistent\fake.mp3' -vol 0.5 3>&1
+                & '$($script:WinPlayPath)' -path 'C:\nonexistent\fake.ogg' -vol 0.5 3>&1
             "
             $warningText = ($warnings | Where-Object { $_ -is [System.Management.Automation.WarningRecord] -or ($_ -match 'no audio player found') }) -join "`n"
             $warningText | Should -Match "no audio player found"
