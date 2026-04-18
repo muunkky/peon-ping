@@ -25,7 +25,7 @@
 #   export AGENT_SPRINT_TAG="SPRINT1"
 #   export AGENT_CARD_ID="abc123"
 #   export AGENT_CYCLE="1"
-#   source scripts/agent-log.sh
+#   source .gitban/hooks/agent-log.sh
 #   agent_log_init
 #   agent_log_cmd "git commit -m 'feat: add widget'"
 #   agent_log_event "hook-fix" '{"attempt":2}'
