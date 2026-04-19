@@ -281,52 +281,57 @@ if (-not $Updating) {
 $scriptsDir = Join-Path $InstallDir "scripts"
 New-Item -ItemType Directory -Path $scriptsDir -Force | Out-Null
 
-$winPlaySource = Join-Path $ScriptDir "scripts\win-play.ps1"
-$winPlayTarget = Join-Path $scriptsDir "win-play.ps1"
-
-if (Test-Path $winPlaySource) {
-    # Local install: copy from repo
-    Copy-Item -Path $winPlaySource -Destination $winPlayTarget -Force
-} else {
-    # One-liner install: download from GitHub
-    try {
-        Invoke-WebRequest -Uri "$RepoBase/scripts/win-play.ps1" -OutFile $winPlayTarget -UseBasicParsing -ErrorAction Stop
-    } catch {
-        Write-Host "  Warning: Could not download win-play.ps1" -ForegroundColor Yellow
+# Install a helper script into the destination directory using the
+# copy-from-local-repo-or-download-from-GitHub fallback pattern.
+#
+# Behaviour (preserved from the three prior inline blocks):
+#   * If -LocalSource exists on disk, copy it to -DestDir (local/dev install).
+#   * Otherwise, download from -RemoteUrl into -DestDir (one-liner install).
+#   * On download failure, warn and continue -- do NOT throw. The installer
+#     must not abort just because an optional helper could not be fetched.
+#
+# Each caller passes the helper's canonical file name (-Name) so that the
+# download path resolves deterministically and so that the warning message
+# identifies which helper failed.
+function Install-HelperScript {
+    param(
+        [Parameter(Mandatory)][string]$Name,
+        [Parameter(Mandatory)][string]$LocalSource,
+        [Parameter(Mandatory)][string]$RemoteUrl,
+        [Parameter(Mandatory)][string]$DestDir
+    )
+    $target = Join-Path $DestDir $Name
+    if (Test-Path $LocalSource) {
+        # Local install: copy from repo
+        Copy-Item -Path $LocalSource -Destination $target -Force
+    } else {
+        # One-liner install: download from GitHub
+        try {
+            Invoke-WebRequest -Uri $RemoteUrl -OutFile $target -UseBasicParsing -ErrorAction Stop
+        } catch {
+            Write-Host "  Warning: Could not download $Name" -ForegroundColor Yellow
+        }
     }
 }
 
-$winNotifySource = Join-Path $ScriptDir "scripts\win-notify.ps1"
-$winNotifyTarget = Join-Path $scriptsDir "win-notify.ps1"
+# Windows audio backend (MediaPlayer-based MP3/WAV player).
+Install-HelperScript -Name 'win-play.ps1' `
+    -LocalSource (Join-Path $ScriptDir "scripts\win-play.ps1") `
+    -RemoteUrl   "$RepoBase/scripts/win-play.ps1" `
+    -DestDir     $scriptsDir
 
-if (Test-Path $winNotifySource) {
-    # Local install: copy from repo
-    Copy-Item -Path $winNotifySource -Destination $winNotifyTarget -Force
-} else {
-    # One-liner install: download from GitHub
-    try {
-        Invoke-WebRequest -Uri "$RepoBase/scripts/win-notify.ps1" -OutFile $winNotifyTarget -UseBasicParsing -ErrorAction Stop
-    } catch {
-        Write-Host "  Warning: Could not download win-notify.ps1" -ForegroundColor Yellow
-    }
-}
+# Windows toast-notification backend.
+Install-HelperScript -Name 'win-notify.ps1' `
+    -LocalSource (Join-Path $ScriptDir "scripts\win-notify.ps1") `
+    -RemoteUrl   "$RepoBase/scripts/win-notify.ps1" `
+    -DestDir     $scriptsDir
 
-# Install native TTS backend (SAPI5 via System.Speech.Synthesis).
+# Native TTS backend (SAPI5 via System.Speech.Synthesis).
 # Invoked by Invoke-TtsSpeak when Resolve-TtsBackend returns "tts-native.ps1".
-$ttsNativeSource = Join-Path $ScriptDir "scripts\tts-native.ps1"
-$ttsNativeTarget = Join-Path $scriptsDir "tts-native.ps1"
-
-if (Test-Path $ttsNativeSource) {
-    # Local install: copy from repo
-    Copy-Item -Path $ttsNativeSource -Destination $ttsNativeTarget -Force
-} else {
-    # One-liner install: download from GitHub
-    try {
-        Invoke-WebRequest -Uri "$RepoBase/scripts/tts-native.ps1" -OutFile $ttsNativeTarget -UseBasicParsing -ErrorAction Stop
-    } catch {
-        Write-Host "  Warning: Could not download tts-native.ps1" -ForegroundColor Yellow
-    }
-}
+Install-HelperScript -Name 'tts-native.ps1' `
+    -LocalSource (Join-Path $ScriptDir "scripts\tts-native.ps1") `
+    -RemoteUrl   "$RepoBase/scripts/tts-native.ps1" `
+    -DestDir     $scriptsDir
 
 # Install hook-handle-use scripts (for /peon-ping-use command)
 $hookHandleUsePs1Source = Join-Path $ScriptDir "scripts\hook-handle-use.ps1"
