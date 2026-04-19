@@ -311,6 +311,23 @@ if (Test-Path $winNotifySource) {
     }
 }
 
+# Install native TTS backend (SAPI5 via System.Speech.Synthesis).
+# Invoked by Invoke-TtsSpeak when Resolve-TtsBackend returns "tts-native.ps1".
+$ttsNativeSource = Join-Path $ScriptDir "scripts\tts-native.ps1"
+$ttsNativeTarget = Join-Path $scriptsDir "tts-native.ps1"
+
+if (Test-Path $ttsNativeSource) {
+    # Local install: copy from repo
+    Copy-Item -Path $ttsNativeSource -Destination $ttsNativeTarget -Force
+} else {
+    # One-liner install: download from GitHub
+    try {
+        Invoke-WebRequest -Uri "$RepoBase/scripts/tts-native.ps1" -OutFile $ttsNativeTarget -UseBasicParsing -ErrorAction Stop
+    } catch {
+        Write-Host "  Warning: Could not download tts-native.ps1" -ForegroundColor Yellow
+    }
+}
+
 # Install hook-handle-use scripts (for /peon-ping-use command)
 $hookHandleUsePs1Source = Join-Path $ScriptDir "scripts\hook-handle-use.ps1"
 $hookHandleUsePs1Target = Join-Path $scriptsDir "hook-handle-use.ps1"
