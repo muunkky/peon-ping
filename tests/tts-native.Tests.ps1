@@ -462,10 +462,12 @@ Describe "tts-native.ps1 voice case insensitivity" {
         $r = Invoke-TtsNativeDryRun -InputText "test" -Voice $upper
         $r.ExitCode | Should -Be 0
         $r.Trace.SelectVoiceCalled | Should -BeTrue
-        # The resolved voice is whatever the script passed to SelectVoice.
-        # We allow either the caller-provided uppercase form OR the canonical
-        # installed form -- both are acceptable as long as selection happened.
-        $r.Trace.SelectedVoice | Should -Not -BeNullOrEmpty
+        # Tightened assertion (w3ciyq planner cycle 1 follow-up): require the
+        # resolved voice to be the canonical (properly-cased) installed name,
+        # not merely non-empty. This codifies the case-insensitive match
+        # contract -- the script must resolve an uppercase argument back to
+        # the installed canonical form, not fall back to a default voice.
+        $r.Trace.SelectedVoice | Should -Be $first
     }
 }
 
