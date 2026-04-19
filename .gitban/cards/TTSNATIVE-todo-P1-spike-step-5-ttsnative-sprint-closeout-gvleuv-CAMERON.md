@@ -9,7 +9,8 @@ This is a CLI-tool project with a solo maintainer. Inapplicable template rows (o
 
 * [ ] step 2 (`as44cd`) merged — `scripts/tts-native.sh` on main, BATS green on macOS CI.
 * [ ] step 3 (`dpyzoo`) merged — `scripts/tts-native.ps1` on main, Pester green on Windows CI.
-* [ ] step 4 (`w3ciyq`) resolved — every appended item either checked or promoted to a standalone card; no unresolved items remain.
+* [ ] step 4a (`w3ciyq`) resolved — every appended item either checked or promoted to a standalone card; no unresolved items remain.
+* [ ] step 4b (`j7yapo`) resolved — agent profiling hygiene (`agent_log_command`) documentation merged across executor/reviewer/router/planner SKILL.md; smoke-checked a cycle produces `total_commands >= 1` in its JSONL summary.
 
 ## Audit Checklist
 
@@ -101,7 +102,8 @@ Populate at closeout. Keep brief — this is a solo sprint; the retro exists so 
 * [ ] Performance regression verified on macOS, Linux, and Windows (`[exit] duration_ms` within ±50ms of baseline).
 * [ ] Audible-speech smoke check passed on at least one host per supported platform.
 * [ ] `tests/tts.bats`, `tests/tts-native.bats`, `tests/tts-native.Tests.ps1`, and `tests/adapters-windows.Tests.ps1` all green on CI post-merge.
-* [ ] Follow-up tracker (`w3ciyq`) has no unresolved items — every appended item is either checked or promoted to a standalone card.
+* [ ] Follow-up tracker (`w3ciyq`, step 4a) has no unresolved items — every appended item is either checked or promoted to a standalone card.
+* [ ] Agent profiling hygiene card (`j7yapo`, step 4b) is done — SKILL.md updates merged; JSONL summary smoke-check showed `total_commands >= 1`.
 * [ ] Any TTSNATIVE card still in `todo`, `in_progress`, or `blocked` at closeout time is explicitly triaged — moved to backlog (`move_to_backlog`), promoted to a next-sprint card, or resolved — before `archive_cards` runs.
 
 ## Completion Checklist

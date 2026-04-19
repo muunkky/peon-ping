@@ -88,3 +88,19 @@ Per the card body ("Closeout lives on step 5 (`gvleuv`); do not duplicate it her
   - Work-log byte-size drift for `docs/designs/tts-native.md` (claimed 39,066; on-disk 38,534). Cosmetic.
   - Executor profiling log contains two `init` rows in the same cycle (harmless); the L1 follow-up covers the `agent_log_command` gap.
 - Gate 1 (completion claim) and Gate 2 (implementation quality) both PASS. Planning-only card; deliverable is gitban state, not runtime code.
+
+
+## Planner Addendum — Review Cycle 1
+
+A new parallel card was added by the planner on 2026-04-18 during review cycle 1: `j7yapo` — step-4b agent profiling hygiene. It sits alongside `w3ciyq` (step-4a follow-up tracker). Step 5 (`gvleuv`) now gates on both 4a and 4b being resolved. Source: `.gitban/agents/planner/inbox/TTSNATIVE-h027ru-planner-1.md`.
+
+Updated sprint step ordering:
+
+| Step | Card | Type | Notes |
+| :--- | :--- | :--- | :--- |
+| 1 | `h027ru` (this card) | feature | Planning (done) |
+| 2 | `as44cd` — Unix `tts-native.sh` + BATS | feature | |
+| 3 | `dpyzoo` — Windows `tts-native.ps1` + Pester | feature | |
+| 4a | `w3ciyq` — TTSNATIVE follow-up tracker | chore | Aggregation card |
+| 4b | `j7yapo` — Agent profiling hygiene (agent_log_command) | documentation | Parallel with 4a; general agent-tooling concern, not TTS-specific |
+| 5 | `gvleuv` — TTSNATIVE sprint closeout | spike | Gates on 4a and 4b |
