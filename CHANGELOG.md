@@ -8,7 +8,7 @@
 ### Changed
 - **awk hardening in `scripts/tts-native.sh`** — rate, volume, and model-path derivations use `awk -v` variable binding instead of string interpolation so hostile config values cannot inject `awk` code into the engine-argument pipeline.
 
-
+## v2.20.0 (2026-04-14)
 
 ### Added
 - **Rich native macOS notifications** — `terminal-notifier` and osascript fallback now include a subtitle (CESP category) and group notifications by session so they replace each other in Notification Center instead of piling up. Uses `PEON_SESSION_ID` as the group key. PR #466.

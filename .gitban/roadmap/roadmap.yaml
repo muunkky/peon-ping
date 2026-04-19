@@ -544,11 +544,12 @@ versions:
             description: 'First working backend. macOS: say command. Windows: System.Speech.Synthesis
               via Start-Process. Linux: espeak-ng > piper priority chain. Async via
               background process.'
-            status: in_progress
+            status: done
             priority: high
             depends_on:
               - tts-integration
             docs_ref: docs/designs/tts-native.md
+            completion_date: '2026-04-19'
           tts-cli:
             id: tts-cli
             title: TTS CLI commands and configuration

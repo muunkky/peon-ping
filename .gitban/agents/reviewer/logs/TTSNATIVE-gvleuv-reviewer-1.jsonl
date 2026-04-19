@@ -1,0 +1,20 @@
+{"timestamp":"2026-04-19T22:02:46Z","operation":"init","role":"reviewer","sprint":"TTSNATIVE","card_id":"gvleuv","cycle":1}
+{"timestamp":"2026-04-19T22:02:50Z","operation":"hook_cmd","command":"export AGENT_LOG_DIR=\".gitban/agents/reviewer/logs\"\nexport AGENT_ROLE=\"reviewer\"\nexport AGENT_SPRINT_TAG=\"TTSNATIVE\"\nexport AGENT_CARD_ID=\"gvleuv\"\nexport AGENT_CYCLE=\"1\"\nsource .gitban/hooks/agent-log.sh\nagent_log_init\necho \"Log initialized\""}
+{"timestamp":"2026-04-19T22:03:29Z","operation":"hook_cmd","command":"agent_log_event \"read-card\" '{\"card_id\":\"gvleuv\"}' 2>/dev/null\ngit show --stat 3cbcbe5 2>&1 | head -50"}
+{"timestamp":"2026-04-19T22:03:45Z","operation":"hook_cmd","command":"git log --oneline -20"}
+{"timestamp":"2026-04-19T22:04:14Z","operation":"hook_cmd","command":"git show 40d925a --stat 2>&1 | head -30\necho \"---\"\ngit show e63bc41 --stat 2>&1 | head -30"}
+{"timestamp":"2026-04-19T22:04:23Z","operation":"hook_cmd","command":"git show e63bc41 2>&1"}
+{"timestamp":"2026-04-19T22:04:41Z","operation":"hook_cmd","command":"git show 40d925a 2>&1"}
+{"timestamp":"2026-04-19T22:05:04Z","operation":"hook_cmd","command":"git show 3cbcbe5 2>&1"}
+{"timestamp":"2026-04-19T22:05:53Z","operation":"hook_cmd","command":"git show e63bc41:CHANGELOG.md 2>&1 | head -30"}
+{"timestamp":"2026-04-19T22:06:26Z","operation":"hook_cmd","command":"git show e63bc41^:CHANGELOG.md 2>&1 | head -25"}
+{"timestamp":"2026-04-19T22:07:57Z","operation":"hook_cmd","command":"git status --short 2>&1 | head -30"}
+{"timestamp":"2026-04-19T22:08:31Z","operation":"hook_cmd","command":"git diff -- .gitban/cards/TTSNATIVE-in_progress-P1-spike-step-5-ttsnative-sprint-closeout-gvleuv-CAMERON.md 2>&1 | head -80"}
+{"timestamp":"2026-04-19T22:09:02Z","operation":"hook_cmd","command":"git diff -- .gitban/roadmap/roadmap.yaml 2>&1 | head -40"}
+{"timestamp":"2026-04-19T22:09:32Z","operation":"hook_cmd","command":"git diff -- .gitban/views/roadmap.html 2>&1 | head -30\necho \"---\"\ngit diff -- .gitban/.viewer-port 2>&1 | head -10"}
+{"timestamp":"2026-04-19T22:10:33Z","operation":"hook_cmd","command":"git log --all --oneline --diff-filter=M -- .gitban/roadmap/roadmap.yaml 2>&1 | head -10\necho \"---\"\ngit log --all --oneline -- .gitban/roadmap/roadmap.yaml 2>&1 | head -10"}
+{"timestamp":"2026-04-19T22:11:01Z","operation":"hook_cmd","command":"git log --oneline -- .gitban/cards/TTSNATIVE-in_progress-P1-spike-step-5-ttsnative-sprint-closeout-gvleuv-CAMERON.md 2>&1 | head -10"}
+{"timestamp":"2026-04-19T22:11:54Z","operation":"hook_cmd","command":"git log --oneline a01941b..HEAD 2>&1"}
+{"timestamp":"2026-04-19T22:12:18Z","operation":"hook_cmd","command":"ls .gitban/agents/reviewer/inbox/ 2>&1 | head -10"}
+{"timestamp":"2026-04-19T22:12:51Z","operation":"hook_cmd","command":"agent_log_event \"read-diff\" '{\"commit\":\"3cbcbe5\"}' 2>/dev/null\nagent_log_event \"read-diff\" '{\"commit\":\"40d925a\"}' 2>/dev/null\nagent_log_event \"read-diff\" '{\"commit\":\"e63bc41\"}' 2>/dev/null\necho \"done\""}
+{"timestamp":"2026-04-19T22:15:21Z","operation":"hook_cmd","command":"agent_log_event \"write-review\" '{\"verdict\":\"REJECTION\"}' 2>/dev/null\nagent_log_event \"card-status-change\" '{\"new_status\":\"blocked\"}' 2>/dev/null\nagent_log_summary 2>&1 | tail -5\ngit add .gitban/agents/reviewer/logs/ 2>&1\necho \"done\""}
