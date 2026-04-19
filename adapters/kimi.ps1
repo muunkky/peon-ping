@@ -167,6 +167,7 @@ function Emit-Event {
         cwd               = $Cwd
         session_id        = $SessionId
         permission_mode   = ""
+        source            = "kimi"
     } | ConvertTo-Json -Compress
     $payload | powershell -NoProfile -NonInteractive -File $PeonScript 2>$null
 }

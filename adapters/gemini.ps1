@@ -80,6 +80,7 @@ $payload = @{
     cwd               = $cwd
     session_id        = $sessionId
     permission_mode   = ""
+    source            = "gemini"
 }
 
 if ($mapped -eq "PostToolUseFailure") {

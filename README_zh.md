@@ -256,6 +256,12 @@ peon packs bind <name>    # 将语音包绑定到当前目录
 peon packs bind --pattern <path> # 将语音包绑定到目录模式，例如 "*/services"
 peon packs unbind         # 移除当前目录的绑定
 peon packs bindings       # 列出所有已分配的绑定
+peon packs ide-bind <ide> <name> # 将语音包绑定到 IDE 标识，例如 codex
+peon packs ide-unbind <ide> # 移除 IDE 绑定
+peon packs ide-bindings   # 列出所有 IDE 绑定
+peon packs exclude add <path> # 为 glob 或目录跳过 path_rules
+peon packs exclude remove <path> # 移除排除路径
+peon packs exclude list   # 列出排除路径
 peon notifications on     # 启用桌面通知
 peon notifications off    # 禁用桌面通知
 peon notifications overlay   # 使用大型覆盖横幅（默认）
@@ -351,7 +357,9 @@ peon-ping 有三个独立的控制开关，可以混合使用：
 - **suppress_subagent_complete**（布尔值，默认：`false`）：当子 Agent 会话结束时，抑制 `task.complete` 声音和通知。当 Claude Code 的 Task 工具并行派发多个子 Agent 时，每个子 Agent 完成都会触发一次提示音——将此选项设为 `true`，则只播放父会话的完成提示音。
 - **default_pack**：当没有更具体的规则时使用的备选语音包（默认：`"peon"`）。取代旧的 `active_pack` 键——现有配置在 `peon update` 时自动迁移。
 - **path_rules**：`{ "pattern": "...", "pack": "..." }` 对象数组。根据工作目录使用通配符匹配（`*`、`?`）为会话分配语音包。第一个匹配规则生效，优先级高于 `pack_rotation` 和 `default_pack`，但低于 `session_override` 分配。
-- **pack_rotation**：语音包名称数组（例如 `["peon", "sc_kerrigan", "peasant"]`）。用于 `pack_rotation_mode` 为 `random` 或 `round-robin` 时。留空 `[]` 则仅使用 `default_pack`（或 `path_rules`）。
+- **exclude_dirs**：glob 或目录模式数组。如果当前工作目录匹配其中一项，则跳过 `path_rules`，继续落到 `ide_rules`、轮换或 `default_pack`。纯目录路径也会匹配其所有子目录，所以 `"~/conductor/workspaces"` 会排除整棵目录树。
+- **ide_rules**：`{ "ide": "...", "pack": "..." }` 对象数组。在 `path_rules` 之后、轮换与默认包之前按 IDE/source 指定语音包。第一个匹配规则生效。常见 id：`claude`、`codex`、`cursor`、`opencode`、`kilo`、`kiro`、`gemini`、`copilot`、`windsurf`、`kimi`、`antigravity`、`amp`、`deepagents`、`openclaw`、`rovodev`。
+- **pack_rotation**：语音包名称数组（例如 `["peon", "sc_kerrigan", "peasant"]`）。用于 `pack_rotation_mode` 为 `random` 或 `round-robin` 时。留空 `[]` 则仅使用 `default_pack`（或 `path_rules` / `ide_rules`）。
 - **pack_rotation_mode**：`"random"`（默认）、`"round-robin"` 或 `"session_override"`。使用 `random`/`round-robin` 时，每个会话从 `pack_rotation` 中选择一个语音包。使用 `session_override` 时，`/peon-ping-use <pack>` 命令为每个会话分配语音包。无效或缺失的语音包会按层级回退。（`"agentskill"` 作为 `"session_override"` 的旧别名仍被接受。）
 - **session_ttl_days**（数字，默认：7）：使超过 N 天的陈旧每会话语音包分配过期。防止使用 `session_override` 模式时 `.state.json` 无限增长。
 - **headphones_only**（布尔值，默认：`false`）：仅在检测到耳机或外部音频设备时播放声音。启用后，如果内置扬声器是活动输出，声音将被静音 — 适用于开放式办公室。使用 `peon status` 查看状态。支持 macOS（通过 `system_profiler`）和 Linux（通过 PipeWire `wpctl` 或 PulseAudio `pactl`）。
@@ -368,17 +376,19 @@ peon-ping 有三个独立的控制开关，可以混合使用：
 
 ### 语音包选择层级
 
-peon-ping 通过 5 层层级结构确定使用哪个语音包。第一个产生有效已安装语音包的层级生效：
+peon-ping 通过 6 层层级结构确定使用哪个语音包。第一个产生有效已安装语音包的层级生效：
 
 | 优先级 | 层级 | 来源 | 设置方式 |
 |--------|------|------|----------|
 | 1（最高） | **session_override** | 每会话分配 | `/peon-ping-use <pack>` 技能或 MCP |
 | 2 | **path_rules** | 工作目录的通配符匹配 | `peon packs bind` 或配置中的 `path_rules` |
-| 3 | **pack_rotation** | 从列表中随机或轮换 | 配置中的 `pack_rotation` 数组 + `pack_rotation_mode` |
-| 4 | **default_pack** | 静态回退 | `peon packs use <name>` 或配置中的 `default_pack` |
-| 5（最低） | **硬编码** | 内置默认 | `"peon"` |
+| 3 | **ide_rules** | IDE/source 匹配 | `peon packs ide-bind` 或配置中的 `ide_rules` |
+| 4 | **pack_rotation** | 从列表中随机或轮换 | 配置中的 `pack_rotation` 数组 + `pack_rotation_mode` |
+| 5 | **default_pack** | 静态回退 | `peon packs use <name>` 或配置中的 `default_pack` |
+| 6（最低） | **硬编码** | 内置默认 | `"peon"` |
 
 如果某层级引用的语音包未安装，则回退到下一层级。
+如果 `exclude_dirs` 命中当前工作目录，则本次调用会跳过 `path_rules` 这一层。
 
 ### 按项目分配语音包（path_rules）
 
@@ -406,6 +416,36 @@ peon packs bindings                        # 列出所有绑定
 ```
 
 规则使用通配符匹配（`*`、`?`）。第一个匹配规则生效。路径规则优先级高于 `pack_rotation` 和 `default_pack`，但低于 `session_override` 分配。
+
+### 按 IDE 分配语音包（ide_rules）
+
+当某个路径本身很嘈杂、或者多个工具共用同一目录时，可以让语音包跟着 IDE/source 走。
+
+**CLI（推荐）：**
+
+```bash
+peon packs ide-bind codex glados        # 为 Codex 会话使用 glados
+peon packs ide-bind claude peon         # 为 Claude Code 使用 peon
+peon packs ide-unbind codex             # 移除一个 IDE 规则
+peon packs ide-bindings                 # 列出 IDE 规则和最近检测到的 IDE
+peon packs exclude add "~/conductor/workspaces"  # 跳过这棵目录树下的 path_rules
+peon packs exclude list                 # 显示排除路径
+```
+
+**手动配置：**
+
+```json
+"exclude_dirs": [
+  "~/conductor/workspaces",
+  "~/Library/Application Support/CodexBar*"
+],
+"ide_rules": [
+  { "ide": "codex",  "pack": "glados" },
+  { "ide": "claude", "pack": "peon" }
+]
+```
+
+`ide_rules` 在 `path_rules` 之后执行。如果你想让某些工作区或会话目录完全绕过路径匹配，就把它们放进 `exclude_dirs`。
 
 ## 常见用例
 

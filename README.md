@@ -259,6 +259,12 @@ peon packs bind <name>    # Bind a pack to the current directory
 peon packs bind --pattern <path> # Bind a pack to a directory pattern, e.g. "*/services"
 peon packs unbind         # Remove the current directory
 peon packs bindings       # List all assigned bindings
+peon packs ide-bind <ide> <name> # Bind a pack to an IDE id, e.g. codex
+peon packs ide-unbind <ide> # Remove an IDE binding
+peon packs ide-bindings   # List all IDE-based bindings
+peon packs exclude add <path> # Skip path_rules for a glob or directory
+peon packs exclude remove <path> # Remove an excluded path
+peon packs exclude list   # List excluded paths
 peon notifications on     # Enable desktop notifications
 peon notifications off    # Disable desktop notifications
 peon notifications overlay   # Use large overlay banners (default)
@@ -426,7 +432,21 @@ This means you can:
     { "pattern": "*/personal/*",      "pack": "peon" }
   ]
   ```
-- **pack_rotation**: Array of pack names (e.g. `["peon", "sc_kerrigan", "peasant"]`). Used when `pack_rotation_mode` is `random` or `round-robin`. Leave empty `[]` to use `default_pack` (or `path_rules`) only.
+- **exclude_dirs**: Array of glob or directory patterns. If the current working directory matches one of these entries, `path_rules` are skipped and peon-ping falls through to `ide_rules`, rotation, or `default_pack`. Bare directory paths also match descendants, so `"~/conductor/workspaces"` excludes everything under that tree.
+  ```json
+  "exclude_dirs": [
+    "~/conductor/workspaces",
+    "~/Library/Application Support/CodexBar*"
+  ]
+  ```
+- **ide_rules**: Array of `{ "ide": "...", "pack": "..." }` objects. Assigns a pack by IDE/source after `path_rules` and before rotation/default fallback. First matching rule wins. Common ids: `claude`, `codex`, `cursor`, `opencode`, `kilo`, `kiro`, `gemini`, `copilot`, `windsurf`, `kimi`, `antigravity`, `amp`, `deepagents`, `openclaw`, `rovodev`.
+  ```json
+  "ide_rules": [
+    { "ide": "codex",  "pack": "glados" },
+    { "ide": "claude", "pack": "peon" }
+  ]
+  ```
+- **pack_rotation**: Array of pack names (e.g. `["peon", "sc_kerrigan", "peasant"]`). Used when `pack_rotation_mode` is `random` or `round-robin`. Leave empty `[]` to use `default_pack` (or `path_rules` / `ide_rules`) only.
 - **pack_rotation_mode**: `"random"` (default), `"round-robin"`, or `"session_override"`. With `random`/`round-robin`, each session picks one pack from `pack_rotation`. With `session_override`, the `/peon-ping-use <pack>` command assigns a pack per session. Invalid or missing packs fall back through the hierarchy. (`"agentskill"` is accepted as a legacy alias for `"session_override"`.)
 - **session_ttl_days** (number, default: 7): Expire stale per-session pack assignments older than N days. Keeps `.state.json` from growing unbounded when using `session_override` mode.
 - **headphones_only** (boolean, default: `false`): Only play sounds when headphones or external audio devices are detected. When enabled, sounds are suppressed if built-in speakers are the active output — useful for open offices. Check status with `peon status`. Supported on macOS (via `system_profiler`) and Linux (via PipeWire `wpctl` or PulseAudio `pactl`).
@@ -444,17 +464,19 @@ This means you can:
 
 ### Pack Selection Hierarchy
 
-peon-ping resolves which sound pack to use through a 5-layer hierarchy. The first layer that produces a valid, installed pack wins:
+peon-ping resolves which sound pack to use through a 6-layer hierarchy. The first layer that produces a valid, installed pack wins:
 
 | Priority | Layer | Source | How to set |
 |----------|-------|--------|------------|
 | 1 (highest) | **session_override** | Per-session assignment | `/peon-ping-use <pack>` skill or MCP |
 | 2 | **path_rules** | Glob match on working directory | `peon packs bind` or `path_rules` in config |
-| 3 | **pack_rotation** | Random or round-robin from a list | `pack_rotation` array + `pack_rotation_mode` in config |
-| 4 | **default_pack** | Static fallback | `peon packs use <name>` or `default_pack` in config |
-| 5 (lowest) | **hardcoded** | Built-in default | `"peon"` |
+| 3 | **ide_rules** | IDE/source match | `peon packs ide-bind` or `ide_rules` in config |
+| 4 | **pack_rotation** | Random or round-robin from a list | `pack_rotation` array + `pack_rotation_mode` in config |
+| 5 | **default_pack** | Static fallback | `peon packs use <name>` or `default_pack` in config |
+| 6 (lowest) | **hardcoded** | Built-in default | `"peon"` |
 
 If a layer references a pack that is not installed, it falls through to the next layer.
+If `exclude_dirs` matches the current working directory, the `path_rules` layer is skipped for that invocation.
 
 ### Per-Project Pack Assignment (path_rules)
 
@@ -482,6 +504,36 @@ peon packs bindings                        # List all bindings
 ```
 
 Rules use glob matching (`*`, `?`). First matching rule wins. Path rules override `pack_rotation` and `default_pack` but are overridden by `session_override` assignments.
+
+### Per-IDE Pack Assignment (ide_rules)
+
+Use this layer when a path is noisy or shared across tools and you want a pack to follow the IDE instead.
+
+**CLI (recommended):**
+
+```bash
+peon packs ide-bind codex glados        # Use glados for Codex sessions
+peon packs ide-bind claude peon         # Use peon for Claude Code
+peon packs ide-unbind codex             # Remove one IDE rule
+peon packs ide-bindings                 # List IDE rules and recent detections
+peon packs exclude add "~/conductor/workspaces"  # Skip path_rules under this tree
+peon packs exclude list                 # Show excluded paths
+```
+
+**Manual config:**
+
+```json
+"exclude_dirs": [
+  "~/conductor/workspaces",
+  "~/Library/Application Support/CodexBar*"
+],
+"ide_rules": [
+  { "ide": "codex",  "pack": "glados" },
+  { "ide": "claude", "pack": "peon" }
+]
+```
+
+`ide_rules` run after `path_rules`. Use `exclude_dirs` when you want to bypass path matching for specific workspaces or session directories.
 
 ## Common Use Cases
 

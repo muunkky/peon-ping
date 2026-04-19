@@ -102,6 +102,7 @@ $payload = @{
     cwd               = $cwd
     session_id        = $sessionId
     permission_mode   = ""
+    source            = "copilot"
 }
 
 if ($mapped -eq "PostToolUseFailure") {

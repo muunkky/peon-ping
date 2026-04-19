@@ -983,7 +983,11 @@ src_path = os.environ.get('PEON_ENV_SYNC_SRC', '')
 dst_path = os.environ.get('PEON_ENV_SYNC_DST', '')
 
 # Keys shared between peon.sh and standalone adapters
-SHARED_KEYS = ('default_pack', 'active_pack', 'volume', 'enabled', 'desktop_notifications', 'pack_rotation', 'mobile_notify')
+SHARED_KEYS = (
+    'default_pack', 'active_pack', 'volume', 'enabled', 'desktop_notifications',
+    'pack_rotation', 'pack_rotation_mode', 'path_rules', 'exclude_dirs',
+    'ide_rules', 'mobile_notify'
+)
 
 try:
     src = json.load(open(src_path))
@@ -1177,37 +1181,105 @@ default_display = get_display_name(default_pack)
 rotation_list = c.get('pack_rotation', []) or []
 rotation_mode = c.get('pack_rotation_mode', 'random')
 rules = c.get('path_rules', []) or []
+exclude_dirs = c.get('exclude_dirs', []) or []
+ide_rules = c.get('ide_rules', []) or []
+
+IDE_ALIASES = {
+    'claude': 'claude',
+    'claude-code': 'claude',
+    'claude_code': 'claude',
+    'claudecode': 'claude',
+    'codex': 'codex',
+    'openai-codex': 'codex',
+    'openai_codex': 'codex',
+    'cursor': 'cursor',
+    'opencode': 'opencode',
+    'open-code': 'opencode',
+    'open_code': 'opencode',
+    'kilo': 'kilo',
+    'kiro': 'kiro',
+    'gemini': 'gemini',
+    'copilot': 'copilot',
+    'windsurf': 'windsurf',
+    'kimi': 'kimi',
+    'antigravity': 'antigravity',
+    'amp': 'amp',
+    'deepagents': 'deepagents',
+    'deep-agents': 'deepagents',
+    'deep_agents': 'deepagents',
+    'openclaw': 'openclaw',
+    'open-claw': 'openclaw',
+    'open_claw': 'openclaw',
+    'rovodev': 'rovodev',
+    'rovo': 'rovodev',
+}
+
+def normalize_ide_id(value):
+    raw = str(value or '').strip().lower()
+    if not raw:
+        return ''
+    key = raw.replace(' ', '-').replace('_', '-')
+    return IDE_ALIASES.get(key, key)
+
+def normalize_path_value(value):
+    raw = str(value or '').strip()
+    if not raw:
+        return ''
+    return os.path.normpath(os.path.expanduser(raw))
+
+def path_pattern_matches(path_value, pattern):
+    path_norm = normalize_path_value(path_value)
+    pat_raw = str(pattern or '').strip()
+    if not path_norm or not pat_raw:
+        return False
+    pat = os.path.expanduser(pat_raw)
+    pat_norm = os.path.normpath(pat) if (pat.startswith('~') or '/' in pat) else pat
+    if fnmatch.fnmatch(path_norm, pat_norm):
+        return True
+    if not any(ch in pat_norm for ch in '*?['):
+        return path_norm == pat_norm or path_norm.startswith(pat_norm + os.sep)
+    return False
+
+status_ide = normalize_ide_id(
+    os.environ.get('PEON_IDE', '') or
+    os.environ.get('PEON_SESSION_SOURCE', '') or
+    os.environ.get('PEON_SOURCE', '')
+) or 'claude'
 
 # Read-only approximation of the hook's resolver — intentionally skips
 # session_packs, round-robin index mutation, and subagent inheritance
 # (those are runtime state, not answerable from cwd alone).
 def resolve_active_pack():
     cwd = os.getcwd()
+    excluded_pattern = next((pat for pat in exclude_dirs if path_pattern_matches(cwd, pat)), None)
 
-    # 1. Rotation (if active): path rule still beats rotation in hook code.
-    if rotation_list and rotation_mode in ('random', 'round-robin', 'shuffle'):
+    # 1. Path rules (unless the cwd is explicitly excluded).
+    if not excluded_pattern:
         for r in rules:
             pat = r.get('pattern', '')
             pack = r.get('pack', '')
-            if cwd and pat and pack and fnmatch.fnmatch(cwd, pat):
-                return (pack, 'path rule: ' + pat + ' -> ' + pack, None, False)
-        # Rotation reason is redundant with the rotation list line shown below.
-        return (rotation_mode + ' rotation', None, None, True)
+            if cwd and pat and pack and path_pattern_matches(cwd, pat):
+                return (pack, 'path rule: ' + pat + ' -> ' + pack, None, False, excluded_pattern)
 
-    # 2. Path rules (also applies to session_override mode's fallback)
+    # 2. IDE rules.
+    for r in ide_rules:
+        ide = normalize_ide_id(r.get('ide', ''))
+        pack = r.get('pack', '')
+        if status_ide and ide and pack and status_ide == ide:
+            return (pack, 'IDE rule: ' + ide + ' -> ' + pack, None, False, excluded_pattern)
+
+    # 3. Rotation (if active).
+    if rotation_list and rotation_mode in ('random', 'round-robin', 'shuffle'):
+        # Rotation reason is redundant with the rotation list line shown below.
+        return (rotation_mode + ' rotation', None, None, True, excluded_pattern)
+
+    # 4. Default (session_override note only).
     session_note = None
     if rotation_mode in ('session_override', 'agentskill'):
         session_note = 'session-override mode: per-session pack set via /peon-ping-use'
-    for r in rules:
-        pat = r.get('pattern', '')
-        pack = r.get('pack', '')
-        if cwd and pat and pack and fnmatch.fnmatch(cwd, pat):
-            return (pack, 'path rule: ' + pat + ' -> ' + pack, session_note, False)
+    return (default_pack, None, session_note, False, excluded_pattern)
 
-    # 3. Default — no reason needed (it's literally the default).
-    return (default_pack, None, session_note, False)
-
-resolved_pack, reason, session_note, is_rotation = resolve_active_pack()
+resolved_pack, reason, session_note, is_rotation, excluded_pattern = resolve_active_pack()
 resolved_display = default_display if resolved_pack == default_pack else get_display_name(resolved_pack)
 differs_from_default = resolved_pack != default_pack
 
@@ -1265,7 +1337,12 @@ if rotation_list:
     pp('rotation list: ' + ', '.join(rotation_list))
 else:
     pp('rotation list: none')
+pp('IDE source (status): ' + status_ide)
 pp('path rules: ' + str(len(rules)) + ' configured')
+if excluded_pattern:
+    pp('  path rules skipped here: cwd matched exclude_dirs -> ' + excluded_pattern)
+pp('excluded paths: ' + str(len(exclude_dirs)) + ' configured')
+pp('IDE rules: ' + str(len(ide_rules)) + ' configured')
 pp('installed: ' + str(pack_count) + ' pack(s)')
 
 section('categories (CESP events)')
@@ -2197,6 +2274,268 @@ else:
         print(f'  {pattern} -> {pack}{marker}')
 "
         exit 0 ;;
+      ide-bind)
+        IDE_ARG=""
+        PACK_ARG=""
+        IDE_INSTALL=0
+        for arg in "${@:3}"; do
+          case "$arg" in
+            --install) IDE_INSTALL=1 ;;
+            "") ;;
+            *)
+              if [ -z "$IDE_ARG" ]; then
+                IDE_ARG="$arg"
+              elif [ -z "$PACK_ARG" ]; then
+                PACK_ARG="$arg"
+              fi
+              ;;
+          esac
+        done
+        if [ -z "$IDE_ARG" ] || [ -z "$PACK_ARG" ]; then
+          echo "Usage: peon packs ide-bind <ide> <pack> [--install]" >&2; exit 1
+        fi
+
+        if [ "$IDE_INSTALL" -eq 1 ]; then
+          PACK_DL="$(resolve_pack_download)" || exit 1
+          bash "$PACK_DL" --dir="$PEON_DIR" --packs="$PACK_ARG" || exit 1
+        fi
+
+        IDE_ARG="$IDE_ARG" PACK_ARG="$PACK_ARG" python3 -c "
+import json, os, sys
+
+config_path = os.environ.get('PEON_ENV_CONFIG', '')
+ide_arg = os.environ.get('IDE_ARG', '')
+pack_arg = os.environ.get('PACK_ARG', '')
+packs_dir = os.path.join(os.environ.get('PEON_ENV_PEON_DIR', ''), 'packs')
+
+IDE_ALIASES = {
+    'claude': 'claude', 'claude-code': 'claude', 'claude_code': 'claude', 'claudecode': 'claude',
+    'codex': 'codex', 'openai-codex': 'codex', 'openai_codex': 'codex',
+    'cursor': 'cursor', 'opencode': 'opencode', 'open-code': 'opencode', 'open_code': 'opencode',
+    'kilo': 'kilo', 'kiro': 'kiro', 'gemini': 'gemini', 'copilot': 'copilot', 'windsurf': 'windsurf',
+    'kimi': 'kimi', 'antigravity': 'antigravity', 'amp': 'amp', 'deepagents': 'deepagents',
+    'deep-agents': 'deepagents', 'deep_agents': 'deepagents', 'openclaw': 'openclaw',
+    'open-claw': 'openclaw', 'open_claw': 'openclaw', 'rovodev': 'rovodev', 'rovo': 'rovodev',
+}
+KNOWN_IDES = ['claude', 'codex', 'cursor', 'opencode', 'kilo', 'kiro', 'gemini', 'copilot', 'windsurf',
+              'kimi', 'antigravity', 'amp', 'deepagents', 'openclaw', 'rovodev']
+
+def normalize_ide_id(value):
+    raw = str(value or '').strip().lower()
+    if not raw:
+        return ''
+    key = raw.replace(' ', '-').replace('_', '-')
+    return IDE_ALIASES.get(key, key)
+
+names = sorted([
+    d for d in os.listdir(packs_dir)
+    if os.path.isdir(os.path.join(packs_dir, d)) and (
+        os.path.exists(os.path.join(packs_dir, d, 'openpeon.json')) or
+        os.path.exists(os.path.join(packs_dir, d, 'manifest.json'))
+    )
+])
+if pack_arg not in names:
+    print(f'Error: pack \"{pack_arg}\" not found.', file=sys.stderr)
+    print(f'Available packs: {\", \".join(names)}', file=sys.stderr)
+    sys.exit(1)
+
+ide_id = normalize_ide_id(ide_arg)
+if not ide_id:
+    print('Error: IDE id must not be empty.', file=sys.stderr)
+    sys.exit(1)
+
+try:
+    cfg = json.load(open(config_path))
+except Exception:
+    cfg = {}
+
+rules = cfg.get('ide_rules', [])
+found = False
+for rule in rules:
+    if normalize_ide_id(rule.get('ide', '')) == ide_id:
+        rule['ide'] = ide_id
+        rule['pack'] = pack_arg
+        found = True
+        break
+if not found:
+    rules.append({'ide': ide_id, 'pack': pack_arg})
+
+cfg['ide_rules'] = rules
+json.dump(cfg, open(config_path, 'w'), indent=2)
+print(f'peon-ping: bound {pack_arg} to IDE {ide_id}')
+if ide_id not in KNOWN_IDES:
+    print('Known IDE ids: ' + ', '.join(KNOWN_IDES))
+" || exit 1
+        sync_adapter_configs; exit 0 ;;
+      ide-unbind)
+        IDE_ARG="${3:-}"
+        if [ -z "$IDE_ARG" ]; then
+          echo "Usage: peon packs ide-unbind <ide>" >&2; exit 1
+        fi
+        IDE_ARG="$IDE_ARG" python3 -c "
+import json, os
+
+config_path = os.environ.get('PEON_ENV_CONFIG', '')
+ide_arg = os.environ.get('IDE_ARG', '')
+
+IDE_ALIASES = {
+    'claude': 'claude', 'claude-code': 'claude', 'claude_code': 'claude', 'claudecode': 'claude',
+    'codex': 'codex', 'openai-codex': 'codex', 'openai_codex': 'codex',
+    'cursor': 'cursor', 'opencode': 'opencode', 'open-code': 'opencode', 'open_code': 'opencode',
+    'kilo': 'kilo', 'kiro': 'kiro', 'gemini': 'gemini', 'copilot': 'copilot', 'windsurf': 'windsurf',
+    'kimi': 'kimi', 'antigravity': 'antigravity', 'amp': 'amp', 'deepagents': 'deepagents',
+    'deep-agents': 'deepagents', 'deep_agents': 'deepagents', 'openclaw': 'openclaw',
+    'open-claw': 'openclaw', 'open_claw': 'openclaw', 'rovodev': 'rovodev', 'rovo': 'rovodev',
+}
+
+def normalize_ide_id(value):
+    raw = str(value or '').strip().lower()
+    if not raw:
+        return ''
+    key = raw.replace(' ', '-').replace('_', '-')
+    return IDE_ALIASES.get(key, key)
+
+ide_id = normalize_ide_id(ide_arg)
+try:
+    cfg = json.load(open(config_path))
+except Exception:
+    cfg = {}
+
+rules = cfg.get('ide_rules', [])
+new_rules = [r for r in rules if normalize_ide_id(r.get('ide', '')) != ide_id]
+if len(new_rules) == len(rules):
+    print(f'No IDE binding found for \"{ide_id}\".')
+else:
+    cfg['ide_rules'] = new_rules
+    json.dump(cfg, open(config_path, 'w'), indent=2)
+    print(f'peon-ping: unbound IDE {ide_id}')
+" || exit 1
+        sync_adapter_configs; exit 0 ;;
+      ide-bindings)
+        python3 -c "
+import json, os
+
+config_path = os.environ.get('PEON_ENV_CONFIG', '')
+state_path = os.path.join(os.environ.get('PEON_ENV_PEON_DIR', ''), '.state.json')
+current_ide = os.environ.get('PEON_IDE', '') or os.environ.get('PEON_SESSION_SOURCE', '') or os.environ.get('PEON_SOURCE', '') or 'claude'
+
+IDE_ALIASES = {
+    'claude': 'claude', 'claude-code': 'claude', 'claude_code': 'claude', 'claudecode': 'claude',
+    'codex': 'codex', 'openai-codex': 'codex', 'openai_codex': 'codex',
+    'cursor': 'cursor', 'opencode': 'opencode', 'open-code': 'opencode', 'open_code': 'opencode',
+    'kilo': 'kilo', 'kiro': 'kiro', 'gemini': 'gemini', 'copilot': 'copilot', 'windsurf': 'windsurf',
+    'kimi': 'kimi', 'antigravity': 'antigravity', 'amp': 'amp', 'deepagents': 'deepagents',
+    'deep-agents': 'deepagents', 'deep_agents': 'deepagents', 'openclaw': 'openclaw',
+    'open-claw': 'openclaw', 'open_claw': 'openclaw', 'rovodev': 'rovodev', 'rovo': 'rovodev',
+}
+KNOWN_IDES = ['claude', 'codex', 'cursor', 'opencode', 'kilo', 'kiro', 'gemini', 'copilot', 'windsurf',
+              'kimi', 'antigravity', 'amp', 'deepagents', 'openclaw', 'rovodev']
+
+def normalize_ide_id(value):
+    raw = str(value or '').strip().lower()
+    if not raw:
+        return ''
+    key = raw.replace(' ', '-').replace('_', '-')
+    return IDE_ALIASES.get(key, key)
+
+current_ide = normalize_ide_id(current_ide) or 'claude'
+try:
+    cfg = json.load(open(config_path))
+except Exception:
+    cfg = {}
+try:
+    state = json.load(open(state_path))
+except Exception:
+    state = {}
+
+rules = cfg.get('ide_rules', [])
+if not rules:
+    print('No IDE bindings configured.')
+else:
+    for rule in rules:
+        ide = normalize_ide_id(rule.get('ide', ''))
+        pack = rule.get('pack', '')
+        marker = ' *' if ide and ide == current_ide else ''
+        print(f'  {ide} -> {pack}{marker}')
+
+recent = state.get('recent_ide_sources', {})
+if isinstance(recent, dict) and recent:
+    ordered = [name for name, _ in sorted(recent.items(), key=lambda item: item[1], reverse=True)]
+    print('Recent IDEs: ' + ', '.join(ordered[:5]))
+print('Supported IDE ids: ' + ', '.join(KNOWN_IDES))
+"
+        exit 0 ;;
+      exclude)
+        EXCLUDE_ACTION="${3:-list}"
+        EXCLUDE_PATTERN="${4:-}"
+        EXCLUDE_ACTION="$EXCLUDE_ACTION" EXCLUDE_PATTERN="$EXCLUDE_PATTERN" python3 -c "
+import json, os, sys, fnmatch
+
+config_path = os.environ.get('PEON_ENV_CONFIG', '')
+action = os.environ.get('EXCLUDE_ACTION', 'list')
+pattern = os.environ.get('EXCLUDE_PATTERN', '')
+cwd = os.getcwd()
+
+def normalize_path_value(value):
+    raw = str(value or '').strip()
+    if not raw:
+        return ''
+    return os.path.normpath(os.path.expanduser(raw))
+
+def path_pattern_matches(path_value, pattern):
+    path_norm = normalize_path_value(path_value)
+    pat_raw = str(pattern or '').strip()
+    if not path_norm or not pat_raw:
+        return False
+    pat = os.path.expanduser(pat_raw)
+    pat_norm = os.path.normpath(pat) if (pat.startswith('~') or '/' in pat) else pat
+    if fnmatch.fnmatch(path_norm, pat_norm):
+        return True
+    if not any(ch in pat_norm for ch in '*?['):
+        return path_norm == pat_norm or path_norm.startswith(pat_norm + os.sep)
+    return False
+
+try:
+    cfg = json.load(open(config_path))
+except Exception:
+    cfg = {}
+
+exclude_dirs = cfg.get('exclude_dirs', [])
+
+if action == 'add':
+    if not pattern:
+        print('Usage: peon packs exclude add <glob-or-dir>', file=sys.stderr)
+        sys.exit(1)
+    if pattern in exclude_dirs:
+        print(f'peon-ping: exclude path already present: {pattern}')
+    else:
+        exclude_dirs.append(pattern)
+        cfg['exclude_dirs'] = exclude_dirs
+        json.dump(cfg, open(config_path, 'w'), indent=2)
+        print(f'peon-ping: excluded path rule matching for {pattern}')
+elif action == 'remove':
+    if not pattern:
+        print('Usage: peon packs exclude remove <glob-or-dir>', file=sys.stderr)
+        sys.exit(1)
+    new_dirs = [item for item in exclude_dirs if item != pattern]
+    if len(new_dirs) == len(exclude_dirs):
+        print(f'No excluded path found for \"{pattern}\".')
+    else:
+        cfg['exclude_dirs'] = new_dirs
+        json.dump(cfg, open(config_path, 'w'), indent=2)
+        print(f'peon-ping: removed excluded path {pattern}')
+elif action == 'list':
+    if not exclude_dirs:
+        print('No excluded paths configured.')
+    else:
+        for item in exclude_dirs:
+            marker = ' *' if path_pattern_matches(cwd, item) else ''
+            print(f'  {item}{marker}')
+else:
+    print('Usage: peon packs exclude <add|remove|list> [glob-or-dir]', file=sys.stderr)
+    sys.exit(1)
+" || exit 1
+        sync_adapter_configs; exit 0 ;;
       next)
         python3 -c "
 import json, os, glob
@@ -3080,6 +3419,14 @@ if 'debug_retention_days' not in cfg:
     cfg['debug_retention_days'] = 7
     changed = True
     migrations.append('debug_retention_days')
+if 'exclude_dirs' not in cfg:
+    cfg['exclude_dirs'] = []
+    changed = True
+    migrations.append('exclude_dirs')
+if 'ide_rules' not in cfg:
+    cfg['ide_rules'] = []
+    changed = True
+    migrations.append('ide_rules')
 if 'notification_all_screens' not in cfg:
     _theme = cfg.get('overlay_theme', '')
     # Default overlay always showed on all screens; themed overlays (glass/jarvis/sakura) only showed on the focused screen
@@ -3300,6 +3647,17 @@ Pack management:
   packs next              Cycle to the next pack
   packs remove <p1,p2>    Remove specific packs
   packs remove --all      Remove all packs except the active one
+  packs bind <name>       Bind a pack to the current directory
+  packs bind --pattern <g> Bind a pack to a path glob
+  packs unbind            Remove the current directory binding
+  packs unbind --pattern <g> Remove a specific path binding
+  packs bindings          List all path-based pack bindings
+  packs ide-bind <ide> <pack> [--install]  Bind a pack to an IDE id
+  packs ide-unbind <ide>  Remove an IDE binding
+  packs ide-bindings      List all IDE-based pack bindings
+  packs exclude add <g>   Skip path_rules when cwd matches a glob or directory
+  packs exclude remove <g> Remove an excluded path
+  packs exclude list      List excluded paths
   packs rotation list     Show current rotation list and mode
   packs rotation add <p>  Add pack(s) to rotation (comma-separated)
   packs rotation add --install <p>  Add to rotation, installing from registry if needed
@@ -3963,7 +4321,7 @@ export PEON_ENV_HOOK_TTY="$_PEON_HOOK_TTY"
 # Consolidates 5 separate python3 invocations into one for ~120-200ms faster hook response.
 # Outputs shell variables consumed by the bash play/notify/title logic below.
 _PEON_PYOUT=$(python3 -c "
-import sys, json, os, re, random, time, shlex, tempfile
+import sys, json, os, re, random, time, shlex, tempfile, fnmatch
 q = shlex.quote
 _peon_start = time.monotonic()
 
@@ -4104,6 +4462,92 @@ session_id = event_data.get('session_id', '') or event_data.get('conversation_id
 perm_mode = event_data.get('permission_mode', '')
 session_source = event_data.get('source', '')
 
+IDE_ALIASES = {
+    'claude': 'claude',
+    'claude-code': 'claude',
+    'claude_code': 'claude',
+    'claudecode': 'claude',
+    'codex': 'codex',
+    'openai-codex': 'codex',
+    'openai_codex': 'codex',
+    'cursor': 'cursor',
+    'opencode': 'opencode',
+    'open-code': 'opencode',
+    'open_code': 'opencode',
+    'kilo': 'kilo',
+    'kiro': 'kiro',
+    'gemini': 'gemini',
+    'copilot': 'copilot',
+    'windsurf': 'windsurf',
+    'kimi': 'kimi',
+    'antigravity': 'antigravity',
+    'amp': 'amp',
+    'deepagents': 'deepagents',
+    'deep-agents': 'deepagents',
+    'deep_agents': 'deepagents',
+    'openclaw': 'openclaw',
+    'open-claw': 'openclaw',
+    'open_claw': 'openclaw',
+    'rovodev': 'rovodev',
+    'rovo': 'rovodev',
+}
+
+def normalize_ide_id(value):
+    raw = str(value or '').strip().lower()
+    if not raw:
+        return ''
+    key = raw.replace(' ', '-').replace('_', '-')
+    return IDE_ALIASES.get(key, key)
+
+def detect_session_ide(source_value, event_payload, session_value):
+    source_key = normalize_ide_id(source_value)
+    if source_key and source_key not in ('resume', 'compact'):
+        return source_key
+    if event_payload.get('workspace_roots'):
+        return 'cursor'
+    sid = str(session_value or '').lower()
+    prefix_map = (
+        ('codex-', 'codex'),
+        ('cursor-', 'cursor'),
+        ('oc-', 'opencode'),
+        ('kilo-', 'kilo'),
+        ('kiro-', 'kiro'),
+        ('gemini-', 'gemini'),
+        ('copilot-', 'copilot'),
+        ('windsurf-', 'windsurf'),
+        ('kimi-', 'kimi'),
+        ('antigravity-', 'antigravity'),
+        ('amp-', 'amp'),
+        ('deepagents-', 'deepagents'),
+        ('openclaw-', 'openclaw'),
+        ('rovodev-', 'rovodev'),
+    )
+    for prefix, ide in prefix_map:
+        if sid.startswith(prefix):
+            return ide
+    return 'claude'
+
+def normalize_path_value(value):
+    raw = str(value or '').strip()
+    if not raw:
+        return ''
+    return os.path.normpath(os.path.expanduser(raw))
+
+def path_pattern_matches(path_value, pattern):
+    path_norm = normalize_path_value(path_value)
+    pat_raw = str(pattern or '').strip()
+    if not path_norm or not pat_raw:
+        return False
+    pat = os.path.expanduser(pat_raw)
+    pat_norm = os.path.normpath(pat) if (pat.startswith('~') or '/' in pat) else pat
+    if fnmatch.fnmatch(path_norm, pat_norm):
+        return True
+    if not any(ch in pat_norm for ch in '*?['):
+        return path_norm == pat_norm or path_norm.startswith(pat_norm + os.sep)
+    return False
+
+session_ide = detect_session_ide(session_source, event_data, session_id)
+
 log('hook', event=event, session=session_id, cwd=cwd, paused=paused)
 
 # --- Load state ---
@@ -4152,19 +4596,42 @@ if session_packs != state.get('session_packs', {}):
     state['session_packs'] = session_packs
     state_dirty = True
 
+recent_ide_sources = state.get('recent_ide_sources', {})
+if not isinstance(recent_ide_sources, dict):
+    recent_ide_sources = {}
+recent_ide_sources[session_ide] = now
+recent_cutoff = now - 30 * 86400
+recent_ide_sources = dict(
+    (ide, ts) for ide, ts in recent_ide_sources.items()
+    if isinstance(ts, (int, float)) and ts > recent_cutoff
+)
+if recent_ide_sources != state.get('recent_ide_sources', {}):
+    state['recent_ide_sources'] = recent_ide_sources
+    state_dirty = True
+
 # --- Pack rotation: pin a pack per session ---
 rotation_mode = cfg.get('pack_rotation_mode', 'random')
 
-# --- Path rules: first glob match wins (layer 3 in override hierarchy) ---
-# Beats rotation and default_pack; loses to session_override and local config.
-import fnmatch
+# --- Path rules and IDE rules: first match wins in each layer ---
+# session_override > path_rules (unless excluded) > ide_rules > rotation > default_pack
 _path_rule_pack = None
-for _rule in cfg.get('path_rules', []):
-    _pat = _rule.get('pattern', '')
+_path_rule_excluded = next((pat for pat in cfg.get('exclude_dirs', []) if path_pattern_matches(cwd, pat)), None)
+if not _path_rule_excluded:
+    for _rule in cfg.get('path_rules', []):
+        _pat = _rule.get('pattern', '')
+        _candidate = _rule.get('pack', '')
+        if cwd and _pat and _candidate and path_pattern_matches(cwd, _pat):
+            if os.path.isdir(os.path.join(peon_dir, 'packs', _candidate)):
+                _path_rule_pack = _candidate
+                break
+
+_ide_rule_pack = None
+for _rule in cfg.get('ide_rules', []):
+    _ide = normalize_ide_id(_rule.get('ide', ''))
     _candidate = _rule.get('pack', '')
-    if cwd and _pat and _candidate and fnmatch.fnmatch(cwd, _pat):
+    if session_ide and _ide and _candidate and session_ide == _ide:
         if os.path.isdir(os.path.join(peon_dir, 'packs', _candidate)):
-            _path_rule_pack = _candidate
+            _ide_rule_pack = _candidate
             break
 
 _default_pack = cfg.get('default_pack', cfg.get('active_pack', 'peon'))
@@ -4189,7 +4656,7 @@ if rotation_mode in ('session_override', 'agentskill'):
             state_dirty = True
         else:
             # Pack was deleted or invalid, fall through hierarchy
-            active_pack = _path_rule_pack or _default_pack
+            active_pack = _path_rule_pack or _ide_rule_pack or _default_pack
             # Clean up invalid entry
             del session_packs[session_id]
             state['session_packs'] = session_packs
@@ -4203,14 +4670,17 @@ if rotation_mode in ('session_override', 'agentskill'):
             if candidate and os.path.isdir(candidate_dir):
                 active_pack = candidate
             else:
-                active_pack = _path_rule_pack or _default_pack
+                active_pack = _path_rule_pack or _ide_rule_pack or _default_pack
         else:
-            active_pack = _path_rule_pack or _default_pack
+            active_pack = _path_rule_pack or _ide_rule_pack or _default_pack
+elif _path_rule_pack:
+    # Path rule beats IDE rules, rotation, and default.
+    active_pack = _path_rule_pack
+elif _ide_rule_pack:
+    # IDE rule beats rotation and default when no path rule matched.
+    active_pack = _ide_rule_pack
 elif pack_rotation and rotation_mode in ('random', 'round-robin', 'shuffle'):
-    if _path_rule_pack:
-        # Path rule beats rotation
-        active_pack = _path_rule_pack
-    elif rotation_mode == 'shuffle':
+    if rotation_mode == 'shuffle':
         # Shuffle: pick a random pack for every sound event, no session caching
         active_pack = random.choice(pack_rotation)
     else:
@@ -4264,8 +4734,8 @@ elif pack_rotation and rotation_mode in ('random', 'round-robin', 'shuffle'):
             state['session_packs'] = session_packs
             state_dirty = True
 else:
-    # Default: path_rule if matched, otherwise default_pack
-    active_pack = _path_rule_pack or _default_pack
+    # Default: path/IDE rule if matched, otherwise default_pack
+    active_pack = _path_rule_pack or _ide_rule_pack or _default_pack
 
 # --- Track last active session for context-reset detection ---
 state['last_active'] = dict(session_id=session_id, pack=active_pack,
@@ -4347,7 +4817,7 @@ if not project:
     # Codex adapter can emit empty/root cwd when launched outside a workspace.
     # Keep labels agent-specific instead of falling back to "claude".
     _bundle = os.environ.get('__CFBundleIdentifier', '')
-    if str(session_source).lower() == 'codex' or str(session_id).startswith('codex-') or _bundle == 'com.openai.codex':
+    if session_ide == 'codex' or str(session_id).startswith('codex-') or _bundle == 'com.openai.codex':
         project = 'codex'
     else:
         project = 'claude'

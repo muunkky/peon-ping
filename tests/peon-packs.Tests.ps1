@@ -54,7 +54,7 @@ Describe "Get-ActivePack fallback chain" {
 # session_override + path_rules interaction (static analysis)
 # ============================================================
 
-Describe "session_override + path_rules interaction" {
+Describe "session_override + path_rules + ide_rules interaction" {
     BeforeAll {
         # Grab the pack selection block from the embedded hook (lines between
         # "# --- Pick a sound ---" and "$packDir =")
@@ -66,35 +66,42 @@ Describe "session_override + path_rules interaction" {
         $script:PackSelectionBlock = $pickMatch.Value
     }
 
-    It "session_override mode falls through to pathRulePack when no session assignment exists" {
-        # When rotationMode is session_override and session has no pack,
-        # the code should check $pathRulePack before $defaultPack
-        $script:PackSelectionBlock | Should -Match 'if \(\$pathRulePack\) \{ \$pathRulePack \} else \{ \$defaultPack \}'
+    It "session_override mode falls through to pathRulePack then ideRulePack then defaultPack" {
+        $script:PackSelectionBlock | Should -Match 'if \(\$pathRulePack\) \{ \$pathRulePack \} elseif \(\$ideRulePack\) \{ \$ideRulePack \} else \{ \$defaultPack \}'
     }
 
     It "path_rules evaluation runs before session_override check" {
-        # Path rules block appears before the session_override conditional
-        $pathRulesIdx = $script:PackSelectionBlock.IndexOf('# --- Path rules')
+        $pathRulesIdx = $script:PackSelectionBlock.IndexOf('# --- Path rules and IDE rules')
         $sessionIdx = $script:PackSelectionBlock.IndexOf('session_override')
         $pathRulesIdx | Should -BeLessThan $sessionIdx
         $pathRulesIdx | Should -BeGreaterOrEqual 0
     }
 
+    It "ide_rules evaluation runs after path_rules and before rotation" {
+        $pathIdx = $script:PackSelectionBlock.IndexOf('$pathRules = $config.path_rules')
+        $ideIdx = $script:PackSelectionBlock.IndexOf('$ideRules = $config.ide_rules')
+        $rotIdx = $script:PackSelectionBlock.IndexOf('$config.pack_rotation')
+        $pathIdx | Should -BeLessThan $ideIdx
+        $ideIdx | Should -BeLessThan $rotIdx
+    }
+
     It "session pack takes priority over path_rules when session pack is valid" {
-        # When session pack exists and directory is valid, $activePack = $candidate
-        # (not pathRulePack). The session assignment block sets $activePack directly.
         $script:PackSelectionBlock | Should -Match '\$activePack = \$candidate'
     }
 
-    It "falls through to path_rules when session pack directory is missing" {
-        # When session pack candidate directory doesn't exist, code removes
-        # the session entry and falls through to pathRulePack or default
-        $script:PackSelectionBlock | Should -Match 'Pack missing, fall through hierarchy: path_rules > default_pack'
+    It "falls through to path_rules then ide_rules when session pack directory is missing" {
+        $script:PackSelectionBlock | Should -Match 'Pack missing, fall through hierarchy: path_rules > ide_rules > default_pack'
     }
 
-    It "pathRulePack wins over rotation and default_pack when not in session_override mode" {
+    It "pathRulePack wins over ideRulePack rotation and default_pack when not in session_override mode" {
         $script:PackSelectionBlock | Should -Match 'elseif \(\$pathRulePack\)'
-        $script:PackSelectionBlock | Should -Match 'Path rule wins over rotation and default'
+        $script:PackSelectionBlock | Should -Match 'Path rule wins over IDE rules, rotation, and default'
+    }
+
+    It "exclude_dirs can skip path_rules entirely" {
+        $script:PackSelectionBlock | Should -Match '\$pathRuleExcluded = \$null'
+        $script:PackSelectionBlock | Should -Match 'Test-PathRuleMatch \$cwd \$excludePattern'
+        $script:PackSelectionBlock | Should -Match '-and -not \$pathRuleExcluded'
     }
 }
 
@@ -118,7 +125,7 @@ Describe "session_override fallback uses Get-ActivePack" {
         $script:PackSelectionBlock | Should -Match '\$defaultPack = Get-ActivePack \$config'
     }
 
-    It "session_override fallback paths use pathRulePack-or-defaultPack pattern" {
+    It "session_override fallback paths use pathRulePack-or-ideRulePack-or-defaultPack pattern" {
         # Extract only the session_override block
         $soMatch = [regex]::Match(
             $script:PackSelectionBlock,
@@ -127,8 +134,7 @@ Describe "session_override fallback uses Get-ActivePack" {
         $soMatch.Success | Should -BeTrue -Because "session_override block should exist"
         $soBlock = $soMatch.Value
 
-        # All fallback paths should use the pathRulePack-or-defaultPack ternary
-        $soBlock | Should -Match 'if \(\$pathRulePack\) \{ \$pathRulePack \} else \{ \$defaultPack \}'
+        $soBlock | Should -Match 'if \(\$pathRulePack\) \{ \$pathRulePack \} elseif \(\$ideRulePack\) \{ \$ideRulePack \} else \{ \$defaultPack \}'
     }
 }
 
@@ -161,5 +167,103 @@ Describe "Get-ActivePack parity" {
         $hDef = $script:HookDef -replace "`r`n", " " -replace "`n", " "
         $iDef | Should -Match 'default_pack.*active_pack'
         $hDef | Should -Match 'default_pack.*active_pack'
+    }
+}
+
+# ============================================================
+# Windows functional parity for ide_rules and exclude_dirs
+# ============================================================
+
+Describe "Windows CLI + runtime parity for ide_rules and exclude_dirs" {
+    BeforeEach {
+        $script:Env = New-PeonTestEnvironment -ConfigOverrides @{
+            default_pack = "peon"
+            path_rules   = @()
+            exclude_dirs = @()
+            ide_rules    = @()
+        }
+        $script:TestDir = $script:Env.TestDir
+        $script:PeonPath = $script:Env.PeonPath
+        $script:WorktreesDir = Join-Path $script:TestDir "worktrees"
+        $script:ProjectDir = Join-Path $script:WorktreesDir "project-a"
+        New-Item -ItemType Directory -Path $script:ProjectDir -Force | Out-Null
+    }
+
+    AfterEach {
+        if (Test-Path Env:PEON_IDE) {
+            Remove-Item Env:PEON_IDE -ErrorAction SilentlyContinue
+        }
+        if ($script:TestDir) {
+            Remove-PeonTestEnvironment -TestDir $script:TestDir
+        }
+    }
+
+    It "packs ide-bind stores an ide_rules entry" {
+        $result = & powershell.exe -NoProfile -Command "& '$script:PeonPath' --packs ide-bind codex sc_kerrigan 2>&1"
+        ($result -join "`n") | Should -Match "bound sc_kerrigan to IDE codex"
+
+        $cfg = Get-PeonConfig -TestDir $script:TestDir
+        $cfg.ide_rules.Count | Should -Be 1
+        $cfg.ide_rules[0].ide | Should -Be "codex"
+        $cfg.ide_rules[0].pack | Should -Be "sc_kerrigan"
+    }
+
+    It "packs exclude add stores an exclude_dirs entry" {
+        $result = & powershell.exe -NoProfile -Command "& '$script:PeonPath' --packs exclude add '$script:WorktreesDir' 2>&1"
+        ($result -join "`n") | Should -Match "excluded path rule matching"
+
+        $cfg = Get-PeonConfig -TestDir $script:TestDir
+        $cfg.exclude_dirs.Count | Should -Be 1
+        $cfg.exclude_dirs[0] | Should -Be $script:WorktreesDir
+    }
+
+    It "runtime uses ide_rules when source matches and no path_rule applies" {
+        $cfg = Get-PeonConfig -TestDir $script:TestDir
+        $cfg.ide_rules = @([pscustomobject]@{ ide = "codex"; pack = "sc_kerrigan" })
+        $cfg | ConvertTo-Json -Depth 10 | Set-Content (Join-Path $script:TestDir "config.json") -Encoding UTF8
+
+        $payload = @{
+            hook_event_name = "Stop"
+            session_id      = "codex-session-001"
+            source          = "codex"
+            cwd             = (Join-Path $script:TestDir "project")
+        } | ConvertTo-Json -Compress
+
+        $result = Invoke-PeonHook -TestDir $script:TestDir -JsonPayload $payload
+        $result.ExitCode | Should -Be 0
+        ($result.AudioLog -join "`n") | Should -Match 'packs[\\/]sc_kerrigan[\\/]sounds'
+    }
+
+    It "runtime skips path_rules under exclude_dirs and still applies ide_rules" {
+        $cfg = Get-PeonConfig -TestDir $script:TestDir
+        $cfg.path_rules = @([pscustomobject]@{ pattern = $script:WorktreesDir; pack = "peon" })
+        $cfg.exclude_dirs = @($script:WorktreesDir)
+        $cfg.ide_rules = @([pscustomobject]@{ ide = "codex"; pack = "sc_kerrigan" })
+        $cfg | ConvertTo-Json -Depth 10 | Set-Content (Join-Path $script:TestDir "config.json") -Encoding UTF8
+
+        $payload = @{
+            hook_event_name = "Stop"
+            session_id      = "codex-session-002"
+            source          = "codex"
+            cwd             = $script:ProjectDir
+        } | ConvertTo-Json -Compress
+
+        $result = Invoke-PeonHook -TestDir $script:TestDir -JsonPayload $payload
+        $result.ExitCode | Should -Be 0
+        ($result.AudioLog -join "`n") | Should -Match 'packs[\\/]sc_kerrigan[\\/]sounds'
+    }
+
+    It "status --verbose shows IDE rule and excluded path context" {
+        $cfg = Get-PeonConfig -TestDir $script:TestDir
+        $cfg.path_rules = @([pscustomobject]@{ pattern = $script:WorktreesDir; pack = "peon" })
+        $cfg.exclude_dirs = @($script:WorktreesDir)
+        $cfg.ide_rules = @([pscustomobject]@{ ide = "codex"; pack = "sc_kerrigan" })
+        $cfg | ConvertTo-Json -Depth 10 | Set-Content (Join-Path $script:TestDir "config.json") -Encoding UTF8
+
+        $result = & powershell.exe -NoProfile -Command "`$env:PEON_IDE='codex'; Set-Location '$script:ProjectDir'; & '$script:PeonPath' --status --verbose 2>&1"
+        $output = $result -join "`n"
+        $output | Should -Match "IDE source \(status\): codex"
+        $output | Should -Match "path rules skipped here \(exclude_dirs\):"
+        $output | Should -Match "active IDE rule: codex -> sc_kerrigan"
     }
 }

@@ -2140,6 +2140,64 @@ Describe "path_rules: CLI Commands - Functional" {
     }
 }
 
+Describe "Windows IDE rules and exclude_dirs parity" {
+    BeforeAll {
+        $script:installContent = Get-Content (Join-Path $script:RepoRoot "install.ps1") -Raw
+    }
+
+    It "help text includes IDE and exclude pack commands" {
+        $script:installContent | Should -Match '--packs ide-bind'
+        $script:installContent | Should -Match '--packs ide-unbind'
+        $script:installContent | Should -Match '--packs ide-bindings'
+        $script:installContent | Should -Match '--packs exclude'
+    }
+
+    It "embedded hook defines IDE/path helper functions" {
+        $script:installContent | Should -Match 'function Normalize-IdeId'
+        $script:installContent | Should -Match 'function Get-KnownIdeIds'
+        $script:installContent | Should -Match 'function Test-PathRuleMatch'
+        $script:installContent | Should -Match 'function Detect-SessionIde'
+    }
+
+    It "installer template and migration include exclude_dirs and ide_rules" {
+        $script:installContent | Should -Match 'exclude_dirs = @\(\)'
+        $script:installContent | Should -Match 'ide_rules = @\(\)'
+        $script:installContent | Should -Match "Add-Member -NotePropertyName 'exclude_dirs'"
+        $script:installContent | Should -Match "Add-Member -NotePropertyName 'ide_rules'"
+    }
+
+    It "status output surfaces IDE source excluded paths and IDE rule counts" {
+        $script:installContent | Should -Match 'IDE source \(status\):'
+        $script:installContent | Should -Match 'path rules skipped here \(exclude_dirs\):'
+        $script:installContent | Should -Match 'excluded paths: \$\(\$excludeDirs.Count\) configured'
+        $script:installContent | Should -Match 'IDE rules: \$\(\$ideRules.Count\) configured'
+    }
+
+    It "pack selection hierarchy includes ide_rules after path_rules" {
+        $script:installContent | Should -Match 'session_override > path_rules \(unless excluded\) > ide_rules > rotation > default_pack'
+        $script:installContent | Should -Match 'if \(\$sessionIde -and \$ideRules\)'
+        $script:installContent | Should -Match 'elseif \(\$pathRulePack\)'
+        $script:installContent | Should -Match 'elseif \(\$ideRulePack\)'
+    }
+
+    It "PowerShell adapters tag emitted events with a source id" -ForEach @(
+        @{ name = "codex";        source = "codex" },
+        @{ name = "gemini";       source = "gemini" },
+        @{ name = "copilot";      source = "copilot" },
+        @{ name = "windsurf";     source = "windsurf" },
+        @{ name = "kiro";         source = "kiro" },
+        @{ name = "openclaw";     source = "openclaw" },
+        @{ name = "deepagents";   source = "deepagents" },
+        @{ name = "amp";          source = "amp" },
+        @{ name = "antigravity";  source = "antigravity" },
+        @{ name = "kimi";         source = "kimi" }
+    ) {
+        $path = Join-Path $script:AdaptersDir "$name.ps1"
+        $content = Get-Content $path -Raw
+        $content | Should -Match ('source\s*=\s*"' + [regex]::Escape($source) + '"')
+    }
+}
+
 # ============================================================
 # install.ps1 E2E: pack download with mocked registry
 # ============================================================

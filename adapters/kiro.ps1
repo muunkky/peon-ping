@@ -68,6 +68,7 @@ $payload = @{
     cwd               = $cwd
     session_id        = "kiro-$sid"
     permission_mode   = if ($inputJson.permission_mode) { $inputJson.permission_mode } else { "" }
+    source            = "kiro"
 } | ConvertTo-Json -Compress
 
 # Pipe to peon.ps1

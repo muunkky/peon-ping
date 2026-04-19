@@ -99,6 +99,7 @@ $payload = @{
     cwd               = $PWD.Path
     session_id        = $sessionId
     permission_mode   = ""
+    source            = "openclaw"
 } | ConvertTo-Json -Compress
 
 # Pipe to peon.ps1

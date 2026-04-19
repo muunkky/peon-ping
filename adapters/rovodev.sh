@@ -67,8 +67,8 @@ if command -v jq &>/dev/null; then
     --arg sid "$SESSION_ID" \
     --arg tn "$TOOL_NAME" \
     --arg err "$ERROR_MSG" \
-    '{hook_event_name:$hook, cwd:$cwd, session_id:$sid, permission_mode:"", tool_name:$tn, error:$err}'
+    '{hook_event_name:$hook, cwd:$cwd, session_id:$sid, permission_mode:"", source:"rovodev", tool_name:$tn, error:$err}'
 else
-  printf '{"hook_event_name":"%s","cwd":"%s","session_id":"%s","permission_mode":"","tool_name":"%s","error":"%s"}\n' \
+  printf '{"hook_event_name":"%s","cwd":"%s","session_id":"%s","permission_mode":"","source":"rovodev","tool_name":"%s","error":"%s"}\n' \
     "$EVENT" "$PWD" "$SESSION_ID" "$TOOL_NAME" "$ERROR_MSG"
 fi | bash "$PEON_DIR/peon.sh"

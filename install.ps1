@@ -248,6 +248,9 @@ if (-not $Updating) {
         silent_window_seconds = 0
         pack_rotation = @()
         pack_rotation_mode = "random"
+        path_rules = @()
+        exclude_dirs = @()
+        ide_rules = @()
         tts = @{
             enabled = $false
             backend = "auto"
@@ -396,6 +399,101 @@ function Get-ActivePack($config) {
     if ($config.default_pack) { return $config.default_pack }
     if ($config.active_pack) { return $config.active_pack }
     return "peon"
+}
+
+function Normalize-IdeId {
+    param([string]$Value)
+    if (-not $Value) { return "" }
+    $key = $Value.Trim().ToLowerInvariant().Replace("_", "-").Replace(" ", "-")
+    switch ($key) {
+        "claude" { return "claude" }
+        "claude-code" { return "claude" }
+        "claudecode" { return "claude" }
+        "codex" { return "codex" }
+        "openai-codex" { return "codex" }
+        "cursor" { return "cursor" }
+        "opencode" { return "opencode" }
+        "open-code" { return "opencode" }
+        "kilo" { return "kilo" }
+        "kiro" { return "kiro" }
+        "gemini" { return "gemini" }
+        "copilot" { return "copilot" }
+        "windsurf" { return "windsurf" }
+        "kimi" { return "kimi" }
+        "antigravity" { return "antigravity" }
+        "amp" { return "amp" }
+        "deepagents" { return "deepagents" }
+        "deep-agents" { return "deepagents" }
+        "openclaw" { return "openclaw" }
+        "open-claw" { return "openclaw" }
+        "rovodev" { return "rovodev" }
+        "rovo" { return "rovodev" }
+        default { return $key }
+    }
+}
+
+function Get-KnownIdeIds {
+    return @("claude", "codex", "cursor", "opencode", "kilo", "kiro", "gemini", "copilot", "windsurf", "kimi", "antigravity", "amp", "deepagents", "openclaw", "rovodev")
+}
+
+function Expand-UserPath {
+    param([string]$PathValue)
+    if (-not $PathValue) { return "" }
+    $expanded = $PathValue
+    if ($expanded.StartsWith("~")) {
+        $homeDir = if ($env:USERPROFILE) { $env:USERPROFILE } else { $HOME }
+        $expanded = Join-Path $homeDir $expanded.Substring(1).TrimStart('\','/')
+    }
+    return [Environment]::ExpandEnvironmentVariables($expanded)
+}
+
+function Normalize-PathForRules {
+    param([string]$PathValue)
+    if (-not $PathValue) { return "" }
+    $expanded = Expand-UserPath $PathValue
+    if (-not $expanded) { return "" }
+    $normalized = $expanded -replace '\\', '/'
+    return $normalized.TrimEnd('/')
+}
+
+function Test-PathRuleMatch {
+    param([string]$PathValue, [string]$Pattern)
+    $pathNorm = Normalize-PathForRules $PathValue
+    $patternNorm = Normalize-PathForRules $Pattern
+    if (-not $pathNorm -or -not $patternNorm) { return $false }
+    $hasWildcard = ($patternNorm.IndexOf('*') -ge 0) -or ($patternNorm.IndexOf('?') -ge 0) -or ($patternNorm.IndexOf('[') -ge 0)
+    if ($hasWildcard) {
+        return $pathNorm -like $patternNorm
+    }
+    return ($pathNorm -eq $patternNorm) -or $pathNorm.StartsWith($patternNorm + "/", [System.StringComparison]::OrdinalIgnoreCase)
+}
+
+function Detect-SessionIde {
+    param($Event, [string]$SessionId, [string]$Source)
+    $sourceId = Normalize-IdeId $Source
+    if ($sourceId -and $sourceId -notin @("resume", "compact")) { return $sourceId }
+    if ($Event -and $Event.workspace_roots) { return "cursor" }
+    $sid = if ($SessionId) { $SessionId.ToLowerInvariant() } else { "" }
+    $prefixes = [ordered]@{
+        "codex-" = "codex"
+        "cursor-" = "cursor"
+        "oc-" = "opencode"
+        "kilo-" = "kilo"
+        "kiro-" = "kiro"
+        "gemini-" = "gemini"
+        "copilot-" = "copilot"
+        "windsurf-" = "windsurf"
+        "kimi-" = "kimi"
+        "antigravity-" = "antigravity"
+        "amp-" = "amp"
+        "deepagents-" = "deepagents"
+        "openclaw-" = "openclaw"
+        "rovodev-" = "rovodev"
+    }
+    foreach ($prefix in $prefixes.Keys) {
+        if ($sid.StartsWith($prefix)) { return $prefixes[$prefix] }
+    }
+    return "claude"
 }
 
 # Install a pack from the registry by name. Returns $true on success, $false on failure.
@@ -774,15 +872,32 @@ if ($Command) {
                         Write-Host "peon-ping: headphones_only: off" -ForegroundColor Cyan
                     }
 
+                    $statusIde = Normalize-IdeId ($env:PEON_IDE)
+                    if (-not $statusIde) { $statusIde = Normalize-IdeId ($env:PEON_SESSION_SOURCE) }
+                    if (-not $statusIde) { $statusIde = Normalize-IdeId ($env:PEON_SOURCE) }
+                    if (-not $statusIde) { $statusIde = "claude" }
+                    Write-Host "peon-ping: IDE source (status): $statusIde" -ForegroundColor Cyan
+
                     # Path rules
                     $rules = @()
                     if ($cfg.path_rules) { $rules = @($cfg.path_rules) }
+                    $excludeDirs = @()
+                    if ($cfg.exclude_dirs) { $excludeDirs = @($cfg.exclude_dirs) }
+                    $excludedPath = $null
+                    foreach ($pattern in $excludeDirs) {
+                        if (Test-PathRuleMatch $PWD.Path $pattern) {
+                            $excludedPath = $pattern
+                            break
+                        }
+                    }
                     if ($rules.Count -gt 0) {
                         $activeRule = $null
-                        foreach ($r in $rules) {
-                            if ($PWD.Path -like $r.pattern) {
-                                $activeRule = $r
-                                break
+                        if (-not $excludedPath) {
+                            foreach ($r in $rules) {
+                                if (Test-PathRuleMatch $PWD.Path $r.pattern) {
+                                    $activeRule = $r
+                                    break
+                                }
                             }
                         }
                         if ($activeRule) {
@@ -790,6 +905,26 @@ if ($Command) {
                         }
                         Write-Host "peon-ping: path rules: $($rules.Count) configured" -ForegroundColor Cyan
                     }
+                    if ($excludedPath) {
+                        Write-Host "peon-ping: path rules skipped here (exclude_dirs): $excludedPath" -ForegroundColor Cyan
+                    }
+                    Write-Host "peon-ping: excluded paths: $($excludeDirs.Count) configured" -ForegroundColor Cyan
+
+                    $ideRules = @()
+                    if ($cfg.ide_rules) { $ideRules = @($cfg.ide_rules) }
+                    if ($ideRules.Count -gt 0) {
+                        $activeIdeRule = $null
+                        foreach ($rule in $ideRules) {
+                            if ((Normalize-IdeId $rule.ide) -eq $statusIde) {
+                                $activeIdeRule = $rule
+                                break
+                            }
+                        }
+                        if ($activeIdeRule) {
+                            Write-Host "peon-ping: active IDE rule: $($activeIdeRule.ide) -> $($activeIdeRule.pack)" -ForegroundColor Cyan
+                        }
+                    }
+                    Write-Host "peon-ping: IDE rules: $($ideRules.Count) configured" -ForegroundColor Cyan
 
                     # Debug logging state
                     $debugEnabled = $env:PEON_DEBUG -eq "1"
@@ -1043,10 +1178,172 @@ if ($Command) {
                     }
 
                     foreach ($rule in $pathRules) {
-                        $marker = if ($PWD.Path -like $rule.pattern) { " *" } else { "" }
+                        $marker = if (Test-PathRuleMatch $PWD.Path $rule.pattern) { " *" } else { "" }
                         Write-Host "  $($rule.pattern) -> $($rule.pack)$marker"
                     }
                     return
+                }
+                "ide-bind" {
+                    if (-not $Arg2 -or $ExtraArgs.Count -eq 0) {
+                        Write-Host "Usage: peon packs ide-bind <ide> <pack> [--install]" -ForegroundColor Yellow
+                        return
+                    }
+                    $ideName = Normalize-IdeId $Arg2
+                    $packName = $ExtraArgs[0]
+                    $installPack = ($ExtraArgs -contains "--install")
+                    if (-not $ideName) {
+                        Write-Host "Error: IDE id must not be empty." -ForegroundColor Red
+                        return
+                    }
+                    if ($installPack -and $packName -notin $available) {
+                        $ok = Install-PackFromRegistry -PackName $packName -PacksDir $packsDir
+                        if (-not $ok) { return }
+                        $available = Get-ChildItem -Path $packsDir -Directory | Where-Object {
+                            (Get-ChildItem -Path (Join-Path $_.FullName "sounds") -File -ErrorAction SilentlyContinue | Measure-Object).Count -gt 0
+                        } | ForEach-Object { $_.Name } | Sort-Object
+                    }
+                    if ($packName -notin $available) {
+                        Write-Host "Error: pack `"$packName`" not found." -ForegroundColor Red
+                        Write-Host "Available packs: $($available -join ', ')" -ForegroundColor Red
+                        return
+                    }
+                    $cfgObj = Get-Content $ConfigPath -Raw | ConvertFrom-Json
+                    $ideRules = @()
+                    if ($cfgObj.ide_rules) { $ideRules = @($cfgObj.ide_rules) }
+                    $found = $false
+                    for ($i = 0; $i -lt $ideRules.Count; $i++) {
+                        if ((Normalize-IdeId $ideRules[$i].ide) -eq $ideName) {
+                            $ideRules[$i] = [PSCustomObject]@{ ide = $ideName; pack = $packName }
+                            $found = $true
+                            break
+                        }
+                    }
+                    if (-not $found) {
+                        $ideRules += [PSCustomObject]@{ ide = $ideName; pack = $packName }
+                    }
+                    if ($cfgObj.PSObject.Properties['ide_rules']) {
+                        $cfgObj.ide_rules = $ideRules
+                    } else {
+                        $cfgObj | Add-Member -NotePropertyName 'ide_rules' -NotePropertyValue $ideRules
+                    }
+                    Set-PeonConfig $cfgObj $ConfigPath
+                    Write-Host "peon-ping: bound $packName to IDE $ideName"
+                    if ($ideName -notin (Get-KnownIdeIds)) {
+                        Write-Host "Known IDE ids: $((Get-KnownIdeIds) -join ', ')" -ForegroundColor DarkGray
+                    }
+                    return
+                }
+                "ide-unbind" {
+                    if (-not $Arg2) {
+                        Write-Host "Usage: peon packs ide-unbind <ide>" -ForegroundColor Yellow
+                        return
+                    }
+                    $ideName = Normalize-IdeId $Arg2
+                    $cfgObj = Get-Content $ConfigPath -Raw | ConvertFrom-Json
+                    $ideRules = @()
+                    if ($cfgObj.ide_rules) { $ideRules = @($cfgObj.ide_rules) }
+                    $newRules = @($ideRules | Where-Object { (Normalize-IdeId $_.ide) -ne $ideName })
+                    if ($newRules.Count -eq $ideRules.Count) {
+                        Write-Host "No IDE binding found for `"$ideName`"."
+                        return
+                    }
+                    if ($cfgObj.PSObject.Properties['ide_rules']) {
+                        $cfgObj.ide_rules = $newRules
+                    } else {
+                        $cfgObj | Add-Member -NotePropertyName 'ide_rules' -NotePropertyValue $newRules
+                    }
+                    Set-PeonConfig $cfgObj $ConfigPath
+                    Write-Host "peon-ping: unbound IDE $ideName"
+                    return
+                }
+                "ide-bindings" {
+                    $cfgObj = Get-Content $ConfigPath -Raw | ConvertFrom-Json
+                    $ideRules = @()
+                    if ($cfgObj.ide_rules) { $ideRules = @($cfgObj.ide_rules) }
+                    if ($ideRules.Count -eq 0) {
+                        Write-Host "No IDE bindings configured."
+                    } else {
+                        $currentIde = Normalize-IdeId ($env:PEON_IDE)
+                        if (-not $currentIde) { $currentIde = Normalize-IdeId ($env:PEON_SESSION_SOURCE) }
+                        if (-not $currentIde) { $currentIde = Normalize-IdeId ($env:PEON_SOURCE) }
+                        if (-not $currentIde) { $currentIde = "claude" }
+                        foreach ($rule in $ideRules) {
+                            $marker = if ((Normalize-IdeId $rule.ide) -eq $currentIde) { " *" } else { "" }
+                            Write-Host "  $($rule.ide) -> $($rule.pack)$marker"
+                        }
+                    }
+                    $stateObj = @{}
+                    try { $stateObj = Get-Content $StatePath -Raw | ConvertFrom-Json } catch { $stateObj = @{} }
+                    if ($stateObj.recent_ide_sources) {
+                        $recent = @($stateObj.recent_ide_sources.PSObject.Properties | Sort-Object { [double]$_.Value } -Descending | Select-Object -First 5 | ForEach-Object { $_.Name })
+                        if ($recent.Count -gt 0) {
+                            Write-Host "Recent IDEs: $($recent -join ', ')"
+                        }
+                    }
+                    Write-Host "Supported IDE ids: $((Get-KnownIdeIds) -join ', ')"
+                    return
+                }
+                "exclude" {
+                    $action = if ($Arg2) { $Arg2 } else { "list" }
+                    $pattern = if ($ExtraArgs.Count -gt 0) { $ExtraArgs[0] } else { "" }
+                    $cfgObj = Get-Content $ConfigPath -Raw | ConvertFrom-Json
+                    $excludeDirs = @()
+                    if ($cfgObj.exclude_dirs) { $excludeDirs = @($cfgObj.exclude_dirs) }
+                    switch ($action) {
+                        "add" {
+                            if (-not $pattern) {
+                                Write-Host "Usage: peon packs exclude add <glob-or-dir>" -ForegroundColor Yellow
+                                return
+                            }
+                            if ($pattern -in $excludeDirs) {
+                                Write-Host "peon-ping: exclude path already present: $pattern"
+                                return
+                            }
+                            $excludeDirs += $pattern
+                            if ($cfgObj.PSObject.Properties['exclude_dirs']) {
+                                $cfgObj.exclude_dirs = $excludeDirs
+                            } else {
+                                $cfgObj | Add-Member -NotePropertyName 'exclude_dirs' -NotePropertyValue $excludeDirs
+                            }
+                            Set-PeonConfig $cfgObj $ConfigPath
+                            Write-Host "peon-ping: excluded path rule matching for $pattern"
+                            return
+                        }
+                        "remove" {
+                            if (-not $pattern) {
+                                Write-Host "Usage: peon packs exclude remove <glob-or-dir>" -ForegroundColor Yellow
+                                return
+                            }
+                            $newDirs = @($excludeDirs | Where-Object { $_ -ne $pattern })
+                            if ($newDirs.Count -eq $excludeDirs.Count) {
+                                Write-Host "No excluded path found for `"$pattern`"."
+                                return
+                            }
+                            if ($cfgObj.PSObject.Properties['exclude_dirs']) {
+                                $cfgObj.exclude_dirs = $newDirs
+                            } else {
+                                $cfgObj | Add-Member -NotePropertyName 'exclude_dirs' -NotePropertyValue $newDirs
+                            }
+                            Set-PeonConfig $cfgObj $ConfigPath
+                            Write-Host "peon-ping: removed excluded path $pattern"
+                            return
+                        }
+                        "list" {
+                            if ($excludeDirs.Count -eq 0) {
+                                Write-Host "No excluded paths configured."
+                                return
+                            }
+                            foreach ($item in $excludeDirs) {
+                                $marker = if (Test-PathRuleMatch $PWD.Path $item) { " *" } else { "" }
+                                Write-Host "  $item$marker"
+                            }
+                            return
+                        }
+                        default {
+                            Write-Host "Usage: peon packs exclude <add|remove|list> [glob-or-dir]" -ForegroundColor Yellow
+                            return
+                        }
+                    }
                 }
                 "community" {
                     $regUrl = "https://peonping.github.io/registry/index.json"
@@ -1439,9 +1736,17 @@ if ($Command) {
                 $cfgObj.pack_rotation_mode = 'session_override'
                 $changed = $true
             }
+            if (-not $cfgObj.PSObject.Properties['exclude_dirs']) {
+                $cfgObj | Add-Member -NotePropertyName 'exclude_dirs' -NotePropertyValue @() -Force
+                $changed = $true
+            }
+            if (-not $cfgObj.PSObject.Properties['ide_rules']) {
+                $cfgObj | Add-Member -NotePropertyName 'ide_rules' -NotePropertyValue @() -Force
+                $changed = $true
+            }
             if ($changed) {
                 $cfgObj | ConvertTo-Json -Depth 10 | Set-Content $ConfigPath -Encoding UTF8
-                Write-Host "peon-ping: config migrated (active_pack -> default_pack, agentskill -> session_override)" -ForegroundColor Green
+                Write-Host "peon-ping: config migrated (active_pack -> default_pack, agentskill -> session_override, exclude_dirs, ide_rules)" -ForegroundColor Green
             }
             # Re-run install.ps1 from a temp directory. Download install-utils.ps1
             # alongside it so the dot-source resolves correctly via $PSScriptRoot.
@@ -1481,6 +1786,10 @@ if ($Command) {
             Write-Host "  --packs bind          Bind a pack to current directory"
             Write-Host "  --packs unbind        Remove a pack binding"
             Write-Host "  --packs bindings      List all pack bindings"
+            Write-Host "  --packs ide-bind      Bind a pack to an IDE id"
+            Write-Host "  --packs ide-unbind    Remove an IDE binding"
+            Write-Host "  --packs ide-bindings  List all IDE bindings"
+            Write-Host "  --packs exclude       Manage excluded paths for path_rules"
             Write-Host "  --pack [name]         Switch pack (or cycle)"
             Write-Host ""
             Write-Host "Trainer:" -ForegroundColor Cyan
@@ -1993,6 +2302,8 @@ $sessionId = if ($event.session_id) { $event.session_id } elseif ($event.convers
 
 # Extract cwd from event (used by path_rules for directory-based pack selection)
 $cwd = if ($event.cwd) { $event.cwd } else { "" }
+$sessionSource = if ($event.source) { [string]$event.source } else { "" }
+$sessionIde = Detect-SessionIde -Event $event -SessionId $sessionId -Source $sessionSource
 
 # Derive project name from cwd (used in desktop notification titles)
 $project = if ($cwd) { Split-Path $cwd -Leaf } else { "" }
@@ -2042,6 +2353,17 @@ $stateDirty = $false
 if ($sessionPacksClean.Count -ne $sessionPacks.Count) {
     $stateDirty = $true
 }
+
+$recentIdeSources = if ($state.ContainsKey("recent_ide_sources")) { $state["recent_ide_sources"] } else { @{} }
+if (-not $recentIdeSources) { $recentIdeSources = @{} }
+$recentIdeSources[$sessionIde] = $now
+foreach ($ideKey in @($recentIdeSources.Keys)) {
+    if ([double]$recentIdeSources[$ideKey] -lt ($now - (30 * 86400))) {
+        $recentIdeSources.Remove($ideKey)
+    }
+}
+$state["recent_ide_sources"] = $recentIdeSources
+$stateDirty = $true
 
 # --- Agent detection (delegate mode) ---
 $_permMode = if ($event.permission_mode) { $event.permission_mode } else { '' }
@@ -2236,18 +2558,43 @@ $activePack = Get-ActivePack $config
 $rotationMode = $config.pack_rotation_mode
 if (-not $rotationMode) { $rotationMode = "random" }
 
-# --- Path rules: first glob match wins (layer 3 in override hierarchy) ---
-# Beats rotation and default_pack; loses to session_override and local config.
+# --- Path rules and IDE rules: first matching layer wins ---
+# session_override > path_rules (unless excluded) > ide_rules > rotation > default_pack
 $pathRulePack = $null
+$pathRuleExcluded = $null
+$excludeDirs = $config.exclude_dirs
+if ($cwd -and $excludeDirs) {
+    foreach ($excludePattern in $excludeDirs) {
+        if (Test-PathRuleMatch $cwd $excludePattern) {
+            $pathRuleExcluded = $excludePattern
+            break
+        }
+    }
+}
 $pathRules = $config.path_rules
-if ($cwd -and $pathRules) {
+if ($cwd -and $pathRules -and -not $pathRuleExcluded) {
     foreach ($rule in $pathRules) {
         $pattern = $rule.pattern
         $candidate = $rule.pack
-        if ($pattern -and $candidate -and ($cwd -like $pattern)) {
+        if ($pattern -and $candidate -and (Test-PathRuleMatch $cwd $pattern)) {
             $candidateDir = Join-Path $InstallDir "packs\$candidate"
             if (Test-Path $candidateDir -PathType Container) {
                 $pathRulePack = $candidate
+                break
+            }
+        }
+    }
+}
+$ideRulePack = $null
+$ideRules = $config.ide_rules
+if ($sessionIde -and $ideRules) {
+    foreach ($rule in $ideRules) {
+        $ruleIde = Normalize-IdeId $rule.ide
+        $candidate = $rule.pack
+        if ($ruleIde -and $candidate -and $ruleIde -eq $sessionIde) {
+            $candidateDir = Join-Path $InstallDir "packs\$candidate"
+            if (Test-Path $candidateDir -PathType Container) {
+                $ideRulePack = $candidate
                 break
             }
         }
@@ -2275,8 +2622,8 @@ if ($rotationMode -eq "agentskill" -or $rotationMode -eq "session_override") {
             $state.session_packs = $sessionPacks
             $stateDirty = $true
         } else {
-            # Pack missing, fall through hierarchy: path_rules > default_pack
-            $activePack = if ($pathRulePack) { $pathRulePack } else { $defaultPack }
+            # Pack missing, fall through hierarchy: path_rules > ide_rules > default_pack
+            $activePack = if ($pathRulePack) { $pathRulePack } elseif ($ideRulePack) { $ideRulePack } else { $defaultPack }
             $sessionPacks.Remove($sessionId)
             $state.session_packs = $sessionPacks
             $stateDirty = $true
@@ -2290,26 +2637,21 @@ if ($rotationMode -eq "agentskill" -or $rotationMode -eq "session_override") {
             if ($candidate -and (Test-Path $candidateDir -PathType Container)) {
                 $activePack = $candidate
             } else {
-                $activePack = if ($pathRulePack) { $pathRulePack } else { $defaultPack }
+                $activePack = if ($pathRulePack) { $pathRulePack } elseif ($ideRulePack) { $ideRulePack } else { $defaultPack }
             }
         } else {
-            $activePack = if ($pathRulePack) { $pathRulePack } else { $defaultPack }
+            $activePack = if ($pathRulePack) { $pathRulePack } elseif ($ideRulePack) { $ideRulePack } else { $defaultPack }
         }
     }
 } elseif ($pathRulePack) {
-    # Path rule wins over rotation and default
+    # Path rule wins over IDE rules, rotation, and default
     $activePack = $pathRulePack
+} elseif ($ideRulePack) {
+    # IDE rule wins over rotation and default when no path rule matched
+    $activePack = $ideRulePack
 } elseif ($config.pack_rotation -and $config.pack_rotation.Count -gt 0) {
-    if ($pathRulePack) {
-        # Path rule beats rotation
-        $activePack = $pathRulePack
-    } else {
-        # Automatic rotation
-        $activePack = $config.pack_rotation | Get-Random
-    }
-} elseif ($pathRulePack) {
-    # Path rule beats default_pack
-    $activePack = $pathRulePack
+    # Automatic rotation
+    $activePack = $config.pack_rotation | Get-Random
 }
 
 $packDir = Join-Path $InstallDir "packs\$activePack"

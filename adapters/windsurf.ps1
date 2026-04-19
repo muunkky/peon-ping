@@ -81,6 +81,7 @@ $payload = @{
     cwd               = $PWD.Path
     session_id        = $sessionId
     permission_mode   = ""
+    source            = "windsurf"
 } | ConvertTo-Json -Compress
 
 # Pipe to peon.ps1

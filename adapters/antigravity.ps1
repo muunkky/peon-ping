@@ -133,6 +133,7 @@ function Emit-Event {
         cwd               = $PWD.Path
         session_id        = $sessionId
         permission_mode   = ""
+        source            = "antigravity"
     } | ConvertTo-Json -Compress
     $payload | powershell -NoProfile -NonInteractive -File $PeonScript 2>$null
 }

@@ -34,6 +34,10 @@ _peon() {
     'bind:Bind a pack to the current directory'
     'unbind:Remove pack binding for current directory'
     'bindings:List all directory-to-pack bindings'
+    'ide-bind:Bind a pack to an IDE id'
+    'ide-unbind:Remove an IDE binding'
+    'ide-bindings:List all IDE-to-pack bindings'
+    'exclude:Manage path exclusions for path_rules'
     'community:List all packs from registry'
     'search:Search registry packs by name'
   )
@@ -127,6 +131,19 @@ _peon() {
           ;;
         use|remove|bind)
           _peon_pack_names
+          ;;
+        ide-bind)
+          if [[ "$CURRENT" -eq 4 ]]; then
+            compadd -- claude codex cursor opencode kilo kiro gemini copilot windsurf kimi antigravity amp deepagents openclaw rovodev
+          else
+            _peon_pack_names
+          fi
+          ;;
+        ide-unbind)
+          compadd -- claude codex cursor opencode kilo kiro gemini copilot windsurf kimi antigravity amp deepagents openclaw rovodev
+          ;;
+        exclude)
+          compadd -- add remove list
           ;;
         install)
           compadd -- --all

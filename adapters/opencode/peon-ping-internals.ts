@@ -81,6 +81,10 @@ export interface PeonConfig {
   spam_threshold: number
   spam_window_seconds: number
   pack_rotation: string[]
+  pack_rotation_mode?: string
+  path_rules?: Array<{ pattern: string; pack: string }>
+  exclude_dirs?: string[]
+  ide_rules?: Array<{ ide: string; pack: string }>
   packs_dir?: string
   debounce_ms: number
   relay_host?: string
@@ -160,6 +164,10 @@ export const DEFAULT_CONFIG: PeonConfig = {
   spam_threshold: 3,
   spam_window_seconds: 10,
   pack_rotation: [],
+  pack_rotation_mode: "random",
+  path_rules: [],
+  exclude_dirs: [],
+  ide_rules: [],
   debounce_ms: 500,
 }
 
