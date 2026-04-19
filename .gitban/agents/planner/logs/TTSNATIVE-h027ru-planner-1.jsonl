@@ -1,0 +1,8 @@
+{"timestamp":"2026-04-19T06:36:15Z","operation":"init","role":"planner","sprint":"TTSNATIVE","card_id":"h027ru","cycle":1}
+{"timestamp":"2026-04-19T06:36:16Z","operation":"event","label":"read-inbox","metadata":{"file":"TTSNATIVE-h027ru-planner-1.md"}}
+{"timestamp":"2026-04-19T06:36:21Z","operation":"hook_cmd","command":"export AGENT_LOG_DIR=\".gitban/agents/planner/logs\" && export AGENT_ROLE=\"planner\" && export AGENT_SPRINT_TAG=\"TTSNATIVE\" && export AGENT_CARD_ID=\"h027ru\" && export AGENT_CYCLE=\"1\" && source .gitban/hooks/agent-log.sh && agent_log_init && agent_log_event \"read-inbox\" '{\"file\":\"TTSNATIVE-h027ru-planner-1.md\"}' && echo \"logged\""}
+{"timestamp":"2026-04-19T06:36:26Z","operation":"hook_cmd","command":"git diff --cached --stat"}
+{"timestamp":"2026-04-19T06:36:36Z","operation":"hook_cmd","command":"git diff --stat .gitban/cards/TTSNATIVE-in_progress-P1-feature-step-1-sprint-planning-for-platform-native-tts-backends-h027ru-CAMERON.md"}
+{"timestamp":"2026-04-19T06:36:50Z","operation":"hook_cmd","command":"git diff .gitban/cards/TTSNATIVE-in_progress-P1-feature-step-1-sprint-planning-for-platform-native-tts-backends-h027ru-CAMERON.md | head -100"}
+{"timestamp":"2026-04-19T06:37:05Z","operation":"hook_cmd","command":"git add .gitban/cards/TTSNATIVE-in_progress-P1-feature-step-1-sprint-planning-for-platform-native-tts-backends-h027ru-CAMERON.md .gitban/agents/executor/inbox/TTSNATIVE-h027ru-executor-1.md .gitban/agents/planner/inbox/TTSNATIVE-h027ru-planner-1.md .gitban/agents/reviewer/inbox/TTSNATIVE-h027ru-reviewer-1.md && git status --short | head -20"}
+{"timestamp":"2026-04-19T06:37:15Z","operation":"hook_cmd","command":"git status --short | grep -v \"^ D .claude/worktrees\""}
