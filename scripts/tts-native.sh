@@ -61,8 +61,10 @@ _speak_macos() {
   local text="$1" voice="$2" rate="$3" volume="$4"
   _ignore_unused_volume "$volume"
 
+  # Pass rate as awk -v variable so a hostile config.json cannot inject awk
+  # code (e.g. a rate string of 'system("...")'). See card w3ciyq.
   local wpm
-  wpm=$(awk "BEGIN { printf \"%d\", $rate * 200 }")
+  wpm=$(awk -v r="$rate" 'BEGIN { printf "%d", r * 200 }')
 
   if [ "$voice" = "default" ]; then
     say -r "$wpm" -- "$text" 2>/dev/null || _debug "say failed"
@@ -74,8 +76,10 @@ _speak_macos() {
 # --- Engine: piper (neural TTS, Linux preferred path) ---
 _speak_piper() {
   local text="$1" model="$2" rate="$3"
+  # Pass rate as awk -v variable so a hostile config.json cannot inject awk
+  # code via the rate string. See card w3ciyq.
   local length_scale
-  length_scale=$(awk "BEGIN { printf \"%.2f\", 1.0 / $rate }")
+  length_scale=$(awk -v r="$rate" 'BEGIN { printf "%.2f", 1.0 / r }')
 
   # Read sample rate from the model's .onnx.json sidecar; default 22050.
   local sidecar="${model}.json"
@@ -100,9 +104,11 @@ except Exception:
 # --- Engine: espeak-ng (Linux fallback) ---
 _speak_espeak_ng() {
   local text="$1" voice="$2" rate="$3" volume="$4"
+  # Pass rate/volume as awk -v variables so hostile config.json values cannot
+  # inject awk code (e.g. a rate string of 'system("...")'). See card w3ciyq.
   local wpm amplitude
-  wpm=$(awk "BEGIN { printf \"%d\", $rate * 175 }")
-  amplitude=$(awk "BEGIN { printf \"%d\", $volume * 100 }")
+  wpm=$(awk -v r="$rate" 'BEGIN { printf "%d", r * 175 }')
+  amplitude=$(awk -v v="$volume" 'BEGIN { printf "%d", v * 100 }')
 
   if [ "$voice" = "default" ]; then
     espeak-ng -s "$wpm" -a "$amplitude" -- "$text" 2>/dev/null || _debug "espeak-ng failed"

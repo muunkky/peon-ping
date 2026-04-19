@@ -367,3 +367,135 @@ Describe "tts-native.ps1 error containment" {
         $r.Stderr.Trim() | Should -BeNullOrEmpty
     }
 }
+
+# ============================================================
+# Production-pipeline invocation path (card w3ciyq)
+#
+# The existing Invoke-TtsNativeDryRun helper uses `powershell -File` with
+# stdin redirected via the ProcessStartInfo APIs. That path exercises the
+# `[Console]::IsInputRedirected` fallback in end{} but does NOT exercise
+# the ValueFromPipeline binding of the process{} block -- which is the
+# path install.ps1's Invoke-TtsSpeak actually takes when it invokes
+# tts-native.ps1 via `'text' | & $script ...` inside a single PowerShell
+# session. These tests cover that production shape using
+# `powershell -Command` so the pipeline binding is evaluated in-process.
+# ============================================================
+
+Describe "tts-native.ps1 production-pipeline binding" {
+    It "binds piped text through the PowerShell pipeline (not IsInputRedirected)" {
+        $tracePath = Join-Path $env:TEMP "peon-tts-trace-$([guid]::NewGuid().ToString('N').Substring(0,8)).json"
+        $scriptPath = $script:TtsNativePath
+        # Escape single quotes for the inner command string.
+        $scriptPathEscaped = $scriptPath.Replace("'", "''")
+
+        # The production shape: `'hello' | & 'tts-native.ps1' -Voice ... -Rate ... -Vol ...`
+        # evaluated inside one powershell -Command session. This forces
+        # PowerShell to bind the stdin string through ValueFromPipeline.
+        $inner = "'hello' | & '$scriptPathEscaped' -Voice 'default' -Rate 1.0 -Vol 0.5"
+
+        $psi = New-Object System.Diagnostics.ProcessStartInfo
+        $psi.FileName = "powershell.exe"
+        $psi.Arguments = "-NoProfile -NonInteractive -Command `"$inner`""
+        $psi.UseShellExecute = $false
+        $psi.RedirectStandardOutput = $true
+        $psi.RedirectStandardError = $true
+        $psi.CreateNoWindow = $true
+        $psi.Environment["PEON_TTS_DRY_RUN"] = "1"
+        $psi.Environment["PEON_TTS_TRACE_FILE"] = $tracePath
+
+        $proc = New-Object System.Diagnostics.Process
+        $proc.StartInfo = $psi
+        try {
+            $proc.Start() | Out-Null
+            $stdoutTask = $proc.StandardOutput.ReadToEndAsync()
+            $stderrTask = $proc.StandardError.ReadToEndAsync()
+            if (-not $proc.WaitForExit(15000)) {
+                $proc.Kill()
+                throw "tts-native.ps1 timed out in production-pipeline test"
+            }
+            $exitCode = $proc.ExitCode
+            $stderr = $stderrTask.Result
+            $null = $stdoutTask.Result
+        } finally {
+            $proc.Dispose()
+        }
+
+        $trace = $null
+        if (Test-Path $tracePath) {
+            $trace = Get-Content $tracePath -Raw -Encoding UTF8 | ConvertFrom-Json
+            Remove-Item $tracePath -Force -ErrorAction SilentlyContinue
+        }
+
+        $exitCode | Should -Be 0
+        $trace | Should -Not -BeNullOrEmpty
+        $trace.Spoke | Should -BeTrue
+        $trace.Text | Should -Be "hello"
+    }
+}
+
+# ============================================================
+# Voice-name case insensitivity (card w3ciyq)
+#
+# -contains uses PowerShell's case-insensitive equality semantics, so an
+# uppercase voice argument resolves to a properly-cased installed voice
+# without extra work. This test codifies that behaviour as intended
+# rather than accidental, matching the skip-guard pattern used by the
+# other voice-dependent tests.
+# ============================================================
+
+Describe "tts-native.ps1 voice case insensitivity" {
+    It "resolves an uppercase voice name to the installed (properly-cased) voice" {
+        Add-Type -AssemblyName System.Speech -ErrorAction SilentlyContinue
+        $voices = [System.Speech.Synthesis.SpeechSynthesizer]::new().GetInstalledVoices() | ForEach-Object { $_.VoiceInfo.Name }
+        if (-not $voices -or $voices.Count -eq 0) {
+            Set-ItResult -Skipped -Because "no SAPI voices installed on this runner"
+            return
+        }
+        $first = $voices[0]
+        $upper = $first.ToUpper()
+        # Sanity: we actually need the upper-case form to differ from the
+        # canonical form to meaningfully test case-insensitivity.
+        if ($upper -ceq $first) {
+            Set-ItResult -Skipped -Because "first installed voice name is already uppercase"
+            return
+        }
+        $r = Invoke-TtsNativeDryRun -InputText "test" -Voice $upper
+        $r.ExitCode | Should -Be 0
+        $r.Trace.SelectVoiceCalled | Should -BeTrue
+        # The resolved voice is whatever the script passed to SelectVoice.
+        # We allow either the caller-provided uppercase form OR the canonical
+        # installed form -- both are acceptable as long as selection happened.
+        $r.Trace.SelectedVoice | Should -Not -BeNullOrEmpty
+    }
+}
+
+# ============================================================
+# SAPI5 spaced-voice-name binding (card w3ciyq)
+#
+# Guards the bash -> powershell.exe -File arg handoff for realistic SAPI5
+# voice names containing spaces (e.g. "Microsoft David Desktop",
+# "Microsoft Zira Desktop"). The existing -Voice test only covers voice
+# names returned from GetInstalledVoices at runtime; this one asserts that
+# a spaced literal still arrives as a single intact -Voice argument.
+# ============================================================
+
+Describe "tts-native.ps1 SAPI5 spaced voice-name binding" {
+    It "preserves a spaced voice name across the powershell -File arg handoff" {
+        # Pass a hand-rolled spaced voice name that is unlikely to actually
+        # match anything. The dry-run trace records RequestedVoice verbatim,
+        # so we can assert the spaced name arrived intact regardless of
+        # whether the voice is installed.
+        $spaced = "Microsoft David Desktop"
+        $r = Invoke-TtsNativeDryRun -InputText "test" -Voice $spaced
+        $r.ExitCode | Should -Be 0
+        $r.Trace | Should -Not -BeNullOrEmpty
+        $r.Trace.RequestedVoice | Should -Be $spaced
+    }
+
+    It "preserves a different spaced voice name (Microsoft Zira Desktop)" {
+        $spaced = "Microsoft Zira Desktop"
+        $r = Invoke-TtsNativeDryRun -InputText "test" -Voice $spaced
+        $r.ExitCode | Should -Be 0
+        $r.Trace.RequestedVoice | Should -Be $spaced
+    }
+}

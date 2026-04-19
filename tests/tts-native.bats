@@ -521,3 +521,99 @@ JSON
   mock_called "piper"
   [[ "$(mock_args piper)" == *"--model $TEST_DIR/custom/my-model.onnx"* ]]
 }
+
+# ============================================================
+# awk injection hardening (card w3ciyq)
+#
+# rate/volume values originate in config.json and therefore must be treated
+# as untrusted input. The script passes them to awk via `-v` so awk sees
+# them as data, not program text. These tests assert that a rate string
+# carrying awk syntax cannot execute arbitrary code through the script and
+# that the invocation still exits 0 (contract: TTS never fails the caller).
+# ============================================================
+
+@test "awk hardening: hostile rate on macOS cannot inject awk code" {
+  mock_uname "Darwin"
+  mock_cmd "say"
+  with_mocks
+  local canary="$TEST_DIR/awk-injected.flag"
+  # A rate string that, if awk built the program via string interpolation,
+  # would use awk's system() to touch the canary file.
+  local hostile='system("touch '"$canary"'")'
+  run bash -c "echo 'hi' | bash '$TTS_SCRIPT' 'default' '$hostile' '0.5' 2>&1"
+  [ "$status" -eq 0 ]
+  # Canary must NOT exist — injection blocked by awk -v.
+  [ ! -f "$canary" ]
+}
+
+@test "awk hardening: hostile rate on Linux/espeak-ng cannot inject awk code" {
+  mock_uname "Linux"
+  mock_cmd "espeak-ng"
+  with_mocks
+  local canary="$TEST_DIR/awk-injected.flag"
+  local hostile='system("touch '"$canary"'")'
+  run bash -c "echo 'hi' | bash '$TTS_SCRIPT' 'default' '$hostile' '0.5' 2>&1"
+  [ "$status" -eq 0 ]
+  [ ! -f "$canary" ]
+}
+
+@test "awk hardening: hostile volume on Linux/espeak-ng cannot inject awk code" {
+  mock_uname "Linux"
+  mock_cmd "espeak-ng"
+  with_mocks
+  local canary="$TEST_DIR/awk-injected-vol.flag"
+  local hostile='system("touch '"$canary"'")'
+  run bash -c "echo 'hi' | bash '$TTS_SCRIPT' 'default' '1.0' '$hostile' 2>&1"
+  [ "$status" -eq 0 ]
+  [ ! -f "$canary" ]
+}
+
+@test "awk hardening: hostile rate on Linux/piper cannot inject awk code" {
+  mock_uname "Linux"
+  mock_cmd "piper"
+  mock_cmd "aplay"
+  mkdir -p "$TEST_DIR/piper-models"
+  touch "$TEST_DIR/piper-models/en_US-lessac-medium.onnx"
+  with_mocks
+  local canary="$TEST_DIR/awk-injected-piper.flag"
+  local hostile='system("touch '"$canary"'")'
+  run bash -c "echo 'hi' | bash '$TTS_SCRIPT' 'default' '$hostile' '0.5' 2>&1"
+  [ "$status" -eq 0 ]
+  [ ! -f "$canary" ]
+}
+
+@test "awk hardening: tts-native.sh uses 'awk -v' for rate/volume (source scan)" {
+  # Guards against regressing to `awk "BEGIN { printf ... $rate ... }"` style,
+  # which is the interpolation pattern that allowed injection in the first
+  # place.  If this test fires, check _speak_macos / _speak_piper /
+  # _speak_espeak_ng in scripts/tts-native.sh.
+  local bad
+  bad=$(grep -nE 'awk[[:space:]]+"[^"]*\$(rate|volume)' "$TTS_SCRIPT" || true)
+  [ -z "$bad" ]
+}
+
+# ============================================================
+# tests/setup.bash python3 portability guard (card w3ciyq)
+#
+# Pre-existing bug: hardcoded `/usr/bin/python3` in setup.bash prevented the
+# harness from running on Git Bash for Windows (18 tts.bats failures traced
+# to this).  The fix resolves python3 via PATH. This test codifies the fix
+# so it does not regress.
+# ============================================================
+
+@test "setup.bash: run_peon_tts resolves python3 via PATH (no hardcoded /usr/bin/python3)" {
+  local setup_bash="$(cd "$(dirname "${BATS_TEST_FILENAME}")" && pwd)/setup.bash"
+  [ -f "$setup_bash" ]
+  # run_peon_tts / enable_debug_logging must use $PEON_PY (PATH-resolved
+  # python3) rather than the Linux-only /usr/bin/python3 absolute path.
+  # Accept the whole file being free of that absolute path inside the
+  # run_peon_tts and enable_debug_logging function bodies.
+  local offenders
+  offenders=$(awk '
+    /^run_peon_tts\(\)/            { in_tgt = 1 }
+    /^enable_debug_logging\(\)/    { in_tgt = 1 }
+    in_tgt && /\/usr\/bin\/python3/ { print NR": "$0 }
+    in_tgt && /^\}/                { in_tgt = 0 }
+  ' "$setup_bash")
+  [ -z "$offenders" ]
+}
