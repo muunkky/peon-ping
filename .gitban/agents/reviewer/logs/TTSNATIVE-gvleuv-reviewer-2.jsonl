@@ -1,0 +1,14 @@
+{"timestamp":"2026-04-19T22:22:08Z","operation":"init","role":"reviewer","sprint":"TTSNATIVE","card_id":"gvleuv","cycle":2}
+{"timestamp":"2026-04-19T22:22:11Z","operation":"hook_cmd","command":"export AGENT_LOG_DIR=\".gitban/agents/reviewer/logs\" && export AGENT_ROLE=\"reviewer\" && export AGENT_SPRINT_TAG=\"TTSNATIVE\" && export AGENT_CARD_ID=\"gvleuv\" && export AGENT_CYCLE=\"2\" && source .gitban/hooks/agent-log.sh && agent_log_init && echo \"logged\""}
+{"timestamp":"2026-04-19T22:22:31Z","operation":"hook_cmd","command":"git log --oneline -10"}
+{"timestamp":"2026-04-19T22:22:31Z","operation":"hook_cmd","command":"git status"}
+{"timestamp":"2026-04-19T22:22:47Z","operation":"hook_cmd","command":"agent_log_event \"read-card\" '{\"card_id\":\"gvleuv\"}' 2>/dev/null; git show --stat 2b155ae"}
+{"timestamp":"2026-04-19T22:23:25Z","operation":"hook_cmd","command":"git show 2b155ae -- .gitban/roadmap/roadmap.yaml"}
+{"timestamp":"2026-04-19T22:23:25Z","operation":"hook_cmd","command":"git show 2b155ae -- CHANGELOG.md"}
+{"timestamp":"2026-04-19T22:24:05Z","operation":"hook_cmd","command":"ls -la .gitban/cards/ | grep gvleuv"}
+{"timestamp":"2026-04-19T22:24:46Z","operation":"hook_cmd","command":"git diff HEAD -- .gitban/roadmap/roadmap.yaml"}
+{"timestamp":"2026-04-19T22:25:24Z","operation":"hook_cmd","command":"awk '/^  v2:/,/^  v3:/' .gitban/roadmap/roadmap.yaml | head -20"}
+{"timestamp":"2026-04-19T22:26:05Z","operation":"hook_cmd","command":"ls .gitban/cards/ | grep gvleuv"}
+{"timestamp":"2026-04-19T22:26:30Z","operation":"hook_cmd","command":"git show 2b155ae --stat | head -20"}
+{"timestamp":"2026-04-19T22:26:43Z","operation":"hook_cmd","command":"ls .gitban/agents/reviewer/inbox/"}
+{"timestamp":"2026-04-19T22:27:54Z","operation":"hook_cmd","command":"agent_log_event \"write-review\" '{\"verdict\":\"APPROVAL\"}' 2>/dev/null; agent_log_event \"card-status-change\" '{\"new_status\":\"in_progress\"}' 2>/dev/null; agent_log_summary 2>/dev/null; echo \"done\""}
