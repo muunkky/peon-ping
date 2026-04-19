@@ -3,3 +3,8 @@
 {"timestamp":"2026-04-19T08:46:40Z","operation":"init","role":"executor","sprint":"TTSNATIVE","card_id":"xuloxu","cycle":1}
 {"timestamp":"2026-04-19T08:46:42Z","operation":"event","label":"code-change","metadata":{"files":["install.ps1"]}}
 {"timestamp":"2026-04-19T08:46:42Z","operation":"event","label":"test-run","metadata":{"file":"tests/adapters-windows.Tests.ps1","scope":"install.ps1 Adapter Installation","passed":7,"failed":0}}
+{"timestamp":"2026-04-19T08:47:46Z","operation":"init","role":"executor","sprint":"TTSNATIVE","card_id":"xuloxu","cycle":1}
+{"timestamp":"2026-04-19T08:47:48Z","operation":"event","label":"commit","metadata":{"hash":"2d5faf3","message":"refactor(install.ps1): extract Install-HelperScript helper"}}
+{"timestamp":"2026-04-19T08:49:27Z","operation":"init","role":"executor","sprint":"TTSNATIVE","card_id":"xuloxu","cycle":1}
+{"timestamp":"2026-04-19T08:49:29Z","operation":"event","label":"test-run","metadata":{"file":"tests/adapters-windows.Tests.ps1","scope":"full-suite-post-refactor","passed":421,"failed":0,"duration_s":525}}
+{"timestamp":"2026-04-19T08:49:29Z","operation":"summary","total_commands":0,"failed_commands":0,"total_duration_s":3}
