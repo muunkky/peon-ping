@@ -1,0 +1,9 @@
+{"timestamp":"2026-04-19T07:44:49Z","operation":"init","role":"reviewer","sprint":"TTSNATIVE","card_id":"as44cd","cycle":1}
+{"timestamp":"2026-04-19T07:44:49Z","operation":"event","label":"read-card","metadata":{"card_id":"as44cd"}}
+{"timestamp":"2026-04-19T07:45:12Z","operation":"event","label":"gate1-pass","metadata":{}}
+{"timestamp":"2026-04-19T07:45:43Z","operation":"event","label":"read-diff","metadata":{"commits":["38329b0","53884c7"]}}
+{"timestamp":"2026-04-19T07:48:56Z","operation":"event","label":"read-adr","metadata":{"file":"ADR-001-tts-backend-architecture.md"}}
+{"timestamp":"2026-04-19T07:48:56Z","operation":"event","label":"read-design-doc","metadata":{"file":"docs/designs/tts-native.md"}}
+{"timestamp":"2026-04-19T07:50:32Z","operation":"event","label":"write-review","metadata":{"verdict":"APPROVAL"}}
+{"timestamp":"2026-04-19T07:50:47Z","operation":"event","label":"card-status-unchanged","metadata":{"status":"in_progress","reason":"already in_progress after approval"}}
+{"timestamp":"2026-04-19T07:50:47Z","operation":"summary","total_commands":0,"failed_commands":0,"total_duration_s":0}

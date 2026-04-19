@@ -115,3 +115,11 @@ Populate at closeout. Keep brief — this is a solo sprint; the retro exists so 
 * [ ] Sprint summary generated
 * [ ] Retrospective populated in this card
 * [ ] Performance + audibility smoke checks recorded
+
+
+## Deferred observables from `dpyzoo` (routed by reviewer-1)
+
+These two manual capstone checks were deferred from `dpyzoo`'s Acceptance Criteria because the executor worktree has no installed peon-ping. They must be verified on a real Windows 10 or 11 install post-merge before this closeout card moves to `done`.
+
+- [ ] **C1 -- Manual DoD (Windows TTS audibility):** Run `peon notifications test` with `tts.enabled: true` on an installed Windows peon-ping and confirm spoken output is produced through the full `Invoke-TtsSpeak -> tts-native.ps1` path. This is the second manual capstone from `dpyzoo`'s Acceptance Criteria. Source: reviewer-1 on `dpyzoo`, "Close-out actions before card -> done" section. Why appended: sprint-level end-to-end check that cannot run from a worktree with no installed peon-ping -- belongs on the closeout card's audibility row.
+- [ ] **C2 -- Hook return latency regression check (Windows):** Measure `[exit] duration_ms` with `tts.enabled: true` and confirm it stays within +/-50ms of the `tts.enabled: false` baseline on the same installed Windows host. This is `dpyzoo`'s TDD workflow Performance row plus the final Acceptance Criteria entry. Source: reviewer-1 on `dpyzoo`, "Close-out actions before card -> done" section. Why appended: rolls up into the existing Audit Checklist "Performance regression" row, which already covers macOS, Linux, and Windows.
