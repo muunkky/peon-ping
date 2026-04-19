@@ -1,0 +1,14 @@
+{"timestamp":"2026-04-19T20:28:49Z","operation":"init","role":"planner","sprint":"TTSNATIVE","card_id":"w3ciyq","cycle":1}
+{"timestamp":"2026-04-19T20:28:50Z","operation":"event","label":"read-inbox","metadata":{"file":"TTSNATIVE-w3ciyq-planner-1.md"}}
+{"timestamp":"2026-04-19T20:28:56Z","operation":"hook_cmd","command":"export AGENT_LOG_DIR=\".gitban/agents/planner/logs\"\nexport AGENT_ROLE=\"planner\"\nexport AGENT_SPRINT_TAG=\"TTSNATIVE\"\nexport AGENT_CARD_ID=\"w3ciyq\"\nexport AGENT_CYCLE=\"1\"\ncd \"C:/Users/Cameron/Projects/peon-ping\" && source .gitban/hooks/agent-log.sh && agent_log_init && agent_log_event \"read-inbox\" '{\"file\":\"TTSNATIVE-w3ciyq-planner-1.md\"}'"}
+{"timestamp":"2026-04-19T20:31:29Z","operation":"init","role":"planner","sprint":"TTSNATIVE","card_id":"w3ciyq","cycle":1}
+{"timestamp":"2026-04-19T20:31:30Z","operation":"event","label":"search-existing","metadata":{"query":"voice case insensitivity assertion","duplicates_found":0}}
+{"timestamp":"2026-04-19T20:31:36Z","operation":"hook_cmd","command":"cd \"C:/Users/Cameron/Projects/peon-ping\" && export AGENT_LOG_DIR=\".gitban/agents/planner/logs\" AGENT_ROLE=\"planner\" AGENT_SPRINT_TAG=\"TTSNATIVE\" AGENT_CARD_ID=\"w3ciyq\" AGENT_CYCLE=\"1\" && source .gitban/hooks/agent-log.sh && agent_log_init && agent_log_event \"search-existing\" '{\"query\":\"voice case insensitivity assertion\",\"duplicates_found\":0}'"}
+{"timestamp":"2026-04-19T20:31:36Z","operation":"hook_cmd","command":"ls \"C:/Users/Cameron/Projects/peon-ping/.gitban/templates/\" 2>&1"}
+{"timestamp":"2026-04-19T20:32:39Z","operation":"hook_cmd","command":"ls \"C:/Users/Cameron/Projects/peon-ping/.gitban/agents/planner/logs/\" 2>&1 | head -20"}
+{"timestamp":"2026-04-19T20:33:26Z","operation":"init","role":"planner","sprint":"TTSNATIVE","card_id":"w3ciyq","cycle":1}
+{"timestamp":"2026-04-19T20:33:27Z","operation":"event","label":"read-inbox","metadata":{"file":"TTSNATIVE-w3ciyq-planner-1.md"}}
+{"timestamp":"2026-04-19T20:33:28Z","operation":"event","label":"search-existing","metadata":{"query":"voice case insensitivity assertion","duplicates_found":0}}
+{"timestamp":"2026-04-19T20:33:28Z","operation":"event","label":"search-existing","metadata":{"query":"SelectedVoice assertion strengthen","duplicates_found":0}}
+{"timestamp":"2026-04-19T20:33:29Z","operation":"event","label":"append-card","metadata":{"card_id":"gvleuv","items_appended":1,"pattern":"append-to-closeout-card","bytes_appended":1244}}
+{"timestamp":"2026-04-19T20:33:30Z","operation":"summary","total_commands":0,"failed_commands":0,"total_duration_s":3}
