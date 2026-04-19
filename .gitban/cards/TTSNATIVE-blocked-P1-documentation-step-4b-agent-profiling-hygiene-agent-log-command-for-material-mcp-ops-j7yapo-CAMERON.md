@@ -192,3 +192,56 @@ Contrast with the broken h027ru log (pre-guidance): `total_commands:0, total_dur
 
 ## BLOCKED
 Worktree executor cannot mutate `.claude/skills/*/SKILL.md` — those files are outside the worktree sandbox (harness denies Edit/Write/mutating Bash on out-of-worktree paths) and are gitignored so would not commit. See the "Executor blocked" section of this card for the full context, analysis findings, and ready-to-paste guidance content. Re-dispatch to a main-repo agent (no worktree) to complete the edits.
+
+
+
+## Re-dispatch attempt (cycle 2) also blocked — same sandbox
+
+**Agent:** worktree executor on branch `worktree-agent-a0ee6c0c` (based on `sprint/TTSNATIVE` tip `f8b9c8f`).
+
+**Dispatch prompt claimed:** "You are running on the MAIN thread (no worktree isolation). The main thread can edit `.claude/skills/` files directly because they live outside the git tree but are still valid working-directory files."
+
+**Reality:** I am in a worktree. Verified via:
+
+- `pwd` → `/c/Users/Cameron/Projects/peon-ping/.claude/worktrees/agent-a0ee6c0c`
+- `git rev-parse --show-toplevel` → `C:/Users/Cameron/Projects/peon-ping/.claude/worktrees/agent-a0ee6c0c`
+- `git branch --show-current` → `worktree-agent-a0ee6c0c`
+- `git worktree list` confirms the main repo at `C:/Users/Cameron/Projects/peon-ping` and this agent's worktree as a locked sibling.
+
+Re-tested the harness sandbox on out-of-worktree paths to confirm prior executor's findings still apply:
+
+- `Edit` on `C:/Users/Cameron/Projects/peon-ping/.claude/skills/executor/SKILL.md` → **DENIED** by harness with standard "Permission to use Edit has been denied" response.
+- `Bash` attempting `echo >` to `C:/Users/Cameron/Projects/peon-ping/.claude/skills/executor/SKILL.md.probe` → **DENIED**.
+- `Read` and `Grep` on the same paths → **ALLOWED** (used to confirm `agent_log_cmd` helper name and inspect current Profiling sections).
+
+**Confirmed facts ready for the next run:**
+
+- `.claude/skills/*/SKILL.md` exists only in the main repo, not in this worktree. The worktree's `.claude/` directory contains only `worktrees/` itself (circular-ish — the worktree dir).
+- `.gitignore` line 9 is `.claude/`. `git check-ignore -v` on the four target files confirms all four are ignored. Any successful edit in the main repo would NOT be committable without a `.gitignore` whitelist or `-f` force-add.
+- `git ls-files .claude/skills/` in the main worktree returns empty → no SKILL.md files are currently tracked.
+- Helper name in `.gitban/hooks/agent-log.sh` is `agent_log_cmd` (confirmed lines 17-20, 109-139). `agent_log_event` does NOT increment the command counter; only `agent_log_cmd` does.
+
+**Recommendation to router / dispatcher / Staff Engineer:**
+
+1. The card needs either (a) a `.gitignore` whitelist for `.claude/skills/*/SKILL.md` (e.g. `!.claude/skills/*/SKILL.md`) plus a tracked-file baseline commit, OR (b) relocation of the canonical SKILL.md files into a tracked location (e.g. `skills/<role>/SKILL.md` with the harness configured to read from there).
+2. Without (1a) or (1b), any edit the executor makes is strictly ephemeral — the dispatcher cannot propagate it, the next worktree spawn will not see it, and the merge-back will no-op.
+3. The dispatcher's "main-thread dispatch" path appears to still be dispatching into a worktree sandbox (branch `worktree-agent-*` and `.../worktrees/agent-*` cwd). This is itself a bug worth a follow-up card against the dispatcher.
+
+**No commits in this worktree.** All ready-to-paste guidance content remains on this card body (see prior "Executor blocked" section and the `#### Wrap material MCP calls with agent_log_cmd` draft).
+
+## BLOCKED (cycle 2)
+
+Worktree executor cannot mutate `.claude/skills/*/SKILL.md`:
+- Harness sandbox denies Edit/Write/Bash on out-of-worktree paths (re-verified this cycle).
+- `.claude/` gitignored, so even a successful write would not propagate via commit.
+- Prior executor's analysis and draft guidance remain accurate and ready to paste; helper name is `agent_log_cmd` (not `agent_log_command`).
+
+This card cannot progress via the worktree dispatch path. Needs gitignore whitelist (`!.claude/skills/*/SKILL.md`), file relocation, or a truly-non-sandboxed main-thread dispatch to land.
+
+
+## BLOCKED
+Card scope is editing `.claude/skills/{executor,reviewer,router,planner}/SKILL.md`, but those files are deployed by gitban from the gitban repo — not authored in this repo. Any edit here is ephemeral and would be overwritten by the next gitban skill sync.
+
+The fix (teaching agents to wrap material MCP calls with `agent_log_cmd` so `total_commands` in the JSONL profiling summary is non-zero) belongs in the gitban repo's SKILL.md sources, not peon-ping. Ready-to-paste content is preserved on this card body.
+
+Not a TTSNATIVE blocker — this was a reviewer hygiene observation routed from the h027ru review, not TTS work. Blocking here so sprint closeout (gvleuv) does not gate on it. Reopen as a gitban-repo card or a peon-ping backlog item once the gitban skill-source workflow for this is understood.
