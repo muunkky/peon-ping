@@ -1738,6 +1738,25 @@ Describe "install.ps1 Default Config" {
         $script:installContent | Should -Match '#!/usr/bin/env bash'
     }
 
+    It "peon.cmd shim probes for pwsh before falling back to powershell" {
+        # pwsh-first avoids the PS 5.1 / PS 7 PSModulePath clash where 5.1 can
+        # load PS 7's incompatible Security module and fail to resolve
+        # Get-ExecutionPolicy. If pwsh is installed, prefer it; else use
+        # powershell.exe. Structural test on the install.ps1 here-string.
+        $script:installContent | Should -Match 'where pwsh'
+        $script:installContent | Should -Match 'pwsh -NoProfile -NonInteractive -Command "& ''%USERPROFILE%\\.claude\\hooks\\peon-ping\\peon\.ps1'''
+        $script:installContent | Should -Match 'powershell -NoProfile -NonInteractive -Command "& ''%USERPROFILE%\\.claude\\hooks\\peon-ping\\peon\.ps1'''
+    }
+
+    It "peon bash shim probes for pwsh before falling back to powershell" {
+        # Same resiliency on the bash wrapper. command -v pwsh decides; both
+        # branches pass -NoProfile -NonInteractive -Command to whichever
+        # executable wins.
+        $script:installContent | Should -Match 'command -v pwsh'
+        $script:installContent | Should -Match 'PS_EXE=pwsh'
+        $script:installContent | Should -Match 'PS_EXE=powershell\.exe'
+    }
+
     It "validates pack names with safe charset" {
         $script:installContent | Should -Match 'Test-SafePackName'
     }
