@@ -2,14 +2,23 @@
 # PreToolUse hook: logs every tool call to a per-agent trace file.
 # Wire this into agent frontmatter on matcher "*" to capture all tool activity.
 #
-# Log location: .gitban/agents/traces/{agent_type}-{agent_id}.jsonl
-# Falls back to: .gitban/agents/traces/session-{date}.jsonl
+# Log locations:
+#   .gitban/agents/traces/agent-{session_id_12}.jsonl   (per-agent file, watchdog target)
+#   .gitban/agents/traces/session-{date}.jsonl          (shared session file, backward compat)
 #
-# Each line is a JSON object with: timestamp, tool_name, tool_input (truncated)
+# Each line is a JSON object with: timestamp, tool_name, tool_input (truncated),
+# and the session id so downstream tools can correlate tool calls to an agent.
 #
 # Set AGENT_TRACE=0 to disable tracing entirely.
 # Set AGENT_TRACE_VERBOSE=1 to log full tool_input (no truncation).
 # Default: tracing on, values truncated to 200 chars.
+#
+# IMPORTANT: `session_id` is the reliable per-agent discriminator in Claude
+# Code PreToolUse hook payloads. The fields `agent_id` and `agent_type` are
+# NOT populated by the platform — any hook relying on them silently degrades
+# (all tool calls landed in the shared session-{date}.jsonl, per-agent files
+# were never created, and the watchdog could never find a matching file).
+# See EXTFB card qm53xi (2026-04-08) for the original diagnosis.
 
 if [ "${AGENT_TRACE:-1}" = "0" ]; then
   exit 0
@@ -54,8 +63,7 @@ except Exception:
 verbose = sys.argv[3] == '1'
 tool_name = data.get('tool_name', 'unknown')
 tool_input = data.get('tool_input', {})
-agent_id = data.get('agent_id', '')
-agent_type = data.get('agent_type', '')
+session_id = data.get('session_id', '')
 ts = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
 
 # Build summary of tool_input
@@ -69,28 +77,35 @@ else:
             s = s[:200] + '...'
         summary[k] = s
 
-# Determine log filename
-if agent_type and agent_id:
-    short_id = agent_id[:8] if len(agent_id) > 8 else agent_id
-    filename = f'{agent_type}-{short_id}.jsonl'
-else:
-    filename = f'session-{ts[:10]}.jsonl'
-
 trace_dir = sys.argv[2]
-filepath = os.path.join(trace_dir, filename)
+
+# Shared session file (backward compat)
+shared_path = os.path.join(trace_dir, f'session-{ts[:10]}.jsonl')
+
+# Per-agent file keyed on session_id (watchdog target). If session_id is
+# missing (older platform version), write only to the shared file — the
+# watchdog's Strategy-2 recency fallback still finds newest activity.
+per_agent_path = None
+if session_id:
+    short_sid = session_id[:12].replace('/', '_').replace('\\\\', '_')
+    per_agent_path = os.path.join(trace_dir, f'agent-{short_sid}.jsonl')
 
 entry = {
     'ts': ts,
     'tool': tool_name,
     'input': summary,
 }
-if agent_id:
-    entry['agent_id'] = agent_id[:8]
-if agent_type:
-    entry['agent_type'] = agent_type
+if session_id:
+    entry['session'] = session_id[:12]
 
-with open(filepath, 'a', encoding='utf-8') as f:
-    f.write(json.dumps(entry, separators=(',', ':')) + '\n')
+line = json.dumps(entry, separators=(',', ':')) + '\n'
+
+with open(shared_path, 'a', encoding='utf-8') as f:
+    f.write(line)
+
+if per_agent_path:
+    with open(per_agent_path, 'a', encoding='utf-8') as f:
+        f.write(line)
 " "$INPUT" "$TRACE_DIR" "$VERBOSE" 2>/dev/null
 
 exit 0

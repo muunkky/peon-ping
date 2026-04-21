@@ -1,0 +1,12 @@
+{"timestamp":"2026-04-19T08:07:33Z","operation":"init","role":"planner","sprint":"TTSNATIVE","card_id":"as44cd","cycle":1}
+{"timestamp":"2026-04-19T08:07:34Z","operation":"event","label":"read-inbox","metadata":{"file":"TTSNATIVE-as44cd-planner-1.md"}}
+{"timestamp":"2026-04-19T08:07:37Z","operation":"hook_cmd","command":"export AGENT_LOG_DIR=\".gitban/agents/planner/logs\" AGENT_ROLE=\"planner\" AGENT_SPRINT_TAG=\"TTSNATIVE\" AGENT_CARD_ID=\"as44cd\" AGENT_CYCLE=\"1\" && source .gitban/hooks/agent-log.sh && agent_log_init && agent_log_event \"read-inbox\" '{\"file\":\"TTSNATIVE-as44cd-planner-1.md\"}'"}
+{"timestamp":"2026-04-19T08:07:48Z","operation":"hook_cmd","command":"ls -la \"C:/Users/Cameron/Projects/peon-ping/.gitban/agents/executor/logs/\" 2>&1 | head -30"}
+{"timestamp":"2026-04-19T08:07:57Z","operation":"hook_cmd","command":"git status --short \"C:/Users/Cameron/Projects/peon-ping/.gitban/agents/executor/logs/TTSNATIVE-dpyzoo-executor-1.jsonl\""}
+{"timestamp":"2026-04-19T08:08:24Z","operation":"hook_cmd","command":"git diff --stat HEAD -- \"C:/Users/Cameron/Projects/peon-ping/.gitban/cards/TTSNATIVE-in_progress-P1-feature-step-3-implement-windows-tts-native-ps1-with-pester-unit-tests-dpyzoo-CAMERON.md\" 2>&1"}
+{"timestamp":"2026-04-19T08:08:44Z","operation":"hook_cmd","command":"git log --oneline -5 -- \"C:/Users/Cameron/Projects/peon-ping/.gitban/cards/TTSNATIVE-in_progress-P1-feature-step-3-implement-windows-tts-native-ps1-with-pester-unit-tests-dpyzoo-CAMERON.md\" 2>&1"}
+{"timestamp":"2026-04-19T08:10:28Z","operation":"init","role":"planner","sprint":"TTSNATIVE","card_id":"as44cd","cycle":1}
+{"timestamp":"2026-04-19T08:10:28Z","operation":"event","label":"read-inbox","metadata":{"file":"TTSNATIVE-as44cd-planner-1.md","groups":3}}
+{"timestamp":"2026-04-19T08:10:28Z","operation":"event","label":"search-existing","metadata":{"queries":["awk injection","SAPI5 voice spaced","hardcoded python3"],"duplicates_found":0}}
+{"timestamp":"2026-04-19T08:10:28Z","operation":"event","label":"append-tracker","metadata":{"card_id":"w3ciyq","items":3,"groups":["card-1","card-2","card-3"]}}
+{"timestamp":"2026-04-19T08:10:28Z","operation":"summary","total_commands":0,"failed_commands":0,"total_duration_s":1}

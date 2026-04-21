@@ -2,14 +2,18 @@
 # Agent watchdog: monitors trace files for staleness and writes marker files.
 #
 # Usage:
-#   bash scripts/agent-watchdog.sh <agent_id_prefix> [timeout_seconds] [poll_seconds]
+#   bash .gitban/hooks/agent-watchdog.sh <agent_id_prefix> [timeout_seconds] [poll_seconds]
 #
 # The watchdog monitors .gitban/agents/traces/ for JSONL files matching the
 # agent_id_prefix. If no new lines are appended within timeout_seconds, it
 # writes a stale marker file that the dispatcher can check.
 #
 # Arguments:
-#   agent_id_prefix  - Partial match for the trace filename (e.g. "executor-a7f22aef")
+#   agent_id_prefix  - Partial match for the trace filename. With the
+#                      session_id-based agent-trace.sh, this is "agent-{short_id}"
+#                      where short_id is the first 8-12 chars of the Claude Code
+#                      `session_id` for the dispatched agent (equivalently the
+#                      short form of the Agent tool's returned `agentId`).
 #   timeout_seconds  - Seconds of inactivity before marking stale (default: 300 = 5 min)
 #   poll_seconds     - How often to check (default: 30)
 #
@@ -19,6 +23,20 @@
 #
 # The dispatcher checks for .stale files to detect hung agents.
 # Kill this watchdog when the agent completes (it exits cleanly on SIGTERM).
+#
+# IMPORTANT: `session_id` (not `agent_id`/`agent_type`) is the reliable
+# per-agent discriminator in Claude Code PreToolUse hooks. Older watchdog
+# versions searched for a description-derived prefix ({SPRINTTAG}-{cardid}-...)
+# that never appears in the trace filename — the search exhausted MAX_WAIT
+# on every dispatch. See EXTFB cards qm53xi (filename scheme) and bsqw1z
+# (start-ordering) for the full history.
+#
+# Two-strategy file discovery:
+#   Strategy 1: glob for *{AGENT_PREFIX}*.jsonl (exact ID match when the
+#               dispatcher passes the agent's short ID).
+#   Strategy 2: if Strategy 1 exhausts its wait, fall back to the newest
+#               agent-*.jsonl created since this watchdog started. This
+#               degrades gracefully if the session_id format changes.
 
 set -euo pipefail
 
@@ -35,6 +53,7 @@ if [ -z "$MAIN_REPO" ]; then
 fi
 
 TRACE_DIR="$MAIN_REPO/.gitban/agents/traces"
+WATCHDOG_START_SECS=$(date +%s)
 
 # Clean exit on SIGTERM
 cleanup() {
@@ -49,10 +68,45 @@ trap cleanup SIGTERM SIGINT
 # Wait for the trace file to appear (agent may not have started yet)
 TRACE_FILE=""
 WAIT_COUNT=0
-MAX_WAIT=60  # seconds to wait for trace file to appear
+MAX_WAIT=120  # seconds to wait for trace file to appear (raised 60->120 per qm53xi)
+
+# Find python for Strategy 2 (cross-platform file-recency comparison)
+PYTHON=""
+for candidate in "$MAIN_REPO/.venv/Scripts/python.exe" "$MAIN_REPO/.venv/bin/python" "$GIT_ROOT/.venv/Scripts/python.exe" "$GIT_ROOT/.venv/bin/python" python3 python; do
+  if [ -x "$candidate" ] 2>/dev/null || command -v "$candidate" &>/dev/null; then
+    PYTHON="$candidate"
+    break
+  fi
+done
+
+find_newest_agent_trace() {
+  # Strategy 2: newest agent-*.jsonl file created since WATCHDOG_START_SECS.
+  # Uses python for cross-platform mtime comparison (Git Bash on Windows
+  # does not have a consistent -newer/-newermt flag for find).
+  if [ -z "$PYTHON" ]; then
+    return 1
+  fi
+  "$PYTHON" -c "
+import glob, os, sys, time
+trace_dir = sys.argv[1]
+start_secs = float(sys.argv[2])
+candidates = []
+for path in glob.glob(os.path.join(trace_dir, 'agent-*.jsonl')):
+    try:
+        mtime = os.path.getmtime(path)
+    except OSError:
+        continue
+    if mtime >= start_secs:
+        candidates.append((mtime, path))
+if not candidates:
+    sys.exit(1)
+candidates.sort(reverse=True)
+print(candidates[0][1])
+" "$TRACE_DIR" "$WATCHDOG_START_SECS" 2>/dev/null
+}
 
 while [ -z "$TRACE_FILE" ]; do
-  # Find the newest matching trace file
+  # Strategy 1: find the newest matching trace file by the prefix argument
   MATCH=$(find "$TRACE_DIR" -maxdepth 1 -name "*${AGENT_PREFIX}*.jsonl" -type f 2>/dev/null | head -1)
   if [ -n "$MATCH" ]; then
     TRACE_FILE="$MATCH"
@@ -61,7 +115,14 @@ while [ -z "$TRACE_FILE" ]; do
 
   WAIT_COUNT=$((WAIT_COUNT + POLL_SECS))
   if [ "$WAIT_COUNT" -ge "$MAX_WAIT" ]; then
-    echo "watchdog: no trace file matching '$AGENT_PREFIX' found after ${MAX_WAIT}s — exiting" >&2
+    # Strategy 2 fallback: newest agent-*.jsonl since watchdog start
+    FALLBACK=$(find_newest_agent_trace || true)
+    if [ -n "$FALLBACK" ]; then
+      TRACE_FILE="$FALLBACK"
+      echo "watchdog: prefix '$AGENT_PREFIX' not found in ${MAX_WAIT}s — falling back to newest agent trace: $TRACE_FILE" >&2
+      break
+    fi
+    echo "watchdog: no trace file matching '$AGENT_PREFIX' or recent agent-*.jsonl found after ${MAX_WAIT}s — exiting" >&2
     exit 1
   fi
   sleep "$POLL_SECS"

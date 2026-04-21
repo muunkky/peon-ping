@@ -1,3 +1,16 @@
+## v2.21.0 (2026-04-20)
+
+### Added
+- **Platform-native TTS backends** — `tts.enabled: true` now produces real speech on every supported platform. macOS uses `say`, Linux uses a `piper` -> `espeak-ng` priority chain, and Windows uses SAPI5 via `System.Speech.Synthesis`. Previously, enabling TTS wrote a cue line but produced no audible output outside the mocked test harness.
+- **`--list-voices` / `-ListVoices`** — `scripts/tts-native.sh --list-voices` and `scripts/tts-native.ps1 -ListVoices` enumerate installed voices per platform (macOS `say -v ?`, espeak-ng, piper model dir, SAPI5 `GetInstalledVoices`), making voice discovery self-serve.
+- **SAPI5 spaced-voice-name support** — quoted `-Voice "Microsoft David Desktop"` and similar spaced names survive the bash -> `powershell.exe -File` handoff and resolve case-insensitively against installed voices.
+
+### Changed
+- **awk hardening in `scripts/tts-native.sh`** — rate, volume, and model-path derivations use `awk -v` variable binding instead of string interpolation so hostile config values cannot inject `awk` code into the engine-argument pipeline.
+
+### Fixed
+- **`peon` CLI shims prefer `pwsh` with fallback to `powershell`** — when PS 7 is installed alongside PS 5.1, PSModulePath can end up with PS 7 module dirs in front of the 5.1 inbox paths, causing 5.1 to load PS 7's incompatible `Microsoft.PowerShell.Security` module. Both `peon.cmd` and the bash `peon` wrapper now probe for `pwsh` first and fall back to `powershell.exe` only if absent. 5.1-only users see identical behavior.
+
 ## v2.20.0 (2026-04-14)
 
 ### Added

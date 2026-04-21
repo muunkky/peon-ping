@@ -1,0 +1,37 @@
+{"timestamp":"2026-04-19T09:19:58Z","operation":"init","role":"reviewer","sprint":"TTSNATIVE","card_id":"w3ciyq","cycle":1}
+{"timestamp":"2026-04-19T09:20:05Z","operation":"hook_cmd","command":"export AGENT_LOG_DIR=\".gitban/agents/reviewer/logs\" && export AGENT_ROLE=\"reviewer\" && export AGENT_SPRINT_TAG=\"TTSNATIVE\" && export AGENT_CARD_ID=\"w3ciyq\" && export AGENT_CYCLE=\"1\" && source .gitban/hooks/agent-log.sh && agent_log_init && echo \"log initialized\""}
+{"timestamp":"2026-04-19T09:20:48Z","operation":"hook_cmd","command":"git show d9a988f --stat"}
+{"timestamp":"2026-04-19T09:21:12Z","operation":"hook_cmd","command":"ls .gitban/hooks/"}
+{"timestamp":"2026-04-19T09:21:20Z","operation":"hook_cmd","command":"git log --oneline -20 --all | head -30"}
+{"timestamp":"2026-04-19T09:21:20Z","operation":"hook_cmd","command":"git log --oneline -15 f8b9c8f 2>/dev/null || echo \"trying alternative\"; git log --all --oneline --grep \"Install-HelperScript\" | head -5"}
+{"timestamp":"2026-04-19T09:21:45Z","operation":"hook_cmd","command":"git show 2d5faf3 --stat"}
+{"timestamp":"2026-04-19T09:21:51Z","operation":"hook_cmd","command":"ls -la .gitban/agents/reviewer/ 2>&1 || echo \"dir check\"; ls -la .gitban/agents/ 2>&1"}
+{"timestamp":"2026-04-19T09:22:04Z","operation":"hook_cmd","command":"git show fb3c53d --stat"}
+{"timestamp":"2026-04-19T09:22:22Z","operation":"hook_cmd","command":"ls .gitban/agents/reviewer/logs/ 2>&1"}
+{"timestamp":"2026-04-19T09:22:26Z","operation":"hook_cmd","command":"git show fb3c53d -- scripts/tts-native.sh tests/setup.bash"}
+{"timestamp":"2026-04-19T09:22:29Z","operation":"hook_cmd","command":"git show 2d5faf3 -- install.ps1"}
+{"timestamp":"2026-04-19T09:22:41Z","operation":"hook_cmd","command":"git show fb3c53d -- tests/tts-native.bats"}
+{"timestamp":"2026-04-19T09:22:41Z","operation":"hook_cmd","command":"git show f8a36b3 --stat && echo \"---\" && git show f8a36b3"}
+{"timestamp":"2026-04-19T09:22:54Z","operation":"hook_cmd","command":"git show 40a5496"}
+{"timestamp":"2026-04-19T09:22:54Z","operation":"hook_cmd","command":"git show fb3c53d -- tests/tts-native.Tests.ps1"}
+{"timestamp":"2026-04-19T09:23:06Z","operation":"hook_cmd","command":"git log --oneline -20"}
+{"timestamp":"2026-04-19T09:23:51Z","operation":"hook_cmd","command":"ls C:/Users/Cameron/Projects/peon-ping/docs/adr/ 2>/dev/null | head -30 ; echo \"---\" ; ls C:/Users/Cameron/Projects/peon-ping/docs/ 2>/dev/null | head -30"}
+{"timestamp":"2026-04-19T09:24:11Z","operation":"hook_cmd","command":"ls docs/adr/ 2>&1 || echo \"no adr dir\""}
+{"timestamp":"2026-04-19T09:24:19Z","operation":"hook_cmd","command":"ls docs/adr/proposals/ 2>&1"}
+{"timestamp":"2026-04-19T09:24:31Z","operation":"hook_cmd","command":"git log --all --oneline --grep=\"7cb15g\""}
+{"timestamp":"2026-04-19T09:24:52Z","operation":"hook_cmd","command":"git log 40a5496^..f8b9c8f --oneline"}
+{"timestamp":"2026-04-19T09:25:36Z","operation":"hook_cmd","command":"grep -n \"last_stop_time\\|Get-PeonState\\|ConvertFrom-Json\" tests/windows-setup.ps1 2>&1 | head -30"}
+{"timestamp":"2026-04-19T09:26:17Z","operation":"hook_cmd","command":"git show fb3c53d --name-only --format="}
+{"timestamp":"2026-04-19T09:26:24Z","operation":"hook_cmd","command":"ls -la .gitban/agents/ 2>/dev/null | head -20"}
+{"timestamp":"2026-04-19T09:26:25Z","operation":"hook_cmd","command":"ls .gitban/agents/reviewer/inbox/ 2>&1"}
+{"timestamp":"2026-04-19T09:26:44Z","operation":"hook_cmd","command":"ls -la .gitban/agents/reviewer/ 2>/dev/null"}
+{"timestamp":"2026-04-19T09:26:47Z","operation":"hook_cmd","command":"ls .gitban/agents/reviewer/inbox/ 2>/dev/null || echo \"no dir\""}
+{"timestamp":"2026-04-19T09:28:11Z","operation":"hook_cmd","command":"cat .gitban/agents/reviewer/logs/TTSNATIVE-7cb15g-reviewer-1.jsonl 2>&1"}
+{"timestamp":"2026-04-19T09:28:49Z","operation":"init","role":"reviewer","sprint":"TTSNATIVE","card_id":"w3ciyq","cycle":1}
+{"timestamp":"2026-04-19T09:28:50Z","operation":"event","label":"read-card","metadata":{"card_id":"w3ciyq"}}
+{"timestamp":"2026-04-19T09:28:50Z","operation":"event","label":"read-diff","metadata":{"commit":"fb3c53d"}}
+{"timestamp":"2026-04-19T09:28:51Z","operation":"event","label":"read-adr","metadata":{"file":"ADR-001-tts-backend-architecture.md"}}
+{"timestamp":"2026-04-19T09:28:51Z","operation":"event","label":"write-review","metadata":{"verdict":"APPROVAL"}}
+{"timestamp":"2026-04-19T09:28:51Z","operation":"event","label":"card-status-change","metadata":{"new_status":"in_progress"}}
+{"timestamp":"2026-04-19T09:28:51Z","operation":"summary","total_commands":0,"failed_commands":0,"total_duration_s":3}
+{"timestamp":"2026-04-19T09:28:52Z","operation":"hook_cmd","command":"ls -la .gitban/agents/reviewer/logs/TTSNATIVE-xuloxu-reviewer-1.jsonl 2>&1 | tail -3"}

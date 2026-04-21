@@ -1,0 +1,6 @@
+{"timestamp":"2026-04-19T06:15:15Z","operation":"init","role":"executor","sprint":"TTSNATIVE","card_id":"h027ru","cycle":1}
+{"timestamp":"2026-04-19T06:15:18Z","operation":"event","label":"read-card","metadata":{"card_id":"h027ru"}}
+{"timestamp":"2026-04-19T06:17:49Z","operation":"init","role":"executor","sprint":"TTSNATIVE","card_id":"h027ru","cycle":1}
+{"timestamp":"2026-04-19T06:17:49Z","operation":"event","label":"verification-complete","metadata":{"acs_verified":5,"checkboxes_toggled":9,"sibling_cards_todo":4}}
+{"timestamp":"2026-04-19T06:17:49Z","operation":"event","label":"append-work-log","metadata":{"bytes_appended":2853}}
+{"timestamp":"2026-04-19T06:17:49Z","operation":"summary","total_commands":0,"failed_commands":0,"total_duration_s":1}

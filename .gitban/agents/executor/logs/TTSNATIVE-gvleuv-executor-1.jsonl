@@ -1,0 +1,6 @@
+{"timestamp":"2026-04-19T20:53:40Z","operation":"init","role":"executor","sprint":"TTSNATIVE","card_id":"gvleuv","cycle":1}
+{"timestamp":"2026-04-19T21:24:18Z","operation":"hook_cmd","command":"git worktree list; echo \"---stale?---\"; ls .gitban/agents/traces/*.stale 2>&1 | head -3"}
+{"timestamp":"2026-04-19T21:45:39Z","operation":"hook_cmd","command":"git -C .claude/worktrees/agent-ac1f3d13 log --oneline -5 HEAD 2>&1 | head -10; echo \"---worktree status---\"; git -C .claude/worktrees/agent-ac1f3d13 status --short 2>&1 | head -20"}
+{"timestamp":"2026-04-19T21:56:13Z","operation":"event","label":"commit","metadata":{"hash":"40d925a","message":"test(tts-native): tighten voice case-insensitivity assertion"}}
+{"timestamp":"2026-04-19T21:56:15Z","operation":"event","label":"commit","metadata":{"hash":"e63bc41","message":"chore: bump version to 2.21.0"}}
+{"timestamp":"2026-04-19T21:56:17Z","operation":"summary","total_commands":0,"failed_commands":0,"total_duration_s":5}

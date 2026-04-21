@@ -1,0 +1,8 @@
+{"timestamp":"2026-04-19T20:15:03Z","operation":"init","role":"router","sprint":"TTSNATIVE","card_id":"xuloxu","cycle":1}
+{"timestamp":"2026-04-19T20:15:05Z","operation":"event","label":"read-review","metadata":{"file":".gitban/agents/reviewer/inbox/TTSNATIVE-xuloxu-reviewer-1.md","verdict":"APPROVAL"}}
+{"timestamp":"2026-04-19T20:20:55Z","operation":"init","role":"router","sprint":"TTSNATIVE","card_id":"xuloxu","cycle":1}
+{"timestamp":"2026-04-19T20:20:58Z","operation":"event","label":"read-review","metadata":{"verdict":"APPROVAL"}}
+{"timestamp":"2026-04-19T20:20:59Z","operation":"event","label":"write-executor-inbox","metadata":{"role":"executor"}}
+{"timestamp":"2026-04-19T20:21:01Z","operation":"event","label":"write-planner-inbox","metadata":{"role":"planner","groups":3}}
+{"timestamp":"2026-04-19T20:21:03Z","operation":"event","label":"card-update","metadata":{"action":"append"}}
+{"timestamp":"2026-04-19T20:21:05Z","operation":"summary","total_commands":0,"failed_commands":0,"total_duration_s":11}

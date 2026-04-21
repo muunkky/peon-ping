@@ -281,35 +281,57 @@ if (-not $Updating) {
 $scriptsDir = Join-Path $InstallDir "scripts"
 New-Item -ItemType Directory -Path $scriptsDir -Force | Out-Null
 
-$winPlaySource = Join-Path $ScriptDir "scripts\win-play.ps1"
-$winPlayTarget = Join-Path $scriptsDir "win-play.ps1"
-
-if (Test-Path $winPlaySource) {
-    # Local install: copy from repo
-    Copy-Item -Path $winPlaySource -Destination $winPlayTarget -Force
-} else {
-    # One-liner install: download from GitHub
-    try {
-        Invoke-WebRequest -Uri "$RepoBase/scripts/win-play.ps1" -OutFile $winPlayTarget -UseBasicParsing -ErrorAction Stop
-    } catch {
-        Write-Host "  Warning: Could not download win-play.ps1" -ForegroundColor Yellow
+# Install a helper script into the destination directory using the
+# copy-from-local-repo-or-download-from-GitHub fallback pattern.
+#
+# Behaviour (preserved from the three prior inline blocks):
+#   * If -LocalSource exists on disk, copy it to -DestDir (local/dev install).
+#   * Otherwise, download from -RemoteUrl into -DestDir (one-liner install).
+#   * On download failure, warn and continue -- do NOT throw. The installer
+#     must not abort just because an optional helper could not be fetched.
+#
+# Each caller passes the helper's canonical file name (-Name) so that the
+# download path resolves deterministically and so that the warning message
+# identifies which helper failed.
+function Install-HelperScript {
+    param(
+        [Parameter(Mandatory)][string]$Name,
+        [Parameter(Mandatory)][string]$LocalSource,
+        [Parameter(Mandatory)][string]$RemoteUrl,
+        [Parameter(Mandatory)][string]$DestDir
+    )
+    $target = Join-Path $DestDir $Name
+    if (Test-Path $LocalSource) {
+        # Local install: copy from repo
+        Copy-Item -Path $LocalSource -Destination $target -Force
+    } else {
+        # One-liner install: download from GitHub
+        try {
+            Invoke-WebRequest -Uri $RemoteUrl -OutFile $target -UseBasicParsing -ErrorAction Stop
+        } catch {
+            Write-Host "  Warning: Could not download $Name" -ForegroundColor Yellow
+        }
     }
 }
 
-$winNotifySource = Join-Path $ScriptDir "scripts\win-notify.ps1"
-$winNotifyTarget = Join-Path $scriptsDir "win-notify.ps1"
+# Windows audio backend (MediaPlayer-based MP3/WAV player).
+Install-HelperScript -Name 'win-play.ps1' `
+    -LocalSource (Join-Path $ScriptDir "scripts\win-play.ps1") `
+    -RemoteUrl   "$RepoBase/scripts/win-play.ps1" `
+    -DestDir     $scriptsDir
 
-if (Test-Path $winNotifySource) {
-    # Local install: copy from repo
-    Copy-Item -Path $winNotifySource -Destination $winNotifyTarget -Force
-} else {
-    # One-liner install: download from GitHub
-    try {
-        Invoke-WebRequest -Uri "$RepoBase/scripts/win-notify.ps1" -OutFile $winNotifyTarget -UseBasicParsing -ErrorAction Stop
-    } catch {
-        Write-Host "  Warning: Could not download win-notify.ps1" -ForegroundColor Yellow
-    }
-}
+# Windows toast-notification backend.
+Install-HelperScript -Name 'win-notify.ps1' `
+    -LocalSource (Join-Path $ScriptDir "scripts\win-notify.ps1") `
+    -RemoteUrl   "$RepoBase/scripts/win-notify.ps1" `
+    -DestDir     $scriptsDir
+
+# Native TTS backend (SAPI5 via System.Speech.Synthesis).
+# Invoked by Invoke-TtsSpeak when Resolve-TtsBackend returns "tts-native.ps1".
+Install-HelperScript -Name 'tts-native.ps1' `
+    -LocalSource (Join-Path $ScriptDir "scripts\tts-native.ps1") `
+    -RemoteUrl   "$RepoBase/scripts/tts-native.ps1" `
+    -DestDir     $scriptsDir
 
 # Install hook-handle-use scripts (for /peon-ping-use command)
 $hookHandleUsePs1Source = Join-Path $ScriptDir "scripts\hook-handle-use.ps1"
@@ -2751,9 +2773,19 @@ foreach ($adapterFile in $adapterFiles) {
 Write-Host "  Installed $($adapterFiles.Count) adapter scripts to $adaptersDir"
 
 # --- Install CLI shortcut ---
+# Prefer pwsh (PowerShell 7+) when available, fall back to Windows PowerShell 5.1.
+# pwsh has its own clean module path; powershell.exe can fail when PSModulePath
+# leaks PS 7 module dirs in front of the 5.1 inbox modules (e.g., some dev
+# environments, CloudSDK, terminal setups) — "module could not be loaded" for
+# Microsoft.PowerShell.Security is the common symptom.
 $peonCli = @"
 @echo off
-powershell -NoProfile -NonInteractive -Command "& '%USERPROFILE%\.claude\hooks\peon-ping\peon.ps1' %*"
+where pwsh >nul 2>&1
+if %ERRORLEVEL% equ 0 (
+    pwsh -NoProfile -NonInteractive -Command "& '%USERPROFILE%\.claude\hooks\peon-ping\peon.ps1' %*"
+) else (
+    powershell -NoProfile -NonInteractive -Command "& '%USERPROFILE%\.claude\hooks\peon-ping\peon.ps1' %*"
+)
 "@
 $cliBinDir = Join-Path $env:USERPROFILE ".local\bin"
 if (-not (Test-Path $cliBinDir)) {
@@ -2764,13 +2796,19 @@ $cliBatPath = Join-Path $cliBinDir "peon.cmd"
 $utf8NoBom = New-Object System.Text.UTF8Encoding $false
 [System.IO.File]::WriteAllLines($cliBatPath, $peonCli.Split("`n"), $utf8NoBom)
 
-# Also create a bash-compatible script for Git Bash / WSL
-# Use the actual Windows path (resolved at install time) to avoid path translation issues
+# Also create a bash-compatible script for Git Bash / WSL.
+# Use the actual Windows path (resolved at install time) to avoid path translation issues.
+# Same pwsh-then-powershell preference as peon.cmd above.
 $peonPs1Path = Join-Path $InstallDir "peon.ps1"
 $peonShScript = @"
 #!/usr/bin/env bash
 # peon-ping CLI wrapper for Git Bash / WSL / Unix shells on Windows
-powershell.exe -NoProfile -NonInteractive -Command "& '$peonPs1Path' `$*"
+if command -v pwsh >/dev/null 2>&1; then
+    PS_EXE=pwsh
+else
+    PS_EXE=powershell.exe
+fi
+"`$PS_EXE" -NoProfile -NonInteractive -Command "& '$peonPs1Path' `$*"
 "@
 $peonShPath = Join-Path $cliBinDir "peon"
 [System.IO.File]::WriteAllLines($peonShPath, $peonShScript.Split("`n"), $utf8NoBom)

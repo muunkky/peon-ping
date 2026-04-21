@@ -1,0 +1,3 @@
+# gitban runtime artifacts — add these to your .gitignore
+.gitban/agents/traces/
+.claude/worktrees/

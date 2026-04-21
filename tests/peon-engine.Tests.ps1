@@ -114,7 +114,17 @@ Describe "Harness: New-PeonTestEnvironment" {
         $env2 = New-PeonTestEnvironment -StateOverrides @{ last_stop_time = "2026-01-01T00:00:00Z" }
         try {
             $state = Get-PeonState -TestDir $env2.TestDir
-            [datetime]$state.last_stop_time | Should -Be ([datetime]"2026-01-01T00:00:00Z")
+            # Normalise to UTC before comparison -- Should -Be compares Kind + instant.
+            # PowerShell 7's ConvertFrom-Json auto-parses ISO-8601 strings with a trailing 'Z'
+            # into [DateTime] values with Kind=Utc, while the plain [datetime] cast of a string
+            # literal produces Kind=Local. Same instant, different Kind, so Should -Be fails on
+            # non-UTC hosts without this normalisation.
+            $actual = [datetime]$state.last_stop_time
+            $expected = [datetime]::Parse(
+                "2026-01-01T00:00:00Z",
+                [System.Globalization.CultureInfo]::InvariantCulture,
+                [System.Globalization.DateTimeStyles]::AssumeUniversal -bor [System.Globalization.DateTimeStyles]::AdjustToUniversal)
+            $actual.ToUniversalTime() | Should -Be $expected.ToUniversalTime()
         } finally {
             Remove-PeonTestEnvironment -TestDir $env2.TestDir
         }

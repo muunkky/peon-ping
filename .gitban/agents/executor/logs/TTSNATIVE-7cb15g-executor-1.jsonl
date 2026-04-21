@@ -1,0 +1,10 @@
+{"timestamp":"2026-04-19T08:21:44Z","operation":"init","role":"executor","sprint":"TTSNATIVE","card_id":"7cb15g","cycle":1}
+{"timestamp":"2026-04-19T08:21:47Z","operation":"event","label":"read-card","metadata":{"card_id":"7cb15g"}}
+{"timestamp":"2026-04-19T08:47:33Z","operation":"init","role":"executor","sprint":"TTSNATIVE","card_id":"7cb15g","cycle":1}
+{"timestamp":"2026-04-19T08:47:34Z","operation":"event","label":"reproduce","metadata":{"config":"pwsh_7.5_UTC-07","test":"accepts StateOverrides","passed":0,"failed":1}}
+{"timestamp":"2026-04-19T08:47:35Z","operation":"event","label":"code-change","metadata":{"files":["tests/peon-engine.Tests.ps1"]}}
+{"timestamp":"2026-04-19T08:47:35Z","operation":"event","label":"test-run","metadata":{"config":"pwsh_7.5_UTC-07","test":"accepts StateOverrides","passed":1,"failed":0,"post_fix":true}}
+{"timestamp":"2026-04-19T08:47:35Z","operation":"event","label":"test-run","metadata":{"config":"powershell_5.1_UTC-07","test":"accepts StateOverrides","passed":1,"failed":0,"post_fix":true}}
+{"timestamp":"2026-04-19T08:47:36Z","operation":"event","label":"test-run","metadata":{"config":"pwsh_7.5_UTC-07","file":"tests/peon-engine.Tests.ps1","passed":40,"failed":7,"failures_preexisting":true}}
+{"timestamp":"2026-04-19T08:47:36Z","operation":"event","label":"commit","metadata":{"hash":"40a5496","message":"fix(tests): normalise datetime to UTC in peon-engine StateOverrides test"}}
+{"timestamp":"2026-04-19T08:47:36Z","operation":"summary","total_commands":0,"failed_commands":0,"total_duration_s":3}

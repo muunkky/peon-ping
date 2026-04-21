@@ -1,0 +1,15 @@
+{"timestamp":"2026-04-19T07:53:07Z","operation":"init","role":"router","sprint":"TTSNATIVE","card_id":"as44cd","cycle":1}
+{"timestamp":"2026-04-19T07:53:09Z","operation":"hook_cmd","command":"export AGENT_LOG_DIR=\".gitban/agents/router/logs\" && export AGENT_ROLE=\"router\" && export AGENT_SPRINT_TAG=\"TTSNATIVE\" && export AGENT_CARD_ID=\"as44cd\" && export AGENT_CYCLE=\"1\" && source .gitban/hooks/agent-log.sh && agent_log_init && echo \"log-initialized\""}
+{"timestamp":"2026-04-19T07:53:21Z","operation":"hook_cmd","command":"ls C:/Users/Cameron/Projects/peon-ping/.gitban/agents/router/inbox/ 2>&1 | head -50; echo \"---executor---\"; ls C:/Users/Cameron/Projects/peon-ping/.gitban/agents/executor/inbox/ 2>&1 | head -50; echo \"---planner---\"; ls C:/Users/Cameron/Projects/peon-ping/.gitban/agents/planner/inbox/ 2>&1 | head -50"}
+{"timestamp":"2026-04-19T07:53:32Z","operation":"hook_cmd","command":"ls C:/Users/Cameron/Projects/peon-ping/.gitban/agents/router/ 2>&1"}
+{"timestamp":"2026-04-19T07:53:32Z","operation":"hook_cmd","command":"ls C:/Users/Cameron/Projects/peon-ping/.gitban/agents/planner/inbox/ 2>/dev/null | grep -i \"ttsnative\" | head -50"}
+{"timestamp":"2026-04-19T07:53:44Z","operation":"hook_cmd","command":"ls C:/Users/Cameron/Projects/peon-ping/.gitban/cards/ | grep -i \"ttsnative\""}
+{"timestamp":"2026-04-19T07:53:48Z","operation":"hook_cmd","command":"ls -la \"C:/Users/Cameron/Projects/peon-ping/.gitban/agents/router/logs/\" 2>&1 | head -20"}
+{"timestamp":"2026-04-19T07:54:12Z","operation":"hook_cmd","command":"ls -lt C:/Users/Cameron/Projects/peon-ping/.gitban/agents/router/logs/TTS* 2>&1"}
+{"timestamp":"2026-04-19T07:54:47Z","operation":"hook_cmd","command":"ls C:/Users/Cameron/Projects/peon-ping/.gitban/agents/planner/inbox/ 2>/dev/null | grep -i TTSNATIVE; echo \"--- executor ---\"; ls C:/Users/Cameron/Projects/peon-ping/.gitban/agents/executor/inbox/ 2>/dev/null | grep -i TTSNATIVE"}
+{"timestamp":"2026-04-19T07:55:12Z","operation":"hook_cmd","command":"ls C:/Users/Cameron/Projects/peon-ping/.gitban/cards/ | grep -i dpyzoo"}
+{"timestamp":"2026-04-19T07:58:07Z","operation":"event","label":"read-review","metadata":{"file":".gitban/agents/reviewer/inbox/TTSNATIVE-as44cd-reviewer-1.md","verdict":"APPROVAL"}}
+{"timestamp":"2026-04-19T07:58:08Z","operation":"event","label":"write-executor-inbox","metadata":{"file":".gitban/agents/executor/inbox/TTSNATIVE-as44cd-executor-1.md"}}
+{"timestamp":"2026-04-19T07:58:08Z","operation":"event","label":"write-planner-inbox","metadata":{"file":".gitban/agents/planner/inbox/TTSNATIVE-as44cd-planner-1.md","groups":3}}
+{"timestamp":"2026-04-19T07:58:09Z","operation":"event","label":"card-update","metadata":{"action":"append","card":"as44cd","section":"Review Log"}}
+{"timestamp":"2026-04-19T07:58:09Z","operation":"summary","total_commands":0,"failed_commands":0,"total_duration_s":2}

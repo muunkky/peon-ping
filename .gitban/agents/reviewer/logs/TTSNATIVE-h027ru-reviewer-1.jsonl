@@ -1,0 +1,23 @@
+{"timestamp":"2026-04-19T06:24:59Z","operation":"init","role":"reviewer","sprint":"TTSNATIVE","card_id":"h027ru","cycle":1}
+{"timestamp":"2026-04-19T06:25:01Z","operation":"hook_cmd","command":"export AGENT_LOG_DIR=\".gitban/agents/reviewer/logs\" && export AGENT_ROLE=\"reviewer\" && export AGENT_SPRINT_TAG=\"TTSNATIVE\" && export AGENT_CARD_ID=\"h027ru\" && export AGENT_CYCLE=\"1\" && source /c/Users/Cameron/Projects/peon-ping/.gitban/hooks/agent-log.sh && agent_log_init && echo \"init-done\""}
+{"timestamp":"2026-04-19T06:25:16Z","operation":"hook_cmd","command":"agent_log_event \"read-card\" '{\"card_id\":\"h027ru\"}' 2>/dev/null; git show 081e4c8 --stat"}
+{"timestamp":"2026-04-19T06:25:27Z","operation":"hook_cmd","command":"git show 081e4c8"}
+{"timestamp":"2026-04-19T06:25:27Z","operation":"hook_cmd","command":"git log --oneline -20"}
+{"timestamp":"2026-04-19T06:25:54Z","operation":"hook_cmd","command":"ls -la /c/Users/Cameron/Projects/peon-ping/docs/adr/ADR-001-tts-backend-architecture.md /c/Users/Cameron/Projects/peon-ping/docs/designs/tts-native.md 2>&1"}
+{"timestamp":"2026-04-19T06:26:52Z","operation":"hook_cmd","command":"ls /c/Users/Cameron/Projects/peon-ping/.gitban/cards/ | grep -i h027ru"}
+{"timestamp":"2026-04-19T06:27:01Z","operation":"hook_cmd","command":"git log --oneline -- .gitban/cards/TTSNATIVE-in_progress-P1-feature-step-1-sprint-planning-for-platform-native-tts-backends-h027ru-CAMERON.md 2>&1"}
+{"timestamp":"2026-04-19T06:27:02Z","operation":"hook_cmd","command":"git status --short .gitban/cards/ 2>&1 | head -30"}
+{"timestamp":"2026-04-19T06:27:14Z","operation":"hook_cmd","command":"git diff --stat -- .gitban/cards/TTSNATIVE-in_progress-P1-feature-step-1-sprint-planning-for-platform-native-tts-backends-h027ru-CAMERON.md"}
+{"timestamp":"2026-04-19T06:27:15Z","operation":"hook_cmd","command":"git diff -- .gitban/cards/TTSNATIVE-in_progress-P1-feature-step-1-sprint-planning-for-platform-native-tts-backends-h027ru-CAMERON.md | head -120"}
+{"timestamp":"2026-04-19T06:27:37Z","operation":"hook_cmd","command":"ls /c/Users/Cameron/Projects/peon-ping/.gitban/agents/reviewer/inbox/ 2>&1"}
+{"timestamp":"2026-04-19T06:29:23Z","operation":"init","role":"reviewer","sprint":"TTSNATIVE","card_id":"h027ru","cycle":1}
+{"timestamp":"2026-04-19T06:29:23Z","operation":"event","label":"read-diff","metadata":{"commit":"081e4c8"}}
+{"timestamp":"2026-04-19T06:29:23Z","operation":"event","label":"read-card","metadata":{"card_id":"h027ru"}}
+{"timestamp":"2026-04-19T06:29:23Z","operation":"event","label":"read-card","metadata":{"card_id":"as44cd"}}
+{"timestamp":"2026-04-19T06:29:24Z","operation":"event","label":"read-card","metadata":{"card_id":"dpyzoo"}}
+{"timestamp":"2026-04-19T06:29:24Z","operation":"event","label":"read-card","metadata":{"card_id":"w3ciyq"}}
+{"timestamp":"2026-04-19T06:29:24Z","operation":"event","label":"read-card","metadata":{"card_id":"gvleuv"}}
+{"timestamp":"2026-04-19T06:29:24Z","operation":"event","label":"read-roadmap","metadata":{"path":"v2/m5/tts-native"}}
+{"timestamp":"2026-04-19T06:29:24Z","operation":"event","label":"read-adr","metadata":{"file":"docs/adr/ADR-001-tts-backend-architecture.md","mode":"existence-check"}}
+{"timestamp":"2026-04-19T06:29:24Z","operation":"event","label":"write-review","metadata":{"verdict":"APPROVAL"}}
+{"timestamp":"2026-04-19T06:29:24Z","operation":"summary","total_commands":0,"failed_commands":0,"total_duration_s":1}

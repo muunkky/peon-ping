@@ -1,0 +1,10 @@
+{"timestamp":"2026-04-19T09:19:51Z","operation":"init","role":"reviewer","sprint":"TTSNATIVE","card_id":"xuloxu","cycle":1}
+{"timestamp":"2026-04-19T09:19:57Z","operation":"hook_cmd","command":"export AGENT_LOG_DIR=\".gitban/agents/reviewer/logs\" && export AGENT_ROLE=\"reviewer\" && export AGENT_SPRINT_TAG=\"TTSNATIVE\" && export AGENT_CARD_ID=\"7cb15g\" && export AGENT_CYCLE=\"1\" && source .gitban/hooks/agent-log.sh && agent_log_init && echo \"logging initialized\""}
+{"timestamp":"2026-04-19T09:19:57Z","operation":"hook_cmd","command":"export AGENT_LOG_DIR=\".gitban/agents/reviewer/logs\"\nexport AGENT_ROLE=\"reviewer\"\nexport AGENT_SPRINT_TAG=\"TTSNATIVE\"\nexport AGENT_CARD_ID=\"xuloxu\"\nexport AGENT_CYCLE=\"1\"\nsource .gitban/hooks/agent-log.sh\nagent_log_init\necho \"logging initialized\""}
+{"timestamp":"2026-04-19T09:28:27Z","operation":"init","role":"reviewer","sprint":"TTSNATIVE","card_id":"xuloxu","cycle":1}
+{"timestamp":"2026-04-19T09:28:28Z","operation":"event","label":"read-card","metadata":{"card_id":"xuloxu"}}
+{"timestamp":"2026-04-19T09:28:29Z","operation":"event","label":"read-diff","metadata":{"commit":"2d5faf3"}}
+{"timestamp":"2026-04-19T09:28:29Z","operation":"event","label":"read-adr","metadata":{"file":"ADR-001-tts-backend-architecture.md"}}
+{"timestamp":"2026-04-19T09:28:30Z","operation":"event","label":"write-review","metadata":{"verdict":"APPROVAL"}}
+{"timestamp":"2026-04-19T09:28:31Z","operation":"event","label":"card-status-change","metadata":{"new_status":"in_progress"}}
+{"timestamp":"2026-04-19T09:28:31Z","operation":"summary","total_commands":0,"failed_commands":0,"total_duration_s":4}
