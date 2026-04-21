@@ -12,3 +12,10 @@
 {"timestamp":"2026-04-19T22:26:30Z","operation":"hook_cmd","command":"git show 2b155ae --stat | head -20"}
 {"timestamp":"2026-04-19T22:26:43Z","operation":"hook_cmd","command":"ls .gitban/agents/reviewer/inbox/"}
 {"timestamp":"2026-04-19T22:27:54Z","operation":"hook_cmd","command":"agent_log_event \"write-review\" '{\"verdict\":\"APPROVAL\"}' 2>/dev/null; agent_log_event \"card-status-change\" '{\"new_status\":\"in_progress\"}' 2>/dev/null; agent_log_summary 2>/dev/null; echo \"done\""}
+{"timestamp":"2026-04-21T03:14:13Z","operation":"hook_cmd","command":"git stash push -m \"rebase-temp-reviewer2-log\" .gitban/agents/reviewer/logs/TTSNATIVE-gvleuv-reviewer-2.jsonl 2>&1 | tail -3; git status --short | head -3"}
+{"timestamp":"2026-04-21T03:14:20Z","operation":"hook_cmd","command":"git rebase origin/main 2>&1 | tail -30"}
+{"timestamp":"2026-04-21T03:14:28Z","operation":"hook_cmd","command":"git status 2>&1 | head -20; echo \"---diff unstaged---\"; git diff 2>&1 | head -20"}
+{"timestamp":"2026-04-21T03:15:30Z","operation":"hook_cmd","command":"git rebase --abort 2>&1 | tail -3; echo \"---state check---\"; git log --oneline sprint/TTSNATIVE -1; cat VERSION; echo \"---merge base---\"; git merge-base origin/main sprint/TTSNATIVE 2>&1; git log -1 --oneline $(git merge-base origin/main sprint/TTSNATIVE) 2>&1"}
+{"timestamp":"2026-04-21T03:16:20Z","operation":"hook_cmd","command":"git ls-remote --tags fork 2>&1 | head -20; echo \"---fork/main VERSION---\"; git show fork/main:VERSION 2>&1; echo \"---fork/main CHANGELOG head---\"; git show fork/main:CHANGELOG.md 2>&1 | head -15; echo \"---sprint vs fork/main---\"; git log --oneline fork/main..sprint/TTSNATIVE | wc -l"}
+{"timestamp":"2026-04-21T03:16:47Z","operation":"hook_cmd","command":"git status 2>&1 | head -10; echo \"---branch---\"; git rev-parse --abbrev-ref HEAD 2>&1; echo \"---current VERSION---\"; cat VERSION; echo \"---fork tags 2.18+---\"; git ls-remote --tags fork 2>&1 | awk '$2 ~ /v2\\.(1[89]|2)/' | head -20"}
+{"timestamp":"2026-04-21T03:17:08Z","operation":"hook_cmd","command":"git ls-remote --tags fork 2>&1 | grep -E 'v2\\.(20|21)' | head -10"}
