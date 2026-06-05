@@ -6,12 +6,12 @@
 
 # Variables -- override default values used across skill templates.
 # variables:
-#   git_handle: "CAMERON"    # used by: dispatcher
-#   venv_python_command: ".venv/Scripts/python.exe"    # used by: dispatcher, reviewer, router, sprint-architect, sprintmaster
-#   venv_run_prefix: "bash scripts/venv-python"    # used by: executor
+#   git_handle: "CAMERON"    # used by: gitban-dispatcher
+#   venv_python_command: ".venv/Scripts/python.exe"    # used by: gitban-dispatcher, gitban-reviewer, gitban-router, gitban-sprint-architect, gitban-sprint-closeout-reviewer, gitban-sprintmaster
+#   venv_run_prefix: "bash scripts/venv-python"    # used by: gitban-executor
 
 # Overrides -- replace entire shared fragments with your own content.
 # Value can be inline text or a file path (e.g., ./my-profiling.md).
 # overrides:
-#   profiling: ./my-overrides/profiling.md      # used by: executor, planner, reviewer, router
-#   conventions: ./my-overrides/conventions.md   # used by: executor, reviewer
+#   conventions: ./my-overrides/conventions.md      # used by: gitban-executor, gitban-reviewer
+#   profiling: ./my-overrides/profiling.md      # used by: gitban-executor, gitban-planner, gitban-reviewer, gitban-router

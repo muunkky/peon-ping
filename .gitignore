@@ -27,5 +27,11 @@ result-*
 
 # gitban runtime artifacts
 .gitban/agents/traces/
+.gitban/agents/*/logs/*.jsonl
+.gitban/agents/*/logs/*.jsonl.*
+.gitban/agents/.active-log
+.gitban/audit/
+.gitban/views/
+.gitban/.viewer-port
 .claude/worktrees/
 bash.exe.stackdump

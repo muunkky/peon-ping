@@ -4,7 +4,8 @@
 # Source this script from any bash context to emit structured timing data.
 # Output format: JSONL (one JSON object per line) for machine parsing.
 #
-# Required environment variables (set before calling agent_log_init):
+# Required environment variables (export before sourcing; the AGENT_* env is the
+# durable contract — the helpers re-derive the log path from it on every call):
 #   AGENT_LOG_DIR    - Directory for log files (created if missing)
 #   AGENT_ROLE       - Agent role (executor, reviewer, router, etc.)
 #   AGENT_SPRINT_TAG - Sprint tag (e.g., AGENTLOG)
@@ -12,6 +13,17 @@
 #   AGENT_CYCLE      - Review cycle number (e.g., 1)
 #
 # Log path: $AGENT_LOG_DIR/{SPRINT_TAG}-{CARD_ID}-{ROLE}-{CYCLE}.jsonl
+#
+# Stateless-shell resilience:
+#   The Claude Code Bash tool runs each call in a fresh shell, so the in-shell
+#   $_AGENT_LOG_FILE that agent_log_init sets does NOT persist to the next call.
+#   To survive this, every write helper (cmd/event/summary) self-resolves the
+#   log path from the exported AGENT_* env when $_AGENT_LOG_FILE is unset, using
+#   the SAME formula as agent_log_init (idempotent — events from any shell append
+#   to the one canonical file). Calling agent_log_init once per logical run is
+#   still recommended (it writes the header + sentinel and resets counters), but
+#   logging from a shell that never ran init now appends correctly instead of
+#   erroring. No combined "init + log in one shell" round-trip is required.
 #
 # Functions:
 #   agent_log_init    - Create log file, write header entry
@@ -25,7 +37,7 @@
 #   export AGENT_SPRINT_TAG="SPRINT1"
 #   export AGENT_CARD_ID="abc123"
 #   export AGENT_CYCLE="1"
-#   source scripts/agent-log.sh
+#   source .gitban/hooks/agent-log.sh
 #   agent_log_init
 #   agent_log_cmd "git commit -m 'feat: add widget'"
 #   agent_log_event "hook-fix" '{"attempt":2}'
@@ -47,9 +59,38 @@ _agent_log_timestamp() {
     date -u +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || date +"%Y-%m-%dT%H:%M:%S"
 }
 
-# _agent_log_write - append a raw JSON string to the log file
+# _agent_log_derive_path - compute the canonical log-file path from AGENT_* env.
+# MUST stay byte-for-byte identical to the path agent_log_init computes for the
+# same AGENT_* values, so init and self-init resolve to the same file. Prints
+# the absolute path on stdout; returns non-zero (without aborting the caller) if
+# any required var is unset. Does NOT write a header, touch counters, or write
+# the sentinel — it only resolves the path.
+_agent_log_derive_path() {
+    local log_dir="${AGENT_LOG_DIR:-}"
+    local role="${AGENT_ROLE:-}"
+    local sprint="${AGENT_SPRINT_TAG:-}"
+    local card_id="${AGENT_CARD_ID:-}"
+    local cycle="${AGENT_CYCLE:-}"
+    if [ -z "$log_dir" ] || [ -z "$role" ] || [ -z "$sprint" ] || \
+       [ -z "$card_id" ] || [ -z "$cycle" ]; then
+        return 1
+    fi
+    mkdir -p "$log_dir" 2>/dev/null || true
+    printf '%s' "$(cd "$log_dir" && pwd)/${sprint}-${card_id}-${role}-${cycle}.jsonl"
+}
+
+# _agent_log_write - append a raw JSON string to the log file.
+# Self-heals across stateless Bash tool shells: if $_AGENT_LOG_FILE is empty
+# (this shell never ran agent_log_init), re-derive it from the exported AGENT_*
+# env so the event still lands in the canonical file instead of erroring.
 _agent_log_write() {
     local json_str="$1"
+    if [ -z "$_AGENT_LOG_FILE" ]; then
+        _AGENT_LOG_FILE="$(_agent_log_derive_path)" || {
+            echo "agent-log: cannot resolve log path; AGENT_* env not set" >&2
+            return 1
+        }
+    fi
     echo "$json_str" >> "$_AGENT_LOG_FILE"
 }
 
@@ -84,8 +125,10 @@ agent_log_init() {
     # Create directory if needed
     mkdir -p "$log_dir"
 
-    # Set log file path (absolute so hooks can find it from any cwd)
-    _AGENT_LOG_FILE="$(cd "$log_dir" && pwd)/${sprint}-${card_id}-${role}-${cycle}.jsonl"
+    # Set log file path (absolute so hooks can find it from any cwd).
+    # Derived via the shared helper so init and stateless-shell self-init
+    # always resolve to the same file.
+    _AGENT_LOG_FILE="$(_agent_log_derive_path)"
 
     # Write header entry
     local ts

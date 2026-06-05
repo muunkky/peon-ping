@@ -171,15 +171,28 @@ Below is a comprehensive checklist of common cleanup tasks. Check off items as y
 
 ### Completion Checklist
 
-* [ ] All P0 items are complete and verified.
-* [ ] All P1 items are complete or have follow-up tickets created.
-* [ ] P2 items are complete or explicitly deferred with tickets.
-* [ ] All tests are passing (unit, integration, and regression).
-* [ ] No new linter warnings or errors introduced.
-* [ ] All documentation updates are complete and reviewed.
-* [ ] Code changes (if any) are reviewed and merged.
-* [ ] Follow-up tickets are created and prioritized for next sprint.
-* [ ] Team retrospective includes discussion of cleanup backlog (if significant).
+> **Cite-affordance contract (sprint-closeout Gate 0):** when this card is the
+> sprint-closeout chore, every ticked `[x]` box below MUST be annotated with a
+> `<!-- cite: <kind>:<value> -->` HTML comment supplying primary-source
+> evidence — `commit:<sha>`, `pr:<n>`, `ci:<run-url>`, `card:<id>`,
+> `roadmap:<path>`, `retro:<anchor>`, or the explicit `none` marker for
+> genuinely-N/A rows. Free-form ticks are rejected by Gate 0. See
+> `gitban/contracts/sprint-closeout-gate0.md` for the contract spec, and
+> `.claude/skills/sprint-closeout-reviewer/SKILL.md` §0a for the worked
+> failure case (UIPOL7A `9padx1`). The `<!-- gate0: upper-checklist -->`
+> anchor below marks the inspected region for the runtime parser.
+
+<!-- gate0: upper-checklist -->
+
+* [ ] All P0 items are complete and verified. <!-- cite: -->
+* [ ] All P1 items are complete or have follow-up tickets created. <!-- cite: -->
+* [ ] P2 items are complete or explicitly deferred with tickets. <!-- cite: -->
+* [ ] All tests are passing (unit, integration, and regression). <!-- cite: -->
+* [ ] No new linter warnings or errors introduced. <!-- cite: -->
+* [ ] All documentation updates are complete and reviewed. <!-- cite: -->
+* [ ] Code changes (if any) are reviewed and merged. <!-- cite: -->
+* [ ] Follow-up tickets are created and prioritized for next sprint. <!-- cite: -->
+* [ ] Team retrospective includes discussion of cleanup backlog (if significant). <!-- cite: -->
 
 ---
 

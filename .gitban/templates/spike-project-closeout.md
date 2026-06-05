@@ -126,28 +126,23 @@ Update gitban roadmap to reflect project completion and archive sprint.
    # Example: Update feature status in roadmap
    upsert_roadmap(
        content={"status": "done", "completion_date": "2025-01-25"},
-       scope="feature",
-       version_id="v1",
-       milestone_id="m1",
-       feature_id="auth-system"
+       path="m1/s1/auth-project/auth-system"
    )
    ```
 
 2. **Add Changelog Entry:**
-   ```bash
-   # Use update_changelog tool to document completion
-   update_changelog(
-       entry={
-           "version": "2.0.0",
-           "date": "2025-01-25",
-           "changes": [
-               "Completed Authentication System v2 with OAuth support",
-               "Migrated 100% of users to new system",
-               "Decommissioned legacy auth code"
-           ]
-       },
-       mode="append"
-   )
+   ```markdown
+   # Record release notes in the project's CHANGELOG.md (Keep a Changelog format)
+   ## [2.0.0] - 2025-01-25
+
+   ### Added
+   - Authentication System v2 with OAuth support
+
+   ### Changed
+   - Migrated 100% of users to new system
+
+   ### Removed
+   - Decommissioned legacy auth code
    ```
 
 3. **Archive Project Cards:**
@@ -191,10 +186,10 @@ Update gitban roadmap to reflect project completion and archive sprint.
 | :--- | :--- | :--- |
 | **`archive_cards()`** | Archive completed project cards into retrospective | `archive_cards("project-auth-v2", all_done=True)` |
 | **`generate_archive_summary()`** | Generate narrative summary with lessons learned | `generate_archive_summary("sprint-...", mode="enhanced")` |
-| **`upsert_roadmap()`** | Update roadmap feature/project status to "done" | `upsert_roadmap({status: "done"}, scope="feature", ...)` |
-| **`update_changelog()`** | Add completion entry to roadmap changelog | `update_changelog({version: "2.0.0", ...})` |
-| **`read_roadmap()`** | Review roadmap to verify all items complete | `read_roadmap(scope="milestone", milestone_id="m1")` |
-| **`list_roadmap()`** | List all features/projects in milestone to verify completion | `list_roadmap(scope="features", milestone_id="m1")` |
+| **`upsert_roadmap()`** | Update roadmap feature/project status to "done" | `upsert_roadmap({status: "done"}, path="m1/s1/auth-project/auth-system")` |
+| **`CHANGELOG.md`** | Record the completion entry as release notes | edit `CHANGELOG.md` (Keep a Changelog format) |
+| **`read_roadmap()`** | Review roadmap to verify all items complete | `read_roadmap(path="m1")` |
+| **`search_roadmap()`** | Find features/projects across the roadmap to verify completion | `search_roadmap(query="auth")` |
 
 ---
 
@@ -241,7 +236,7 @@ Update gitban roadmap to reflect project completion and archive sprint.
 * [ ] All project cards archived using `archive_cards()` tool.
 * [ ] Roadmap updated using `upsert_roadmap()` tool.
 * [ ] Sprint summary generated using `generate_archive_summary()` tool.
-* [ ] Changelog updated using `update_changelog()` tool.
+* [ ] Release notes recorded in `CHANGELOG.md`.
 * [ ] Team retrospective completed with lessons learned.
 * [ ] Stakeholders notified of completion.
 * [ ] Team celebration event held.

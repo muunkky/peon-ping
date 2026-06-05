@@ -1,6 +1,6 @@
 ---
 # Template Schema Overview
-description: A template for planning and setting up a feature sprint in gitban using batch card creation, sprint tags, roadmap integration, and changelog management. Note that this card is not for actually doing all the work, it's for setting up the sprint so that the work is done amazingly well.
+description: A template for planning and setting up a feature sprint in gitban using batch card creation, sprint tags, roadmap integration, and CHANGELOG.md release notes. Note that this card is not for actually doing all the work, it's for setting up the sprint so that the work is done amazingly well.
 use_case: Use this when starting a new sprint to create card stubs, link to roadmap milestones, and set up sprint infrastructure. Focus on setup and tooling, not day-to-day tracking.
 patterns_used:
   - section: "Sprint Definition & Scope"
@@ -156,7 +156,7 @@ Track the major phases of sprint execution. This is lightweight - just checkpoin
 | **Complete Cards** | [Completed card IDs] | - [ ] Cards moved to done status |
 | **Sprint Archive** | [Archive folder name] | - [ ] Used archive_cards() to bundle work |
 | **Generate Summary** | [Summary.md location] | - [ ] Used generate_archive_summary() |
-| **Update Changelog** | [Changelog entry] | - [ ] Used update_changelog() |
+| **Update Changelog** | [Changelog entry] | - [ ] Recorded release notes in CHANGELOG.md |
 | **Update Roadmap** | [Milestone status] | - [ ] Marked milestone complete |
 
 ### Phase Details
@@ -166,18 +166,16 @@ Track the major phases of sprint execution. This is lightweight - just checkpoin
 **Quick Start:**
 
 ```python
-# Browse roadmap structure (token-efficient)
-list_roadmap(scope="versions")
-list_roadmap(scope="milestones", version_id="v1")
+# Browse roadmap structure (token-efficient): read the top level, then drill in
+read_roadmap()                      # all milestones
+read_roadmap(path="m1")             # stories under milestone m1
 
-# Read specific milestone
-read_roadmap(scope="milestone", version_id="v1", milestone_id="m1")
+# Read a specific milestone, only the fields you need
+read_roadmap(path="m1", fields=["title", "status", "stories"])
 
 # Update milestone status
 upsert_roadmap(
-    scope="milestone",
-    version_id="v1",
-    milestone_id="m1",
+    path="m1",
     content={"status": "in_progress", "start_date": "2025-11-18"}
 )
 ```
@@ -242,35 +240,31 @@ generate_archive_summary(
 
 **Update changelog:**
 
-Track what shipped in each version using gitban's changelog tools.
+Track what shipped in each version by recording release notes in the project's
+`CHANGELOG.md` (Keep a Changelog format). The roadmap no longer carries an
+embedded changelog; annotate completed roadmap nodes with `released_as`
+metadata via `upsert_roadmap` for structured release traceability.
 
-```python
-# Add new changelog entry
-update_changelog(
-    entry={
-        "version": "1.1.0",
-        "date": "2025-11-18",
-        "changes": [
-            "Added user authentication API",
-            "Fixed critical login timeout bug",
-            "Updated authentication documentation"
-        ]
-    }
-)
+```markdown
+## [1.1.0] - 2025-11-18
 
-# View current changelog
-read_changelog()
+### Added
+- User authentication API
+
+### Fixed
+- Critical login timeout bug
+
+### Changed
+- Updated authentication documentation
 ```
 
-**Learn more**: `get_help(topic="roadmap")` for complete roadmap and changelog documentation
+**Learn more**: `get_help(topic="roadmap")` for complete roadmap documentation
 
 **Update roadmap milestone:**
 
 ```python
 upsert_roadmap(
-    scope="milestone",
-    version_id="v1",
-    milestone_id="m1",
+    path="m1",
     content={
         "status": "done",
         "actual_completion": "2025-11-18"

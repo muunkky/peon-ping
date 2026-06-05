@@ -60,7 +60,7 @@ fi
 # Find python: venv in worktree, venv in main repo, then system
 PYTHON=""
 for candidate in "$GIT_ROOT/.venv/Scripts/python.exe" "$GIT_ROOT/.venv/bin/python" "$MAIN_REPO/.venv/Scripts/python.exe" "$MAIN_REPO/.venv/bin/python" python3 python; do
-  if [ -x "$candidate" ] 2>/dev/null || command -v "$candidate" &>/dev/null; then
+  if { [ -x "$candidate" ] 2>/dev/null || command -v "$candidate" &>/dev/null; } && "$candidate" -c "" >/dev/null 2>&1; then
     PYTHON="$candidate"
     break
   fi

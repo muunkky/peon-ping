@@ -28,7 +28,7 @@ INPUT=$(cat)
 # Find python: venv first (relative to git root), then system
 PYTHON=""
 for candidate in "$GIT_ROOT/.venv/Scripts/python.exe" "$GIT_ROOT/.venv/bin/python" python3 python; do
-  if command -v "$candidate" &>/dev/null || [ -x "$candidate" ]; then
+  if { command -v "$candidate" &>/dev/null || [ -x "$candidate" ]; } && "$candidate" -c "" >/dev/null 2>&1; then
     PYTHON="$candidate"
     break
   fi
