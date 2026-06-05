@@ -1,599 +1,1097 @@
 schema_version: 1.0.0
-document_version: 1.0.0
-last_updated: '2026-03-13'
+document_version: 1.1.0
+last_updated: '2026-05-29'
 metadata:
   maintained_by: PeonPing
   review_frequency: Monthly
   related_docs:
-    - docs/README.md
-    - docs/plans/
+  - docs/README.md
+  - docs/plans/
   tools:
     roadmap_tracking: roadmap.yaml
     task_tracking: gitban cards
     Gitban_mcp: https://github.com/muunkky/gitban-mcp
 changelog:
-  - version: 1.0.0
-    date: '2026-03-13'
-    changes:
-      - Roadmap created from docs/plans design documents
-      - 'M1: Smart Pack Selection — path_rules and config key renames'
-      - 'M2: Rich Notifications — templates, click-to-focus, discoverability'
-      - 'M3: Trainer Mode — Pavel-style daily exercise tracker'
-  - version: 2.16.0
-    date: '2026-03-14'
-    changes:
-      - 'Smart Pack Selection: path_rules glob matching for per-project pack assignment'
-      - 'CLI: peon packs bind/unbind/bindings commands for managing path rules'
-      - 'Config: renamed active_pack to default_pack, agentskill to session_override
-        (with migration)'
-      - 'Status: peon status shows active path rule when one matches cwd'
-      - 'Refactor: extracted Get-ActivePack helper to DRY pack resolution in install.ps1'
-      - 'Docs: pack selection hierarchy, per-project assignment docs in README and
-        README_zh'
-versions:
-  v2:
-    id: v2
+- version: 1.0.0
+  date: '2026-03-13'
+  changes:
+  - Roadmap created from docs/plans design documents
+  - 'M1: Smart Pack Selection — path_rules and config key renames'
+  - 'M2: Rich Notifications — templates, click-to-focus, discoverability'
+  - 'M3: Trainer Mode — Pavel-style daily exercise tracker'
+- version: 2.16.0
+  date: '2026-03-14'
+  changes:
+  - 'Smart Pack Selection: path_rules glob matching for per-project pack assignment'
+  - 'CLI: peon packs bind/unbind/bindings commands for managing path rules'
+  - 'Config: renamed active_pack to default_pack, agentskill to session_override (with migration)'
+  - 'Status: peon status shows active path rule when one matches cwd'
+  - 'Refactor: extracted Get-ActivePack helper to DRY pack resolution in install.ps1'
+  - 'Docs: pack selection hierarchy, per-project assignment docs in README and README_zh'
+- version: 1.1.0
+  date: '2026-05-29'
+  changes:
+  - 'v3 — Ubiquity & Polish: new version synced from curated upstream feature requests (PeonPing/peon-ping issues); bugs and pure doc tweaks excluded'
+  - 'M6: Broad agent coverage — Qwen/iFlow/Trae/Pi adapters, Codex stable hooks (#513), distinct Kiro IDE adapter (#509), first-party ECA adapter (#261)'
+  - 'M7: Audio coexistence — mix-not-seize playback (#371), configurable fades (#394), peon play single-sound CLI (#345), Windows RDP investigation (#219)'
+  - 'M8: Multi-agent sanity — unified headless suppression (#511), agent-teams lead lock (#481), cross-session concurrency cap (#340), Windows engine suppression parity'
+  - 'M9: Sound personalization — cross-pack custom sound sets (#175), re-notify reminders for unacknowledged decisions (#284)'
+milestones:
+  m2:
+    id: m2
     title: v2 — Personalization & Intelligence
-    description: Transform peon-ping from a one-size-fits-all sound player into
-      a context-aware personal assistant. Users get the right pack for the right
-      project automatically, richer notification content, and a built-in fitness
-      trainer that leverages the hook event stream.
+    description: Transform peon-ping from a one-size-fits-all sound player into a context-aware personal assistant. Users get the right pack for the right project automatically, richer notification content, and a built-in fitness trainer that leverages the hook event stream.
     status: in_progress
     start_date: '2026-02-16'
     target_completion: '2026-06-30'
-    milestones:
-      m1:
-        id: m1
+    stories:
+      s1:
+        id: s1
         title: The right pack plays for the right project automatically
-        description: The right sound pack plays for the right project
-          automatically, without manual per-session overrides. Config naming
-          reflects the actual override hierarchy clearly.
+        description: The right sound pack plays for the right project automatically, without manual per-session overrides. Config naming reflects the actual override hierarchy clearly.
         status: done
         docs_ref: docs/plans/2026-02-19-path-rules-design.md
         success_criteria:
-          - path_rules glob matching selects pack based on cwd
-          - default_pack replaces misleading active_pack key
-          - session_override replaces misleading agentskill mode name
-          - peon update migrates old config keys automatically
-          - peon status shows active path rule when matched
-        features:
+        - path_rules glob matching selects pack based on cwd
+        - default_pack replaces misleading active_pack key
+        - session_override replaces misleading agentskill mode name
+        - peon update migrates old config keys automatically
+        - peon status shows active path rule when matched
+        upstream_version: null
+        sequence: 1
+        projects:
           path-rules:
             id: path-rules
             title: Path Rules — Auto-assign packs per project
-            description: 'New path_rules config array that glob-matches cwd to assign
-              sound packs automatically. First match wins. Override hierarchy: session_override
-              > local config > path_rules > pack_rotation > default_pack.'
+            description: 'New path_rules config array that glob-matches cwd to assign sound packs automatically. First match wins. Override hierarchy: session_override > local config > path_rules > pack_rotation > default_pack.'
             status: done
             priority: high
-            projects:
+            sequence: 1
+            features:
               path-rules-matching:
                 id: path-rules-matching
                 title: Path rules matching logic in Python block
-                description: Add fnmatch-based path_rules evaluation in peon.sh
-                  Python block after config load, before rotation/default. First
-                  matching rule with an installed pack wins.
+                description: Add fnmatch-based path_rules evaluation in peon.sh Python block after config load, before rotation/default. First matching rule with an installed pack wins.
                 sequence: 1
                 status: done
               path-rules-status:
                 id: path-rules-status
                 title: Status output and documentation
-                description: Update peon status to show active path rule when
-                  matched. Document path_rules in README, README_zh, help text,
-                  and llms.txt.
+                description: Update peon status to show active path rule when matched. Document path_rules in README, README_zh, help text, and llms.txt.
                 sequence: 2
                 depends_on:
-                  - path-rules-matching
+                - path-rules-matching
                 status: done
           config-renames:
             id: config-renames
             title: Config key renames — active_pack and agentskill cleanup
-            description: Rename active_pack to default_pack and agentskill
-              rotation mode to session_override. Migration handled in peon
-              update with runtime fallback reading both old and new keys during
-              transition.
+            description: Rename active_pack to default_pack and agentskill rotation mode to session_override. Migration handled in peon update with runtime fallback reading both old and new keys during transition.
             status: done
             priority: medium
-            projects:
+            sequence: 2
+            features:
               rename-and-migrate:
                 id: rename-and-migrate
                 title: Rename config keys and add migration
-                description: Rename active_pack to default_pack in config.json
-                  template. Rename agentskill to session_override. Add migration
-                  logic to peon update. Runtime reads new key with old key
-                  fallback.
+                description: Rename active_pack to default_pack in config.json template. Rename agentskill to session_override. Add migration logic to peon update. Runtime reads new key with old key fallback.
                 sequence: 1
                 status: done
           windows-cli:
             id: windows-cli
             title: Path rules CLI on native Windows
-            description: peon packs bind/unbind/bindings commands are
-              bash+Python only. Native Windows users have no way to manage
-              path_rules without manually editing config.json. Need PowerShell
-              equivalents in install.ps1 or a standalone peon.cmd wrapper.
+            description: peon packs bind/unbind/bindings commands are bash+Python only. Native Windows users have no way to manage path_rules without manually editing config.json. Need PowerShell equivalents in install.ps1 or a standalone peon.cmd wrapper.
             status: done
             priority: high
-        upstream_version:
-      m2:
-        id: m2
-        title: Notifications tell you what happened, not just that something
-          happened
-        description: Notifications become informative, actionable, and
-          well-documented. Users see meaningful context in notification
-          messages, can click notifications to focus their IDE, and can easily
-          discover how to control sounds vs popups independently.
+            sequence: 3
+            features: {}
+      s2:
+        id: s2
+        title: Notifications tell you what happened, not just that something happened
+        description: Notifications become informative, actionable, and well-documented. Users see meaningful context in notification messages, can click notifications to focus their IDE, and can easily discover how to control sounds vs popups independently.
         status: done
         success_criteria:
-          - Notification messages render user-configured templates with event
-            variables
-          - Clicking a macOS notification overlay focuses the IDE window
-            (single-window)
-          - Users can easily discover sounds-without-popups via CLI help and
-            README
-          - Three independent toggles (sounds, popups, mobile) clearly
-            documented
-        features:
+        - Notification messages render user-configured templates with event variables
+        - Clicking a macOS notification overlay focuses the IDE window (single-window)
+        - Users can easily discover sounds-without-popups via CLI help and README
+        - Three independent toggles (sounds, popups, mobile) clearly documented
+        docs_ref: docs/prds/PRD-001-m2-close-out-smart-notifications.md
+        sequence: 2
+        projects:
           notification-templates:
             id: notification-templates
             title: Notification Message Templates
-            description: Configurable notification message content with format
-              string templates per event type. Template keys map to CESP
-              categories (stop, permission, error, idle, question). Variables
-              include {project}, {summary}, {tool_name}, {status}, {event}.
-              Defaults to current behavior when no templates configured. Unix
-              and Windows implementations complete.
+            description: Configurable notification message content with format string templates per event type. Template keys map to CESP categories (stop, permission, error, idle, question). Variables include {project}, {summary}, {tool_name}, {status}, {event}. Defaults to current behavior when no templates configured. Unix and Windows implementations complete.
             status: done
             priority: high
             docs_ref: docs/plans/2026-02-24-notification-templates-design.md
-            projects:
+            sequence: 1
+            features:
               template-engine:
                 id: template-engine
                 title: Template resolution engine in Python event parser
-                description: Add notification_templates config key. After
-                  per-event msg construction, apply str.format_map() with
-                  defaultdict(str) for safe missing-key handling.
+                description: Add notification_templates config key. After per-event msg construction, apply str.format_map() with defaultdict(str) for safe missing-key handling.
                 sequence: 1
                 status: done
               template-cli:
                 id: template-cli
                 title: CLI subcommand — peon notifications template
-                description: Add template get/set/reset to peon notifications
-                  subcommand. Show templates in peon status. Update help text.
+                description: Add template get/set/reset to peon notifications subcommand. Show templates in peon status. Update help text.
                 sequence: 2
                 depends_on:
-                  - template-engine
+                - template-engine
                 status: done
               template-tests:
                 id: template-tests
                 title: BATS tests for notification templates
-                description: Test template resolution with {summary},
-                  {tool_name}, unknown variables rendering as empty, fallback to
-                  project name when no template, CLI set/get/reset, and status
-                  display.
+                description: Test template resolution with {summary}, {tool_name}, unknown variables rendering as empty, fallback to project name when no template, CLI set/get/reset, and status display.
                 sequence: 2
                 depends_on:
-                  - template-engine
+                - template-engine
                 status: done
               win-template-engine:
                 id: win-template-engine
                 title: Windows parity — template resolution engine in peon.ps1
-                description: Port notification template resolution from peon.sh
-                  Python block to PowerShell in peon.ps1. Regex-based variable
-                  substitution, same 5 template keys and 5 variables. Windows
-                  parity.
+                description: Port notification template resolution from peon.sh Python block to PowerShell in peon.ps1. Regex-based variable substitution, same 5 template keys and 5 variables. Windows parity.
                 status: done
                 sequence: 4
                 docs_ref: docs/designs/win-notification-templates.md
               win-template-cli:
                 id: win-template-cli
                 title: Windows parity — template CLI subcommand in peon.ps1
-                description: Port peon notifications template get/set/reset CLI
-                  subcommand to peon.ps1. Same UX as Unix. Windows parity.
+                description: Port peon notifications template get/set/reset CLI subcommand to peon.ps1. Same UX as Unix. Windows parity.
                 sequence: 5
                 status: done
                 depends_on:
-                  - win-template-engine
+                - win-template-engine
                 docs_ref: docs/designs/win-notification-templates.md
               win-template-tests:
                 id: win-template-tests
                 title: Windows parity — Pester tests for notification templates
-                description: Pester tests covering template resolution, CLI
-                  get/set/reset, unknown variable handling, and fallback
-                  behavior. Windows parity.
+                description: Pester tests covering template resolution, CLI get/set/reset, unknown variable handling, and fallback behavior. Windows parity.
                 sequence: 6
                 status: done
                 depends_on:
-                  - win-template-engine
-                  - win-template-cli
+                - win-template-engine
+                - win-template-cli
                 docs_ref: docs/designs/win-notification-templates.md
           ide-click-to-focus:
             id: ide-click-to-focus
             title: IDE Click-to-Focus
-            description: 'Clicking a notification focuses the IDE window. macOS: lsappinfo
-              bundle ID from PID, NSRunningApplication fallback in mac-overlay.js,
-              iTerm2 tab-level focus. Windows: SetForegroundWindow with AttachThreadInput
-              workaround, process-name and PID-based targeting. Both platforms shipped
-              and tested.'
+            description: 'Clicking a notification focuses the IDE window. macOS: lsappinfo bundle ID from PID, NSRunningApplication fallback in mac-overlay.js, iTerm2 tab-level focus. Windows: SetForegroundWindow with AttachThreadInput workaround, process-name and PID-based targeting. Both platforms shipped and tested.'
             status: done
             priority: medium
             docs_ref: docs/plans/2026-02-20-ide-click-to-focus-design.md
-            projects:
+            sequence: 2
+            features:
               bundle-id-fallback:
                 id: bundle-id-fallback
                 title: Bundle ID from PID fallback in peon.sh
-                description: Add _mac_bundle_id_from_pid() using lsappinfo. In
-                  send_notification(), when bundle_id is empty and ide_pid > 0,
-                  derive bundle_id from the PID.
+                description: Add _mac_bundle_id_from_pid() using lsappinfo. In send_notification(), when bundle_id is empty and ide_pid > 0, derive bundle_id from the PID.
                 sequence: 1
                 status: done
               overlay-pid-activation:
                 id: overlay-pid-activation
                 title: PID-based activation in mac-overlay.js
-                description: When bundleId is empty but idePid > 0, use
-                  NSRunningApplication.runningApplicationWithProcessIdentifier_()
-                  to activate the IDE app.
+                description: When bundleId is empty but idePid > 0, use NSRunningApplication.runningApplicationWithProcessIdentifier_() to activate the IDE app.
                 sequence: 1
                 status: done
               click-to-focus-tests:
                 id: click-to-focus-tests
                 title: BATS tests for click-to-focus
-                description: Mock lsappinfo returning bundle ID for a given PID.
-                  Test _mac_bundle_id_from_pid with pid=0 returns empty. Test
-                  overlay ide_pid activation when bundle_id is empty.
+                description: Mock lsappinfo returning bundle ID for a given PID. Test _mac_bundle_id_from_pid with pid=0 returns empty. Test overlay ide_pid activation when bundle_id is empty.
                 sequence: 2
                 depends_on:
-                  - bundle-id-fallback
-                  - overlay-pid-activation
+                - bundle-id-fallback
+                - overlay-pid-activation
                 status: done
               win-click-to-focus:
                 id: win-click-to-focus
-                title: Windows parity — click-to-focus via SetForegroundWindow
-                  (SHIPPED)
-                description: Toast click activates IDE window via
-                  SetForegroundWindow/process name matching in win-notify.ps1.
-                  Pester tests in win-click-to-focus.Tests.ps1. Already shipped.
+                title: Windows parity — click-to-focus via SetForegroundWindow (SHIPPED)
+                description: Toast click activates IDE window via SetForegroundWindow/process name matching in win-notify.ps1. Pester tests in win-click-to-focus.Tests.ps1. Already shipped.
                 sequence: 0
                 status: done
           selective-sound-control:
             id: selective-sound-control
             title: Selective Sound Control — Documentation & Discoverability
-            description: Improve discoverability of the existing
-              desktop_notifications feature. No core logic changes — purely CLI
-              help, verbose status, README sections, skill docs, and llms.txt
-              updates.
+            description: Improve discoverability of the existing desktop_notifications feature. No core logic changes — purely CLI help, verbose status, README sections, skill docs, and llms.txt updates.
             status: done
             priority: low
             docs_ref: docs/plans/2026-02-25-selective-sound-control-design.md
-            projects:
+            sequence: 3
+            features:
               verbose-status:
                 id: verbose-status
                 title: Add --verbose flag to peon status
-                description: Added --verbose flag to peon status showing desktop
-                  and mobile notification states with clarifying text. Added
-                  peon popups alias for notifications command. Already shipped.
+                description: Added --verbose flag to peon status showing desktop and mobile notification states with clarifying text. Added peon popups alias for notifications command. Already shipped.
                 sequence: 1
                 status: done
               sound-control-docs:
                 id: sound-control-docs
                 title: README and skill documentation updates
-                description: README English done (Common Use Cases, Independent
-                  Controls table). Skills docs done. llms.txt done. README_zh.md
-                  still needs translated sections.
+                description: README English done (Common Use Cases, Independent Controls table). Skills docs done. llms.txt done. README_zh.md still needs translated sections.
                 sequence: 1
                 status: done
-        docs_ref: docs/prds/PRD-001-m2-close-out-smart-notifications.md
-      m3:
-        id: m3
+      s3:
+        id: s3
         title: Your coding sessions keep you physically active
-        description: The peon IS your personal trainer. Pavel-style daily
-          exercise mode where the Warcraft peon nags you to do 300 pushups and
-          300 squats throughout the day, piggybacking on IDE hook events. No
-          daemon, no cron. Windows implementation shipped (peon.ps1 trainer CLI
-          + hook reminders + Pester tests). Unix/peon.sh implementation remains.
+        description: The peon IS your personal trainer. Pavel-style daily exercise mode where the Warcraft peon nags you to do 300 pushups and 300 squats throughout the day, piggybacking on IDE hook events. No daemon, no cron. Windows implementation shipped (peon.ps1 trainer CLI + hook reminders + Pester tests). Unix/peon.sh implementation remains.
         status: done
         docs_ref: docs/plans/2026-02-16-trainer-mode-design.md
         success_criteria:
-          - peon trainer on/off/status/log/goal CLI commands work
-          - Hook events trigger trainer reminders at configurable intervals
-          - Daily progress resets at midnight automatically
-          - Slacking detection fires harsher voice lines when behind pace
-          - Trainer sounds play after normal hook sounds with delay
-          - README and help text document trainer mode
-        features:
+        - peon trainer on/off/status/log/goal CLI commands work
+        - Hook events trigger trainer reminders at configurable intervals
+        - Daily progress resets at midnight automatically
+        - Slacking detection fires harsher voice lines when behind pace
+        - Trainer sounds play after normal hook sounds with delay
+        - README and help text document trainer mode
+        sequence: 3
+        projects:
           trainer-core:
             id: trainer-core
             title: Trainer Core — CLI, state, and config
-            description: Trainer config section in config.json, state management
-              in .state.json with auto-reset on new day, and CLI subcommands
-              (on/off/status/log/goal) in peon.sh case statement. Trainer sounds
-              directory scaffold with manifest.json. Windows parity already
-              shipped in peon.ps1.
+            description: Trainer config section in config.json, state management in .state.json with auto-reset on new day, and CLI subcommands (on/off/status/log/goal) in peon.sh case statement. Trainer sounds directory scaffold with manifest.json. Windows parity already shipped in peon.ps1.
             status: done
             priority: high
-            projects:
+            sequence: 1
+            features:
               trainer-scaffold:
                 id: trainer-scaffold
                 title: Directory scaffold and config defaults
-                description: Create
-                  trainer/sounds/{remind,log,complete,slacking}/ directories,
-                  manifest.json with placeholder entries, and add trainer
-                  section to config.json defaults.
+                description: Create trainer/sounds/{remind,log,complete,slacking}/ directories, manifest.json with placeholder entries, and add trainer section to config.json defaults.
                 sequence: 1
                 status: todo
               trainer-cli:
                 id: trainer-cli
                 title: CLI subcommands — on/off/status/log/goal
-                description: Add trainer) case to peon.sh with Python-backed
-                  subcommands for enabling/disabling, showing progress bars,
-                  logging reps, and setting goals. TDD with tests/trainer.bats.
+                description: Add trainer) case to peon.sh with Python-backed subcommands for enabling/disabling, showing progress bars, logging reps, and setting goals. TDD with tests/trainer.bats.
                 sequence: 2
                 depends_on:
-                  - trainer-scaffold
+                - trainer-scaffold
                 status: todo
               win-trainer-cli:
                 id: win-trainer-cli
-                title: Windows parity — trainer CLI and state management
-                  (SHIPPED)
-                description: peon train on/off/status/log/goal subcommands in
-                  peon.ps1 with state management. Pester tests in
-                  trainer-windows.Tests.ps1. Already shipped.
+                title: Windows parity — trainer CLI and state management (SHIPPED)
+                description: peon train on/off/status/log/goal subcommands in peon.ps1 with state management. Pester tests in trainer-windows.Tests.ps1. Already shipped.
                 sequence: 0
                 status: done
           trainer-reminders:
             id: trainer-reminders
             title: Trainer Reminders — Hook event integration
-            description: On each hook event, after normal sound routing, check
-              trainer config/state and optionally play a second sound for
-              trainer reminder. Pace-based slacking detection. Skip on
-              SessionStart to avoid stacking. Windows parity already shipped in
-              peon.ps1.
+            description: On each hook event, after normal sound routing, check trainer config/state and optionally play a second sound for trainer reminder. Pace-based slacking detection. Skip on SessionStart to avoid stacking. Windows parity already shipped in peon.ps1.
             status: done
             priority: high
             depends_on:
-              - trainer-core
-            projects:
+            - trainer-core
+            sequence: 2
+            features:
               reminder-logic:
                 id: reminder-logic
                 title: Reminder logic in Python hook block
-                description: After main sound selection, check trainer enabled,
-                  date reset, interval elapsed, and pace. Pick from
-                  trainer.remind or trainer.slacking manifest categories. Output
-                  TRAINER_SOUND, TRAINER_VOL, TRAINER_MSG variables.
+                description: After main sound selection, check trainer enabled, date reset, interval elapsed, and pace. Pick from trainer.remind or trainer.slacking manifest categories. Output TRAINER_SOUND, TRAINER_VOL, TRAINER_MSG variables.
                 sequence: 1
                 status: todo
               reminder-playback:
                 id: reminder-playback
                 title: Delayed trainer sound playback in shell
-                description: After main sound playback, if TRAINER_SOUND is set,
-                  play with 1s delay. Desktop notification with progress
-                  summary. Synchronous in test mode.
+                description: After main sound playback, if TRAINER_SOUND is set, play with 1s delay. Desktop notification with progress summary. Synchronous in test mode.
                 sequence: 2
                 depends_on:
-                  - reminder-logic
+                - reminder-logic
                 status: todo
               win-trainer-reminders:
                 id: win-trainer-reminders
                 title: Windows parity — hook-time trainer reminders (SHIPPED)
-                description: Trainer reminder logic in peon.ps1 hook path. Fires
-                  after main sound with delay. Pester coverage in
-                  trainer-windows.Tests.ps1. Already shipped.
+                description: Trainer reminder logic in peon.ps1 hook path. Fires after main sound with delay. Pester coverage in trainer-windows.Tests.ps1. Already shipped.
                 sequence: 0
                 status: done
           trainer-docs:
             id: trainer-docs
             title: Trainer Documentation
-            description: Add trainer section to README, README_zh, help text,
-              completions, and llms.txt. Document CLI commands, custom voice
-              lines directory, and configuration.
+            description: Add trainer section to README, README_zh, help text, completions, and llms.txt. Document CLI commands, custom voice lines directory, and configuration.
             status: done
             priority: medium
             depends_on:
-              - trainer-core
-              - trainer-reminders
-            projects:
+            - trainer-core
+            - trainer-reminders
+            sequence: 3
+            features:
               trainer-docs-all:
                 id: trainer-docs-all
                 title: Help text, README, and completions updates
-                description: Add trainer to peon help output. Add Trainer Mode
-                  section to README and README_zh. Update completions.bash and
-                  completions.fish. Update llms.txt.
+                description: Add trainer to peon help output. Add Trainer Mode section to README and README_zh. Update completions.bash and completions.fish. Update llms.txt.
                 sequence: 1
                 status: todo
-      m0:
-        id: m0
+      s0:
+        id: s0
         title: Windows hooks never deadlock or lose state
-        description: Eliminate P0 hook reliability bugs on native Windows that
-          make peon-ping unusable. Async audio playback, state file concurrency
-          safety, and deadlock prevention.
+        description: Eliminate P0 hook reliability bugs on native Windows that make peon-ping unusable. Async audio playback, state file concurrency safety, and deadlock prevention.
         status: done
-        docs_ref:
-          docs/adr/proposals/ADR-001-async-audio-and-safe-state-on-windows.md
+        docs_ref: docs/adr/proposals/ADR-001-async-audio-and-safe-state-on-windows.md
         success_criteria:
-          - Windows hooks return within 200ms (excluding PowerShell startup)
-          - Zero deadlocks under multi-agent sprint dispatch (20+ agents)
-          - Zero state file corruption under concurrent hook invocations
-          - Audio plays reliably as fire-and-forget on all Stop/SessionStart
-            events
-        features:
+        - Windows hooks return within 200ms (excluding PowerShell startup)
+        - Zero deadlocks under multi-agent sprint dispatch (20+ agents)
+        - Zero state file corruption under concurrent hook invocations
+        - Audio plays reliably as fire-and-forget on all Stop/SessionStart events
+        upstream_version: 2.15.1
+        sequence: 4
+        projects:
           async-audio:
             id: async-audio
             title: Async Audio Playback
-            description: Replace inline synchronous audio in peon.ps1 with
-              Start-Process delegation to scripts/win-play.ps1 as a detached
-              process. Eliminate MediaPlayer WPF deadlock.
+            description: Replace inline synchronous audio in peon.ps1 with Start-Process delegation to scripts/win-play.ps1 as a detached process. Eliminate MediaPlayer WPF deadlock.
             status: done
             priority: critical
-            projects:
+            sequence: 1
+            features:
               detach-audio:
                 id: detach-audio
                 title: Delegate audio to detached win-play.ps1 process
-                description: Remove inline SoundPlayer.PlaySync() and
-                  MediaPlayer code from peon.ps1. Use Start-Process -WindowStyle
-                  Hidden to spawn win-play.ps1 as fire-and-forget. Add
-                  process-level self-timeout (8s safety net).
+                description: Remove inline SoundPlayer.PlaySync() and MediaPlayer code from peon.ps1. Use Start-Process -WindowStyle Hidden to spawn win-play.ps1 as fire-and-forget. Add process-level self-timeout (8s safety net).
                 sequence: 1
                 status: done
                 docs_ref: docs/designs/async-audio-and-safe-state-on-windows.md
           state-concurrency:
             id: state-concurrency
             title: State File Concurrency Safety
-            description: Add atomic write pattern (write-to-temp + rename) and
-              retry-on-lock-failure to .state.json operations in peon.ps1.
+            description: Add atomic write pattern (write-to-temp + rename) and retry-on-lock-failure to .state.json operations in peon.ps1.
             status: done
             priority: high
             depends_on:
-              - async-audio
-            projects:
+            - async-audio
+            sequence: 2
+            features:
               atomic-state:
                 id: atomic-state
                 title: Atomic state file writes with lock retry
-                description: Write .state.json to temp file then rename (atomic
-                  on NTFS). Add retry with backoff on read failures. Degrade
-                  gracefully to empty defaults if state unavailable.
+                description: Write .state.json to temp file then rename (atomic on NTFS). Add retry with backoff on read failures. Degrade gracefully to empty defaults if state unavailable.
                 sequence: 1
                 status: done
-        upstream_version: 2.15.1
-      m4:
-        id: m4
+      s4:
+        id: s4
         title: When something breaks, you can see why
-        description: Structured observability for hook execution. Configurable
-          debug logging with phase timing, decision tracing, and daily log
-          rotation. Users can diagnose timeout, config, pack, and audio failures
-          from log output alone — no source reading required.
+        description: Structured observability for hook execution. Configurable debug logging with phase timing, decision tracing, and daily log rotation. Users can diagnose timeout, config, pack, and audio failures from log output alone — no source reading required.
         status: done
         docs_ref: docs/designs/structured-hook-logging.md
         success_criteria:
-          - debug config key enables structured logging with zero overhead when
-            disabled
-          - 'Log entries cover all decision phases: event routing, config load, pack
-            selection, sound pick, playback, notification'
-          - peon debug on/off and peon logs CLI commands work on all platforms
-          - Daily log rotation with configurable retention (default 7 days)
-          - Worktree-safe concurrent append logging with session/cwd correlation
-        features:
+        - debug config key enables structured logging with zero overhead when disabled
+        - 'Log entries cover all decision phases: event routing, config load, pack selection, sound pick, playback, notification'
+        - peon debug on/off and peon logs CLI commands work on all platforms
+        - Daily log rotation with configurable retention (default 7 days)
+        - Worktree-safe concurrent append logging with session/cwd correlation
+        sprint_tag: HOOKLOG
+        sequence: 5
+        projects:
           hook-logging-core:
             id: hook-logging-core
             title: Core structured logging in hook scripts
-            description: 'Add inline phase-emitting log calls to both peon.sh (Python
-              block) and peon.ps1 (PowerShell). Implements debug and debug_retention_days
-              config keys, daily-rotated log files under $PEON_DIR/logs/, invocation
-              ID correlation, and PEON_DEBUG=1 env var override. Covers all decision
-              phases: [hook], [config], [state], [route], [sound], [play], [notify],
-              [trainer], [exit]. Zero overhead when disabled (no-op lambda/scriptblock).
-              Cross-platform test fixtures prevent format drift between Python and
-              PowerShell implementations.'
+            description: 'Add inline phase-emitting log calls to both peon.sh (Python block) and peon.ps1 (PowerShell). Implements debug and debug_retention_days config keys, daily-rotated log files under $PEON_DIR/logs/, invocation ID correlation, and PEON_DEBUG=1 env var override. Covers all decision phases: [hook], [config], [state], [route], [sound], [play], [notify], [trainer], [exit]. Zero overhead when disabled (no-op lambda/scriptblock). Cross-platform test fixtures prevent format drift between Python and PowerShell implementations.'
             status: done
             docs_ref: docs/designs/structured-hook-logging.md
+            sequence: 1
+            features: {}
           hook-logging-cli:
             id: hook-logging-cli
             title: CLI commands for debug toggle and log reading
-            description: Add peon debug on|off|status and peon logs [--last N]
-              [--session ID] [--clear] CLI commands to both peon.sh and
-              peon.ps1. Update shell completions (completions.bash,
-              completions.fish). Users can toggle logging and read/filter log
-              files without editing config files or knowing log directory paths.
-              Windows parity via peon.cmd delegation to peon.ps1.
+            description: Add peon debug on|off|status and peon logs [--last N] [--session ID] [--clear] CLI commands to both peon.sh and peon.ps1. Update shell completions (completions.bash, completions.fish). Users can toggle logging and read/filter log files without editing config files or knowing log directory paths. Windows parity via peon.cmd delegation to peon.ps1.
             status: done
             docs_ref: docs/designs/structured-hook-logging.md
+            sequence: 2
+            features: {}
           hook-logging-docs:
             id: hook-logging-docs
             title: Documentation and discoverability for hook logging
-            description: Add Debugging section to README.md with examples of
-              diagnosing the 5 common failure modes from log output. Translate
-              to README_zh.md. Update docs/public/llms.txt. Update peon help
-              output with debug/logs commands. Update peon status --verbose to
-              show debug logging state. Troubleshooting guide with common
-              failure patterns.
+            description: Add Debugging section to README.md with examples of diagnosing the 5 common failure modes from log output. Translate to README_zh.md. Update docs/public/llms.txt. Update peon help output with debug/logs commands. Update peon status --verbose to show debug logging state. Troubleshooting guide with common failure patterns.
             status: done
             docs_ref: docs/designs/structured-hook-logging.md
-        sprint_tag: HOOKLOG
-      m5:
-        id: m5
+            sequence: 3
+            features: {}
+      s5:
+        id: s5
         title: The peon speaks to you
-        description: peon-ping gains a voice. Hook events, notifications, and
-          trainer reminders can be spoken aloud with dynamic content that static
-          audio files cannot provide. A universal integration layer defines the
-          speak() contract and config schema. Each TTS backend ships as its own
-          independent feature.
+        description: peon-ping gains a voice. Hook events, notifications, and trainer reminders can be spoken aloud with dynamic content that static audio files cannot provide. A universal integration layer defines the speak() contract and config schema. Each TTS backend ships as its own independent feature.
         status: in_progress
         docs_ref: docs/prds/PRD-003-tts-spoken-feedback.md
         success_criteria:
-          - Hook events can trigger spoken output in addition to or instead of
-            sound files
-          - TTS backend is pluggable — new engines can be added without changing
-            the integration layer
-          - Platform-native TTS works out of the box with zero setup on macOS,
-            Windows, and Linux
-          - Dynamic content (project name, event summary, trainer progress) can
-            be spoken
-          - TTS playback is async and does not block hook return
-          - peon tts CLI commands for toggling, testing, and configuring
-        features:
+        - Hook events can trigger spoken output in addition to or instead of sound files
+        - TTS backend is pluggable — new engines can be added without changing the integration layer
+        - Platform-native TTS works out of the box with zero setup on macOS, Windows, and Linux
+        - Dynamic content (project name, event summary, trainer progress) can be spoken
+        - TTS playback is async and does not block hook return
+        - peon tts CLI commands for toggling, testing, and configuring
+        sequence: 6
+        projects:
           tts-integration:
             id: tts-integration
             title: TTS integration layer and backend contract
-            description: 'The foundation everything else builds on. speak() contract,
-              config schema (tts section with 6 keys), speech text resolution chain
-              (manifest > template > default), three-mode sequencing, backend resolution,
-              .tts.pid tracking. Shipped in PR #442.'
+            description: 'The foundation everything else builds on. speak() contract, config schema (tts section with 6 keys), speech text resolution chain (manifest > template > default), three-mode sequencing, backend resolution, .tts.pid tracking. Shipped in PR #442.'
             status: done
             priority: high
             docs_ref: docs/designs/tts-integration.md
+            sequence: 1
+            features: {}
           tts-native:
             id: tts-native
             title: Platform-native TTS backends
-            description: 'First working backend. macOS: say command. Windows: System.Speech.Synthesis
-              via Start-Process. Linux: espeak-ng > piper priority chain. Async via
-              background process.'
-            status: planned
+            description: 'First working backend. macOS: say command. Windows: System.Speech.Synthesis via Start-Process. Linux: espeak-ng > piper priority chain. Async via background process.'
+            status: todo
             priority: high
             depends_on:
-              - tts-integration
+            - tts-integration
             docs_ref: docs/designs/tts-native.md
+            sequence: 2
+            features: {}
           tts-cli:
             id: tts-cli
             title: TTS CLI commands and configuration
-            description: peon tts on/off/status/test/voices/voice/backend
-              subcommands. Shell completions updated.
-            status: planned
+            description: peon tts on/off/status/test/voices/voice/backend subcommands. Shell completions updated.
+            status: todo
             priority: high
             depends_on:
-              - tts-native
+            - tts-native
+            sequence: 3
+            features: {}
           tts-notifications:
             id: tts-notifications
             title: Spoken notifications and trainer reminders
-            description: TTS wired into notification and trainer pipelines.
-              Per-category spoken content. Trainer speaks dynamic progress
-              strings.
-            status: planned
+            description: TTS wired into notification and trainer pipelines. Per-category spoken content. Trainer speaks dynamic progress strings.
+            status: todo
             priority: medium
             depends_on:
-              - tts-native
+            - tts-native
+            sequence: 4
+            features: {}
           tts-docs:
             id: tts-docs
             title: TTS documentation
-            description: README.md TTS section, README_zh.md translation,
-              docs/public/llms.txt, peon help output, pack author guide for
-              speech_text in manifests.
-            status: planned
+            description: README.md TTS section, README_zh.md translation, docs/public/llms.txt, peon help output, pack author guide for speech_text in manifests.
+            status: todo
             priority: medium
             depends_on:
-              - tts-cli
-              - tts-notifications
+            - tts-cli
+            - tts-notifications
+            sequence: 5
+            features: {}
           tts-elevenlabs:
             id: tts-elevenlabs
             title: ElevenLabs TTS backend
-            description: Premium cloud backend. User-provided API key, audio
-              caching (text hash > cached MP3), implements speak() contract.
-            status: planned
+            description: Premium cloud backend. User-provided API key, audio caching (text hash > cached MP3), implements speak() contract.
+            status: todo
             priority: medium
             depends_on:
-              - tts-cli
+            - tts-cli
+            sequence: 6
+            features: {}
           tts-piper:
             id: tts-piper
             title: Piper TTS backend (local neural)
-            description: Local AI backend. BYO install — peon-ping detects
-              installed piper binary and model files, does not manage downloads.
-            status: planned
+            description: Local AI backend. BYO install — peon-ping detects installed piper binary and model files, does not manage downloads.
+            status: todo
             priority: low
             depends_on:
-              - tts-cli
+            - tts-cli
+            sequence: 7
+            features: {}
+  m3:
+    id: m3
+    title: v3 — Ubiquity & Polish
+    description: 'With personalization and a voice in place (v2), v3 widens peon-ping''s reach and sands down the friction that stops people leaving it on all day. Four outcomes: (1) the Peon shows up natively for whatever AI coding agent you run; (2) its audio behaves like a good citizen — mixing with your music instead of seizing the output device, fading smoothly, and exposing any single sound as one command; (3) notifications stay sane under modern concurrency — agent teams, headless/background agents, and many simultaneous sessions; (4) you can curate a personal cross-pack sound set and never miss a pending decision. Curated from open upstream feature requests (PeonPing/peon-ping issues), bugs and pure doc tweaks excluded. Each milestone was triaged against the live codebase so scope reflects what is genuinely unshipped.'
+    status: todo
+    start_date: '2026-05-29'
+    stories:
+      s6:
+        id: s6
+        title: Whatever AI coding agent you run, the Peon shows up — natively
+        description: 'Closes peon-ping''s remaining agent-adoption gaps and brings already-supported agents to full event fidelity. Four agents with standing demand and zero coverage (Qwen Code #483, iFlow CLI #311, Trae IDE #158, Pi #233) gain first-party bash+PowerShell adapters on the proven CESP-translation pattern (resolve PEON_DIR → read the agent''s argv/stdin event → normalize to peon.sh''s PascalCase CESP vocabulary → pipe to peon.sh / the install.ps1 Windows engine). The Codex adapter graduates from the legacy turn-yield-only `notify` callback to the now-stable Codex hook event set (#513). The misleadingly broad ''Kiro'' badge is made honest with a distinct Kiro IDE adapter alongside the existing CLI one (#509). A first-party ECA adapter ships (#261); note the runtime-resolution half of a ''tool-agnostic install root'' is already shipped (peon.sh resolves and defaults to ~/.openpeon, extended to hook handlers in PR #523), so the agnostic-root work is narrowed to an installer write-target flag plus docs.'
+        status: todo
+        success_criteria:
+        - Qwen Code, iFlow CLI, Trae, and Pi each have a working bash + PowerShell adapter translating native events to CESP, with passing BATS (modeled on tests/windsurf.bats) and Pester (tests/adapters-windows.Tests.ps1) coverage, README + README_zh rows/sections, install.sh remote-curl + install.ps1 explicit-array wiring, and docs/llms.txt entries
+        - The Codex adapter consumes the stable Codex hook event set (session lifecycle, pre/post tool, turn complete, approval) via stdin JSON while preserving the legacy argv `notify` path as a non-breaking fallback
+        - Kiro CLI and Kiro IDE are distinct, correctly-labeled adapters with separate session-id prefixes, and `peon status` distinguishes the two
+        - A first-party ECA adapter exists, and install.sh/install.ps1 can install the runtime to the already-supported ~/.openpeon agnostic root via an explicit flag, documented for any tool to reference
+        - Every newly supported agent appears in `peon status` IDE detection and in both README variants, with the supported-tool count kept consistent across badge, intro, and the Multi-IDE table
+        sequence: 1
+        projects:
+          expand-agent-adapter-coverage:
+            id: expand-agent-adapter-coverage
+            title: First-party adapters for Qwen Code, iFlow CLI, Trae, and Pi
+            description: 'peon-ping''s value scales with the number of agents it speaks for, and four agents with standing demand have zero coverage: Qwen Code CLI (#483, a Gemini-CLI fork), iFlow CLI (#311, cli.iflow.cn), Trae IDE (#158, trae.ai), and Pi (#233, badlogic/pi-mono). Each is a durable new agent surface. They share the CESP-translation pattern proven across the 16 existing adapters. Current state (verified vs origin/main): no adapter or reference for qwen/iflow/trae/pi exists; all four issues OPEN. The only Pi-adjacent shipped work is PR #514 ''oh-my-pi (omp)'' — a DIFFERENT project; #233 remains unaddressed. install.sh uses a *.sh cp glob for local installs BUT an explicit per-adapter curl list for remote installs (already incomplete); install.ps1 copies a HARDCODED $adapterFiles array — both need per-adapter edits.'
+            status: todo
+            priority: high
+            sequence: 1
+            features:
+              qwen-adapter:
+                id: qwen-adapter
+                title: Qwen Code CLI adapter (bash + PowerShell)
+                status: todo
+                priority: high
+                sequence: 1
+                description: Add adapters/qwen.sh modeled on adapters/gemini.sh (Qwen Code is a Gemini-CLI fork; hook config is almost certainly ~/.qwen/settings.json with a hooks block like Gemini's). Resolve PEON_DIR with the gemini.sh chain (CLAUDE_PEON_DIR → BASH_SOURCE-relative ../ → ${CLAUDE_CONFIG_DIR:-$HOME/.claude}/hooks/peon-ping). Accept event type as $1 plus stdin JSON, extract session_id/cwd via python3, map Qwen events to CESP (session start→SessionStart, prompt submit→UserPromptSubmit, turn complete→Stop, tool failure→PostToolUseFailure with tool_name+error, approval→Notification notification_type=permission_prompt), prefix session_id with `qwen-`, exit 0 on unknown events, pipe to $PEON_DIR/peon.sh. CONFIRM Qwen's actual hook mechanism from its docs before finalizing names. Add adapters/qwen.ps1 mirroring gemini.ps1 ([Console]::OpenStandardInput → ConvertFrom-Json → hashtable → ConvertTo-Json -Compress → peon.ps1), no ExecutionPolicy Bypass.
+              iflow-adapter:
+                id: iflow-adapter
+                title: iFlow CLI adapter (bash + PowerShell)
+                status: todo
+                priority: high
+                sequence: 2
+                description: 'Add adapters/iflow.sh + adapters/iflow.ps1. First determine iFlow CLI''s hook/notify surface from cli.iflow.cn docs: stdin JSON (use the kiro.sh template) or argv event name (use the rovodev.sh template). Map iFlow lifecycle events to CESP, prefix session_id with `iflow-`, exit 0 silently on unknown events. Put the exact install-config snippet (file to edit + command line) in the adapter header comment, matching codex.sh/rovodev.sh. Add the .ps1 parity adapter using the kiro.ps1 stdin/ConvertFrom-Json pattern.'
+              trae-adapter:
+                id: trae-adapter
+                title: Trae IDE adapter (bash + PowerShell)
+                status: todo
+                priority: high
+                sequence: 3
+                description: Add adapters/trae.sh + adapters/trae.ps1 for Trae (trae.ai, a VS Code-derived IDE). Determine Trae's hook/event delivery from its docs. If Trae exposes a synchronous JSON-piping hook API, use the kiro.sh stdin-JSON template. If not, evaluate a FileSystemWatcher-style adapter modeled on adapters/amp.sh / adapters/antigravity.sh (bash uses fswatch/inotifywait; the .ps1 uses .NET FileSystemWatcher) watching Trae's session/thread files for turn completion. Map detected events to Stop/SessionStart/PostToolUseFailure, prefix session_id with `trae-`. For a watcher variant, document the foreground + background start command like the Amp/Antigravity entries, and assert FileSystemWatcher usage in Pester.
+              pi-adapter-vendor:
+                id: pi-adapter-vendor
+                title: Vendor the Pi adapter as first-party
+                status: todo
+                priority: medium
+                sequence: 4
+                description: 'Address #233 for Pi (badlogic/pi-mono) — NOT oh-my-pi/omp, which already shipped (PR #514) and is a different project. If Pi is a TS/npm-plugin extension like OpenCode, vendor it under adapters/pi/ mirroring adapters/opencode/ (package.json, tsconfig, peon-ping.ts shelling to peon.sh/peon.ps1 via node:child_process per PR #508''s pattern) plus an adapters/pi.sh installer like adapters/opencode.sh. If Pi exposes a CLI hook/notify surface, add adapters/pi.sh + adapters/pi.ps1 with standard CESP translation and `pi-` prefix. A community adapter (npm pi-peon-ping) exists and its author offered to upstream — coordinate the upstream PR and preserve attribution in the header rather than reimplementing blind. Confirm event names against pi-mono source.'
+              new-adapters-install-wiring:
+                id: new-adapters-install-wiring
+                title: Wire new adapters into installers and peon status detection
+                status: todo
+                priority: high
+                sequence: 5
+                depends_on:
+                - qwen-adapter
+                - iflow-adapter
+                - trae-adapter
+                - pi-adapter-vendor
+                description: 'install.sh: the local cp glob covers *.sh, but add explicit `curl ... -o adapters/<name>.sh` lines for qwen/iflow/trae/pi to the remote-install curl block so one-liner installs receive them. install.ps1: add qwen.ps1/iflow.ps1/trae.ps1/pi.ps1 to the explicit $adapterFiles array (it is NOT a glob). Add IDE detection entries to the status section(''IDEs'') block for each new agent (following the Codex/Gemini/Rovo Dev examples: probe the agent''s config dir/file, mark ''installed'' vs ''detected (not set up)''). Mirror detection in the Windows engine. Register each new source in peon.sh IDE_ALIASES / IDE_DISPLAY_NAMES and the detect_session_ide prefix fallback so notifications render the friendly agent name.'
+              new-adapters-tests:
+                id: new-adapters-tests
+                title: BATS + Pester coverage for the new adapters
+                status: todo
+                priority: high
+                sequence: 6
+                depends_on:
+                - qwen-adapter
+                - iflow-adapter
+                - trae-adapter
+                - pi-adapter-vendor
+                description: 'Add tests/qwen.bats, tests/iflow.bats, tests/trae.bats, tests/pi.bats each modeled on tests/windsurf.bats: bash -n syntax check; event-mapping assertions via afplay_sound (completion→Done, first session→Hello greeting, prompt silent, failure→PostToolUseFailure path, permission flow); paused (.paused) and enabled=false suppression; volume passthrough; unknown-event graceful exit; session-id-prefix assertion. Use the tests/setup.bash harness (mocks afplay, isolated TEST_DIR, CLAUDE_PEON_DIR) following tests/codex.bats''s run_<adapter> helper. Extend tests/adapters-windows.Tests.ps1 to assert each new .ps1 parses as valid PowerShell, maps events, pipes to peon.ps1, and has no ExecutionPolicy Bypass. For a watcher-style trae.ps1, assert FileSystemWatcher usage like amp/antigravity.'
+              new-adapters-docs-enforcement:
+                id: new-adapters-docs-enforcement
+                title: Docs + enforcement updates for the new adapters
+                status: todo
+                priority: medium
+                sequence: 7
+                depends_on:
+                - new-adapters-install-wiring
+                - new-adapters-tests
+                description: 'Per the Change Enforcement Rules for a new IDE adapter: add each agent as a Multi-IDE Support table row plus a per-agent setup section (mirroring OpenAI Codex / Rovo Dev) with the exact config snippet; add the matching badge and intro entry, keeping the count consistent. Apply identical changes to README_zh.md. Update docs/public/llms.txt (supported-agents list + headline) and ../openpeon/site/public/llms.txt if CESP-relevant. Add detection/setup phases to ../homebrew-tap/Formula/peon-ping.rb only for agents needing auto-registration like Rovo Dev. Bump VERSION (minor) and add a CHANGELOG section once all four land.'
+          codex-native-hooks-upgrade:
+            id: codex-native-hooks-upgrade
+            title: Upgrade the Codex adapter to the stable Codex hook event set
+            description: 'OpenAI Codex graduated hooks to stable. peon-ping''s Codex adapter still consumes only the legacy `notify` callback, which fires solely when the agent yields its turn — so Codex users effectively only ever hear a ''done'' sound and miss session-start greetings, permission/approval prompts, and tool-failure cues. Subscribing to the full Codex hook event set brings Codex to event parity with the first-class Claude Code experience (#513). Current state (verified vs origin/main): adapters/codex.sh collapses almost everything to Stop with narrow special cases; adapters/codex.ps1 is thinner (switch on a single $Event param, NO stdin parsing) and even collapses error/fail* to Stop. Detection already keys on the codex adapter path string, so a hooks-based registration that references it would still be detected — the real gap is event coverage, not status.'
+            status: todo
+            priority: high
+            sequence: 2
+            features:
+              codex-hooks-event-mapping:
+                id: codex-hooks-event-mapping
+                title: Map the stable Codex hook event set to CESP in codex.sh
+                status: todo
+                priority: high
+                sequence: 1
+                description: 'From the Codex hooks docs, enumerate the stable hook event names and payload shape (session start/end, pre/post tool, turn complete, permission/approval). Extend the python translation block in adapters/codex.sh to map each to CESP: session-start→SessionStart, session-end→SessionEnd, turn-complete→Stop, pre-tool permission→Notification (notification_type=permission_prompt) or PermissionRequest, post-tool failure→PostToolUseFailure (carry tool_name+error, as the adapter already does). Branch on input shape so BOTH paths keep working: new hooks arrive as stdin JSON with a hook_event_name field, legacy notify arrives as argv $1 — the adapter already reads both, so extend the mapping rather than rewrite the I/O. Do NOT break existing `notify` users. Keep the `codex-` prefix and existing field-extraction helpers.'
+              codex-hooks-windows-parity:
+                id: codex-hooks-windows-parity
+                title: Bring codex.ps1 to event-set parity
+                status: todo
+                priority: high
+                sequence: 2
+                depends_on:
+                - codex-hooks-event-mapping
+                description: Rewrite adapters/codex.ps1 to parse the Codex hook stdin JSON payload (it currently only switches on $Event) using the [Console]::OpenStandardInput + ConvertFrom-Json pattern from kiro.ps1, then apply the same CESP mapping table as the upgraded codex.sh — including mapping failure events to PostToolUseFailure (today codex.ps1 wrongly collapses error/fail* to Stop). Preserve legacy-notify behavior (argv $Event with no stdin) as a fallback branch. Keep the `codex-` prefix. Introduce no ExecutionPolicy Bypass.
+              codex-hooks-status-and-docs:
+                id: codex-hooks-status-and-docs
+                title: Codex install config + docs for hooks mode
+                status: todo
+                priority: medium
+                sequence: 3
+                depends_on:
+                - codex-hooks-event-mapping
+                - codex-hooks-windows-parity
+                description: Update the OpenAI Codex setup section of README.md (incl. the config example) to document the recommended stable-hooks config in ~/.codex/config.toml in addition to the legacy `notify` line, and update the Multi-IDE table row. Apply to README_zh.md. Update docs/public/llms.txt Codex entry. Verify peon status still reports Codex as installed under a hooks-based config (detection keys on the codex.sh/.ps1 path string); only adjust detection if the recommended config omits it. If homebrew auto-registers Codex, update the formula. Bump VERSION (minor) + CHANGELOG.
+              codex-hooks-tests:
+                id: codex-hooks-tests
+                title: BATS + Pester coverage for Codex hooks mode
+                status: todo
+                priority: high
+                sequence: 4
+                depends_on:
+                - codex-hooks-event-mapping
+                - codex-hooks-windows-parity
+                - codex-hooks-status-and-docs
+                description: 'Extend tests/codex.bats (already covers the argv/notify path via run_codex) with windsurf.bats-style assertions: feed representative Codex hook stdin payloads for each new event and assert the correct CESP mapping/sound (session-start→Hello, turn-complete→Done, approval→permission flow, tool failure→PostToolUseFailure), plus a regression test that the legacy argv `notify` path still maps to Stop. Add Codex hooks-mapping cases to tests/adapters-windows.Tests.ps1 for codex.ps1 (valid PowerShell, correct mapping incl. failure→PostToolUseFailure, pipes to peon.ps1, no ExecutionPolicy Bypass).'
+          kiro-ide-adapter:
+            id: kiro-ide-adapter
+            title: Distinct Kiro IDE adapter (separate from Kiro CLI)
+            description: 'peon-ping advertises ''Kiro'' support, but the existing adapter targets the Kiro CLI (Amazon) only — its own header says so — assuming the CLI''s ~/.kiro/agents/peon-ping.json config and camelCase events. Kiro IDE has a different hook implementation (#509), so IDE users who follow the documented setup get nothing — an actively misleading support claim. Splitting Kiro into two clearly-labeled adapters (CLI vs IDE) makes the badge honest and reaches a distinct user base. The CLI adapter already works, so the new work is purely additive. Current state (verified): adapters/kiro.sh self-describes as ''Kiro CLI''; README lists a single ''Kiro'' row and CLI setup section; no Kiro IDE adapter/config/detection exists; #509 OPEN.'
+            status: todo
+            priority: medium
+            sequence: 3
+            features:
+              kiro-ide-adapter-impl:
+                id: kiro-ide-adapter-impl
+                title: Implement adapters/kiro-ide.sh and kiro-ide.ps1
+                status: todo
+                priority: medium
+                sequence: 1
+                description: 'Determine Kiro IDE''s hook implementation (config location and event delivery — #509 confirms it differs from the CLI). Add adapters/kiro-ide.sh: resolve PEON_DIR with the same chain as kiro.sh, parse the IDE''s event payload (stdin JSON if Kiro IDE pipes JSON, else argv), map lifecycle events to CESP (start→SessionStart, prompt→UserPromptSubmit, completion→Stop, permission→PermissionRequest/Notification, tool failure→PostToolUseFailure), prefix session_id with `kiro-ide-` to stay distinct from the CLI''s `kiro-` prefix, exit 0 on unknown events. Add adapters/kiro-ide.ps1 with parity using the kiro.ps1 stdin/ConvertFrom-Json/ConvertTo-Json -Compress pattern (no ExecutionPolicy Bypass). Keep kiro.sh/.ps1 functionally unchanged but tighten their header label to ''Kiro CLI''.'
+              kiro-ide-status-install-docs:
+                id: kiro-ide-status-install-docs
+                title: Kiro IDE status detection, install wiring, and docs
+                status: todo
+                priority: medium
+                sequence: 2
+                depends_on:
+                - kiro-ide-adapter-impl
+                description: 'Add Kiro IDE detection to peon status''s section(''IDEs'') block and the Windows equivalent, probing the IDE''s config location and distinguishing it from the CLI''s ~/.kiro/agents. Register the IDE source in peon.sh IDE_ALIASES/IDE_DISPLAY_NAMES. install.sh: add an explicit curl line for kiro-ide.sh to the remote block; install.ps1: add kiro-ide.ps1 to the $adapterFiles array. Split the README Multi-IDE row into ''Kiro CLI'' and ''Kiro IDE'' and add a dedicated Kiro IDE setup section beside the existing one; update badge/intro. Apply identically to README_zh.md; update docs/public/llms.txt. Update the homebrew formula if Kiro is referenced. Bump VERSION (minor) + CHANGELOG.'
+              kiro-ide-tests:
+                id: kiro-ide-tests
+                title: BATS + Pester coverage for Kiro IDE adapter
+                status: todo
+                priority: medium
+                sequence: 3
+                depends_on:
+                - kiro-ide-adapter-impl
+                description: 'Add tests/kiro-ide.bats following tests/windsurf.bats / tests/kiro.bats: bash -n syntax check; event mapping to correct sounds (start→Hello, completion→Done, permission flow, failure flow); `kiro-ide-` session-prefix assertion; paused/enabled=false/volume passthrough; graceful exit on unmapped events — kept separate from tests/kiro.bats so the two adapters are independently verified. Extend tests/adapters-windows.Tests.ps1 with kiro-ide.ps1 cases (valid PowerShell, correct mapping, pipes to peon.ps1, no ExecutionPolicy Bypass).'
+          eca-adapter:
+            id: eca-adapter
+            title: First-party ECA (Editor Code Assistant) adapter
+            description: 'ECA (eca.dev) is an explicitly editor-agnostic LLM-agent integration, and a user posted a full working adapter in #261 mapping ECA''s hook types (sessionStart/sessionEnd/chatStart/preRequest/postRequest/subagentPostRequest/preToolCall/postToolCall) to CESP. Shipping it first-party closes the gap. The issue also flagged copying the runtime out of ~/.claude into ~/.config/eca — but the runtime-resolution side of a tool-agnostic root is ALREADY shipped (peon.sh resolves and defaults to ~/.openpeon when ~/.claude lacks packs/, extended to hook handlers in merged PR #523), so the remaining agnostic-root work is narrowly an installer write-target flag plus docs (one scoped project here), NOT a structural refactor. Current state (verified): no adapters/eca.* exists; #261 OPEN; install.sh/install.ps1 still WRITE the runtime under ~/.claude with no flag to target ~/.openpeon.'
+            status: todo
+            priority: medium
+            sequence: 4
+            features:
+              eca-adapter-firstparty:
+                id: eca-adapter-firstparty
+                title: Ship the ECA adapter as first-party (bash + PowerShell)
+                status: todo
+                priority: medium
+                sequence: 1
+                description: 'Vendor and clean up the working adapter from #261 as adapters/eca.sh: resolve PEON_DIR via the standard chain (with a ~/.openpeon fallback like rovodev.sh), read ECA''s stdin JSON, derive a stable session_id from db_cache_path with an `eca-` prefix and a $$/PID fallback, and apply the type_map proven in the issue (sessionStart→SessionStart, sessionEnd→SessionEnd, chatStart→SessionStart, preRequest→UserPromptSubmit, postRequest/subagentPostRequest→Stop, preToolCall→PermissionRequest, postToolCall→Stop), forwarding notification_type/permission_mode when present, exit 0 on unknown types. Add adapters/eca.ps1 parity using the kiro.ps1 stdin/ConvertFrom-Json pattern (no ExecutionPolicy Bypass). Credit the original #261 contributor in the header.'
+              eca-install-and-agnostic-root-flag:
+                id: eca-install-and-agnostic-root-flag
+                title: ECA detection + optional ~/.openpeon install target
+                status: todo
+                priority: medium
+                sequence: 2
+                depends_on:
+                - eca-adapter-firstparty
+                description: 'Add ECA to peon status detection (peon.sh + Windows engine), probing ECA''s config and registering the source in IDE_ALIASES/IDE_DISPLAY_NAMES. Wire the adapter into installers: explicit eca.sh curl line in install.sh, eca.ps1 in the install.ps1 $adapterFiles array. Since runtime resolution to ~/.openpeon already works (peon.sh + PR #523), the only install-root gap is the WRITE target: add a documented flag (install.sh --openpeon / install.ps1 -OpenPeon) that sets the install BASE_DIR to ~/.openpeon instead of GLOBAL_BASE, preserving full back-compat (default stays ~/.claude). If a new config key is introduced, add a `peon update` backfill. Do NOT re-architect adapter PEON_DIR resolution — it is already correct.'
+              eca-docs-tests:
+                id: eca-docs-tests
+                title: ECA docs + tests (adapter and install root)
+                status: todo
+                priority: medium
+                sequence: 3
+                depends_on:
+                - eca-adapter-firstparty
+                - eca-install-and-agnostic-root-flag
+                description: 'Add ECA to the README Multi-IDE table with a setup section showing the ECA hooks JSON from #261, add badge/intro, and document the optional ~/.openpeon install target and how any tool references the shared runtime. Apply to README_zh.md; update docs/public/llms.txt and ../openpeon/site/public/llms.txt; update the homebrew formula if needed; bump VERSION (minor) + CHANGELOG. Add tests/eca.bats (windsurf.bats structure: each ECA event type maps to the expected CESP sound; `eca-` prefix; db_cache_path-derived session id; paused/enabled/volume; graceful unknown-event exit) and ECA cases in tests/adapters-windows.Tests.ps1. Add a BATS test for the install --openpeon write target (runtime lands under ~/.openpeon and is resolved when ~/.claude lacks packs/), plus a regression test that the existing ~/.claude path still wins when present.'
+      s7:
+        id: s7
+        title: Peon audio is a good citizen — it mixes with your music, fades smoothly, and any sound is one command away
+        description: 'Makes peon-ping''s audio output polite and scriptable. Today peon plays each sound fire-and-forget per platform (afplay / scripts/peon-play.swift on macOS, MediaPlayer via scripts/win-play.ps1 on native Windows + an inline powershell.exe block on WSL2, the pw-play→paplay→ffplay→mpv→play→aplay chain in play_linux_sound() on Linux), with no declared mixing intent, no fade envelope, and no way to play one specific file. On macOS, peon-play.swift routes through the default system output via AVAudioEngine but never declares mixing, so a ping can pause Spotify on a Bluetooth/AirPlay route (#371). Sounds start/stop abruptly (#394), and `peon preview` only plays whole categories (#345). Divergence note: upstream PR #501 added --media-role=Notification to pw-play but is NOT on this fork''s main, so the Linux portion is partly a rebase plus extension. Architecture note for carding: the native Windows hook engine is NOT a tracked file — it is embedded as a here-string in install.ps1 and tested via tests/peon-engine.Tests.ps1; Windows engine edits land in install.ps1.'
+        status: todo
+        success_criteria:
+        - A peon sound playing while media is active does NOT pause or seize the output device on macOS (incl. Bluetooth/AirPlay), native Windows, WSL2, and Linux — verified manually per platform and asserted via backend-flag tests (BATS + Pester)
+        - New config keys (audio_coexist, optional duck_others; fade_in_ms / fade_out_ms) exist in config.json, are backfilled by `peon update` and the install.ps1 engine migration, documented in all README variants + docs/public/llms.txt, and covered by BATS + Pester
+        - Configurable fade-in/out is applied by every backend that can (AVAudioEngine ramp, MediaPlayer volume-ramp loop, ffmpeg afade for ffplay/mpv) with documented best-effort no-op for backends that cannot (afplay, paplay, pw-play, play, aplay)
+        - '`peon play <pack/file | category>` plays a single sound on macOS, WSL2, Linux, native Windows, and SSH/devcontainer, is registered in completions.bash/.fish, documented in all README variants + llms.txt, and covered by BATS + Pester'
+        - 'Windows RDP audio routing is investigated and documented: either audible over a focused RDP session or a clear known-limitation note plus any workaround, surfaced via SESSIONNAME detection in status/debug'
+        sequence: 2
+        projects:
+          audio-coexistence-routing:
+            id: audio-coexistence-routing
+            title: 'Audio coexistence: mix, never seize the output device'
+            description: 'A cross-platform audio-coexistence layer so peon sounds mix with whatever the user is already listening to instead of grabbing an exclusive output route. The most-cited complaint about peon-ping is that it interrupts music; fixing it durably (a coexistence policy, not a one-off patch) is core to making peon something people leave on all day. Sources: #371 (Spotify/Bluetooth interruption), #219 (RDP routing, niche), #499/#501 (Linux notification role). Current state (verified): peon-play.swift sets engine.mainMixerNode.outputVolume once but never declares an AVAudioSession/mixing category; win-play.ps1 + the WSL block use MediaPlayer with no explicit shared/exclusive declaration (shared by default — needs verification + comment); play_linux_sound() passes only volume flags with NO role/duck hint (the #501 pw-play role fix is absent from this fork). No tests assert non-exclusive playback. RDP (#219): no SESSIONNAME/console-vs-RDP awareness anywhere. NOTE: #219 is intentionally a single low-priority investigation project inside this feature, not its own roadmap node.'
+            status: todo
+            priority: high
+            sequence: 1
+            features:
+              macos-mixwithothers:
+                id: macos-mixwithothers
+                title: 'macOS: declare non-interrupting mixing in peon-play.swift'
+                status: todo
+                priority: high
+                sequence: 1
+                description: 'In scripts/peon-play.swift, before engine.start(), ensure playback does not seize the route. On macOS AVAudioSession is iOS-only, so rely on the per-app output unit (which already mixes by default): keep the existing default-system-output routing but explicitly avoid any exclusive/hog-mode property — verify peon does not set kAudioDevicePropertyHogMode and add a guard/comment documenting shared system output. (Ducking, if added later, is gated behind the config project, not here.) Preserve the afplay fallback. Update the install.sh build comment to note mixing intent. Keep failure-tolerant behaviour. Manual verification: play a sound while Spotify streams to a Bluetooth/AirPlay speaker and confirm music does not pause. No new config key for the default mix behaviour. Add a BATS assertion (mock peon-play, capture argv) that no hog/exclusive flag is passed.'
+              windows-shared-mode:
+                id: windows-shared-mode
+                title: 'Windows + WSL2: verify and assert shared (non-exclusive) MediaPlayer playback'
+                status: todo
+                priority: high
+                sequence: 2
+                description: 'Audit scripts/win-play.ps1 Invoke-NativeMediaPlayback, the install.ps1-embedded engine''s Play-Sound helper (Start-Process win-play.ps1), and the inline WSL2 powershell.exe block to confirm System.Windows.Media.MediaPlayer opens the WASAPI endpoint in shared mode (default — verify, comment, ensure no code path requests exclusive). For the CLI fallbacks in win-play.ps1 (ffplay/mpv/vlc) confirm none pass exclusive/WASAPI-exclusive flags. Add a Pester assertion (tests/adapters-windows.Tests.ps1 or a new audio-coexist file) that win-play.ps1 contains no exclusive-mode request and routes wav/mp3/wma through MediaPlayer. NOTE: the Windows engine is generated from the install.ps1 here-string; edit install.ps1, not a tracked peon.ps1. Parity sibling of macos-mixwithothers.'
+              linux-role-hints:
+                id: linux-role-hints
+                title: 'Linux: rebase #501 pw-play notification role and extend to paplay'
+                status: todo
+                priority: medium
+                sequence: 3
+                description: 'In play_linux_sound() add stream role/property hints so the compositor treats peon sounds as event/notification audio that mixes rather than as a media stream. FIRST rebase/cherry-pick merged upstream PR #501 (commit 603000d): add --media-role=Notification to the pw-play invocation and the relay.sh/install.sh pw-play paths it also touched. THEN extend: for paplay add --property=media.role=event. Document that ffplay/mpv/play/aplay have no role concept and mix by default. Keep volume scaling unchanged. Reuse/extend the #501 regression coverage: BATS in tests/peon.bats (mock the player, capture argv) asserting the role flag for pw-play and paplay; confirm tests/relay.bats parity. Parity sibling of the macOS/Windows projects.'
+              audio-coexist-config:
+                id: audio-coexist-config
+                title: Add audio_coexist config key with peon update backfill, tests, and docs
+                status: todo
+                priority: high
+                sequence: 4
+                depends_on:
+                - macos-mixwithothers
+                - windows-shared-mode
+                - linux-role-hints
+                description: 'Add audio_coexist (bool, default true = polite mixing, a no-op since mixing is already default) and optional duck_others (bool, default false) to config.json. Wire through the consolidated config-load Python block (exported alongside USE_SOUND_EFFECTS_DEVICE/LINUX_AUDIO_PLAYER) and per-platform play paths so duck_others requests ducking where supported. Per change-enforcement: BACKFILL the keys in the `peon update` migration chain (the `if ''key'' not in cfg` pattern — NOT the agent-session SHARED_KEYS) AND the install.ps1 engine migration block. Add a BATS test (default + toggled, assert backend argv), a Pester test for the Windows path, and document the key(s) in README.md + README_zh.md + docs/public/llms.txt. depends_on the three platform projects because duck_others gates their optional ducking.'
+              windows-rdp-investigation:
+                id: windows-rdp-investigation
+                title: Investigate and document Windows RDP audio routing (#219)
+                status: todo
+                priority: low
+                sequence: 5
+                depends_on:
+                - windows-shared-mode
+                description: 'Focused investigation (the niche #219). Determine why MediaPlayer playback in win-play.ps1 is inaudible over a focused RDP session while VLC is audible: check whether playback must target the RDP-redirected endpoint vs the console session, and whether SESSIONNAME=RDP-Tcp# detection plus the existing CLI fallback (ffplay/mpv/vlc, which already redirect correctly) resolves it. If a fix is viable, add an RDP-session branch in win-play.ps1 (gate on $env:SESSIONNAME) that prefers the working backend; otherwise ship a clear known-limitation note. Surface the detected session type in the engine''s status/debug output. Document the outcome in README.md + README_zh.md and add a Pester test for any new SESSIONNAME branch. Low priority; depends on windows-shared-mode so RDP is reasoned about after baseline shared-mode is confirmed.'
+          configurable-fade:
+            id: configurable-fade
+            title: Configurable fade-in / fade-out across all audio backends
+            description: 'Configurable fade-in/out durations so pack sounds that start/stop abruptly (#394) play smoothly — the audio-polish counterpart to coexistence. Current state (verified: grep for fade/afade returns nothing): macOS plays a flat-volume buffer (peon-play.swift sets outputVolume once) / afplay -v; Windows + WSL2 play at a fixed MediaPlayer.Volume; Linux passes a static volume flag per backend. kill_previous_sound() hard-kills the prior PID via SIGTERM with no fade-out. This adds fade_in_ms / fade_out_ms honoured by every backend that can (AVAudioEngine ramp on macOS, MediaPlayer volume-ramp loop on Windows, ffmpeg afade for ffplay/mpv on Linux) with a graceful no-op fallback elsewhere. Not shipped — verified absent in fork and the 60 most recent merged upstream PRs.'
+            status: todo
+            priority: medium
+            sequence: 2
+            features:
+              fade-config-keys:
+                id: fade-config-keys
+                title: Add fade_in_ms / fade_out_ms config keys with peon update backfill and docs
+                status: todo
+                priority: medium
+                sequence: 1
+                description: 'Add fade_in_ms and fade_out_ms (integers, default 0 = no fade) to config.json. Surface through the consolidated config-load Python block and export to the play paths (same mechanism as volume / USE_SOUND_EFFECTS_DEVICE). Per enforcement: BACKFILL both keys in the `peon update` migration chain (the `if ''key'' not in cfg` pattern, append to migrations) AND in the install.ps1 engine migration block; add a BATS test asserting defaults and that values reach the backend invocation, a Pester test for the Windows path, and document both keys in README.md + README_zh.md + docs/public/llms.txt. Foundation project the per-backend fades depend on.'
+              fade-macos:
+                id: fade-macos
+                title: macOS fade via AVAudioEngine volume ramp in peon-play.swift
+                status: todo
+                priority: medium
+                sequence: 2
+                depends_on:
+                - fade-config-keys
+                description: 'In scripts/peon-play.swift, extend the arg parser to accept fade durations (-fi/-fo) and apply an envelope on engine.mainMixerNode.outputVolume: ramp 0→volume over fade_in_ms at play(), and volume→0 over fade_out_ms near end-of-file (schedule via the existing completion handler or a timer keyed off file length). On SIGTERM from kill_previous_sound, do a short fade-out before exit instead of an abrupt stop. The afplay fallback stays a hard cut (documented limitation). Wire the new flags from the mac branch of play_sound. Add coverage (mock peon-play, assert fade argv).'
+              fade-windows:
+                id: fade-windows
+                title: Windows/WSL2 fade via MediaPlayer volume ramp in win-play.ps1
+                status: todo
+                priority: medium
+                sequence: 3
+                depends_on:
+                - fade-config-keys
+                description: 'Add -FadeInMs / -FadeOutMs params to scripts/win-play.ps1 and implement a volume-ramp loop in Invoke-NativeMediaPlayback (currently sets Volume once, sleeps for NaturalDuration): step Volume 0→target over fade-in after Play(), and target→0 over fade-out before NaturalDuration completes. Apply the same ramp to the inline WSL2 powershell.exe block. Pass the new params from both the install.ps1-embedded engine''s Play-Sound helper and the WSL play path. Graceful no-op when fade values are 0. Add a Pester test asserting the params exist and the ramp loop is present. NOTE: edit install.ps1''s Play-Sound call. Parity sibling of fade-macos.'
+              fade-linux:
+                id: fade-linux
+                title: Linux fade via ffmpeg afade (ffplay/mpv) with documented no-op fallback
+                status: todo
+                priority: medium
+                sequence: 4
+                depends_on:
+                - fade-config-keys
+                description: 'In play_linux_sound() apply fade where the backend supports it: for ffplay add -af afade=t=in:d=<s>,afade=t=out:st=<dur-s>:d=<s>; for mpv use --af=afade. pw-play/paplay/play/aplay have no native fade — document as best-effort no-op (computing st needs file duration; only when ffprobe/ffmpeg is available, else skip). Read fade values from exported config. Add a BATS test mocking ffplay/mpv asserting the afade filter argv when fades are set, and that pw-play/paplay/aplay argv remain unchanged. Parity sibling of fade-macos / fade-windows.'
+          peon-play-single-sound:
+            id: peon-play-single-sound
+            title: '`peon play` — play one specific sound from the CLI'
+            description: 'A new `peon play <pack/file | category>` top-level CLI subcommand that plays a single sound on demand, for shell scripts or just for fun (#345). Today `peon preview <category>` walks an entire category; there is no way to play one specific file. This adds a scriptable primitive reusing the existing play_sound() plumbing and config-driven volume/backend selection, accepting either a pack-relative file reference or a category name (one chosen/random sound). It turns peon''s audio engine into a reusable building block and is the natural completion of the preview command. Current state (verified): only `peon preview` exists; neither `preview` nor `play` is in completions.bash/.fish; no top-level `play` command; play_sound() and the Windows Play-Sound helper already exist and are reusable. Not shipped.'
+            status: todo
+            priority: medium
+            sequence: 3
+            features:
+              peon-play-command:
+                id: peon-play-command
+                title: Implement `peon play <pack/file | category>` in peon.sh and the Windows engine
+                status: todo
+                priority: medium
+                sequence: 1
+                description: 'Add a `play)` top-level command case in peon.sh (alongside the preview case). Accept an arg that is either a pack-relative file reference (pack/file.ext, resolved under packs/<pack>/sounds with the SAME os.path.realpath-stays-inside-pack-root check preview uses) or a category name (resolve via the active pack manifest and pick one sound — random by default; honour an optional --index N / --first flag). Reuse the preview config-load Python pattern to get volume/use_sound_effects_device/linux_audio_player/ssh_audio_mode, then call play_sound() once and `wait`. Mirror the command in the install.ps1-embedded Windows engine: add a `play` branch to its CLI-arg dispatch that calls the existing Play-Sound helper — do NOT create a tracked peon.ps1. Add a help line near the preview entry in peon.sh help and the Windows engine help.'
+              peon-play-completions-and-tests:
+                id: peon-play-completions-and-tests
+                title: Register `peon play` (and `preview`) in completions and add BATS + Pester + docs
+                status: todo
+                priority: medium
+                sequence: 2
+                depends_on:
+                - peon-play-command
+                description: 'Per the new-CLI-command enforcement rules: add `play` (and, since it is also missing, `preview`) to the top-level command list in completions.bash, plus a `play` sub-completion offering pack/file and category candidates (reuse the packs_dir manifest-scan pattern), and add the equivalent `complete -c peon` entries in completions.fish. Add a BATS test in tests/peon.bats (mock afplay/player via tests/setup.bash, assert `peon play <pack/file>` invokes play_sound on the right file and `peon play <category>` plays exactly one sound) and a Pester test for the Windows path (tests/peon-engine.Tests.ps1, mock win-play.ps1). Document `peon play` in the README CLI reference and propagate to README_zh.md + docs/public/llms.txt.'
+      s8:
+        id: s8
+        title: Concurrent and headless agents stay quiet without silencing your own session
+        description: 'When a developer runs Claude Code agent teams, background/headless agents, or several concurrent instances, peon-ping today either pile-drives them with overlapping voice lines or silences everything indiscriminately. The hook fires fire-and-forget audio per invocation with no cross-process serialization or lock (confirmed: zero flock/lockfile patterns in peon.sh); the only headless guard is a single bash check for CLAUDE_CODE_ENTRYPOINT=sdk-cli with no Windows counterpart and no CLAUDE_CODE_HEADLESS handling; and there is no lead-vs-teammate distinction because agent-teams teammates are full top-level sessions whose Stop events are indistinguishable from the lead''s. Platform note (corrects CLAUDE.md, which is stale): there is NO peon.ps1 on canonical main — the native Windows hook engine is generated as a here-string inside install.ps1 (hook mode ~line 2400). This milestone makes peon-ping behave sanely under concurrency — the interactive/lead session stays audible, teammates and headless/background agents stay quiet, simultaneous events from different sessions are debounced/capped instead of stacking — and closes the Windows-engine parity gaps in the existing suppression knobs.'
+        status: todo
+        success_criteria:
+        - A single config flag silences agent-teams teammates while the team lead/first interactive session stays audible, with the lead identity recorded durably in .state.json (atomic temp+rename) and surviving across hook invocations
+        - Headless/background agents (both CLAUDE_CODE_ENTRYPOINT=sdk-cli and CLAUDE_CODE_HEADLESS=true) are suppressed by default on BOTH peon.sh and the install.ps1-generated Windows engine, with a single PEON_ALLOW_HEADLESS escape hatch honored on both
+        - Simultaneous task.complete/input.required events from N concurrent sessions produce at most a bounded number of voice lines within a short window (cross-process cooldown/cap in .state.json), not N overlapping lines, while desktop/mobile notification and tab-title behavior are preserved
+        - 'Windows engine reaches parity with peon.sh on existing multi-agent knobs: the agent_modes set ({delegate, dangerouslySkipPermissions}), config-gated delegate suppression, subagent_sessions tracking + suppress_subagent_complete, and silent SubagentStart (Windows currently plays task.acknowledge)'
+        - Every new config key is backfilled by the peon update migration chain AND the install.ps1 update migration block, documented in README.md + README_zh.md + docs/public/llms.txt, and covered by BATS + Pester
+        sequence: 3
+        projects:
+          unified-headless-suppression:
+            id: unified-headless-suppression
+            title: Unified headless/background-agent suppression across both hook engines
+            description: 'A single, generalized headless-detection gate that silences non-interactive Claude sessions (background agents, claude -p, SDK/headless runs) on both peon.sh and the install.ps1-generated Windows engine, behind one escape hatch. Background/headless agents are exactly the sessions a human is NOT watching, so their sounds are pure noise. The user-submitted #511 patch only addressed one env var on one engine; the strategic version unifies the entrypoint AND env-var signals across both engines with a shared test matrix, and is the foundation the teammate-suppression and concurrency features build on (same early-exit routing point). Current state (verified): peon.sh has the ONLY guard (~lines 3728-3729: PEON_ALLOW_HEADLESS!=1 && CLAUDE_CODE_ENTRYPOINT=sdk-cli → exit 0); it does NOT check CLAUDE_CODE_HEADLESS. BATS coverage at tests/peon.bats:220-242. The install.ps1 Windows engine has NO entrypoint/headless check at all. #511 OPEN; no merged PR addresses it.'
+            status: todo
+            priority: high
+            sequence: 1
+            features:
+              headless-bash-generalize:
+                id: headless-bash-generalize
+                title: Generalize peon.sh headless guard to cover CLAUDE_CODE_HEADLESS
+                status: todo
+                priority: high
+                sequence: 1
+                description: 'Edit the guard at peon.sh ~lines 3728-3729 to suppress when EITHER CLAUDE_CODE_ENTRYPOINT=sdk-cli OR CLAUDE_CODE_HEADLESS is truthy (case-insensitive ''true''/''1''), still gated by PEON_ALLOW_HEADLESS!=1, keeping it before the stdin read so headless runs exit cheaply. Add BATS tests in tests/peon.bats adjacent to the existing block at 220-242: ''CLAUDE_CODE_HEADLESS=true suppresses sound'', ''CLAUDE_CODE_HEADLESS=false plays'', ''PEON_ALLOW_HEADLESS=1 overrides CLAUDE_CODE_HEADLESS''. Reuse the existing run_peon helper and SessionStart payload pattern.'
+              headless-windows-parity:
+                id: headless-windows-parity
+                title: Add headless guard to the install.ps1 Windows engine
+                status: todo
+                priority: high
+                sequence: 2
+                depends_on:
+                - headless-bash-generalize
+                description: 'In the install.ps1 here-string Windows engine, add an early headless guard immediately after the stdin-read / event-name resolution block (~install.ps1:2487-2530) and before the agent-detection block (~2629): if PEON_ALLOW_HEADLESS is not ''1'' AND ($env:CLAUDE_CODE_ENTRYPOINT -eq ''sdk-cli'' OR $env:CLAUDE_CODE_HEADLESS is truthy) then exit 0. Place it before config-heavy work. Add Pester cases to tests/peon-engine.Tests.ps1 mirroring the BATS matrix (sdk-cli suppressed, headless suppressed, normal plays, PEON_ALLOW_HEADLESS=1 overrides), using the Extract-PeonHookScript / Invoke-PeonHook harness.'
+              headless-docs:
+                id: headless-docs
+                title: Document headless suppression + escape hatch
+                status: todo
+                priority: medium
+                sequence: 3
+                depends_on:
+                - headless-windows-parity
+                description: Document the headless behavior and the PEON_ALLOW_HEADLESS escape hatch in README.md (the environment-variable section near silent_window_seconds / session_start_cooldown_seconds), mirror into README_zh.md, and add to docs/public/llms.txt. State that it now covers both CLAUDE_CODE_ENTRYPOINT=sdk-cli and CLAUDE_CODE_HEADLESS=true on Unix/WSL2 and native Windows. No config.json key is added (env-var driven), so the config-backfill chain is not triggered.
+          agent-team-teammate-suppression:
+            id: agent-team-teammate-suppression
+            title: Lead-vs-teammate suppression for Claude Code agent teams
+            description: 'A suppression mode for experimental agent teams (CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1) where the lead spawns teammates as full top-level Claude sessions with their own session_id and hook events, indistinguishable from the lead at the hook layer (the #481 reporter saw agent_sessions=0 on every event). No existing knob works: suppress_subagent_complete needs SubagentStart/Stop (teammates never emit them), suppress_delegate_sessions needs delegate perm mode (teammates inherit normal), exclude_dirs/path_rules see identical cwd, .paused/toggle are global. This gives peon-ping a durable way to keep the lead audible while teammates go quiet — via a self-contained ''first-session-wins'' lead lock in .state.json that needs no upstream change, with a defensive read of any future payload team-role/parent-id field so the cleaner path lights up automatically. The maintainer confirmed on #481 that the clean payload-marker path is blocked on upstream exposing a team role/parent id, so the lead-lock heuristic is the shippable approach now. #481 OPEN; no merged PR addresses it.'
+            status: todo
+            priority: medium
+            sequence: 2
+            features:
+              team-lead-lock-bash:
+                id: team-lead-lock-bash
+                title: First-session-wins team lead lock in peon.sh
+                status: todo
+                priority: medium
+                sequence: 1
+                description: 'Add config key suppress_team_teammates (default false) and, when enabled AND a team context is detected (env CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS truthy, or a future payload team marker), record the FIRST session_id seen as the lead in .state.json (state[''team_lead''] = {session_id, ts}) using the existing atomic read_state/write_state helpers. Subsequent DIFFERENT session_ids while the lead is active (within a TTL) are treated as teammates and early-exit, mirroring the existing agent-session early-exit pattern with reason=''team_teammate''. Clear the lead on SessionEnd (extend the cleanup key handling) and after a TTL. Defensively prefer any payload role/parent_session_id field over the heuristic if present. Add BATS tests: lead plays; second concurrent session suppressed; lead cleared on SessionEnd; flag off = no suppression.'
+              team-lead-lock-windows:
+                id: team-lead-lock-windows
+                title: Team lead lock parity in the install.ps1 Windows engine
+                status: todo
+                priority: medium
+                sequence: 2
+                depends_on:
+                - team-lead-lock-bash
+                description: 'Mirror the lead-lock logic in the install.ps1 here-string engine near the agent-detection block (~install.ps1:2629-2645): read suppress_team_teammates from $config, detect $env:CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS, record/read state[''team_lead''] via Write-StateAtomic (helper at install.ps1:738), and exit 0 with reason=''team_teammate'' for non-lead sessions within TTL. Extend the SessionEnd cleanup path (per-session removal ~install.ps1:2587-2612 / 2877-2902) to clear team_lead. Add Pester cases to tests/peon-engine.Tests.ps1 matching the BATS matrix.'
+              team-suppression-config-chain:
+                id: team-suppression-config-chain
+                title: Config backfill + status + docs for suppress_team_teammates
+                status: todo
+                priority: medium
+                sequence: 3
+                depends_on:
+                - team-lead-lock-bash
+                description: 'Add suppress_team_teammates: false to config.json defaults (alongside suppress_subagent_complete/suppress_delegate_sessions). Backfill in the peon update migration chain (an `if ''suppress_team_teammates'' not in cfg:` block) AND in the install.ps1 update migration block. Surface it in `peon status` (a line next to ''suppress subagent complete'' / ''suppress delegate sessions'') and mirror in the Windows status path. Document in README.md + README_zh.md + docs/public/llms.txt, explaining the agent-teams use case, the first-session-wins heuristic, and its limitations. Add a BATS test asserting `peon update` backfills the key.'
+          cross-session-playback-concurrency:
+            id: cross-session-playback-concurrency
+            title: Cross-process playback dedup / concurrency cap for concurrent sessions
+            description: 'A cross-process guard so simultaneous events from DIFFERENT concurrent Claude sessions (agent teams, multiple instances) do not stack overlapping voice lines (the #340 scenario: a research team all requesting permission at once → ~50 lines). Today every hook invocation plays audio fire-and-forget via nohup with NO shared queue, lock, or concurrency cap; the only debounces are narrow (a single global last_stop_time for Stop only; session_start_cooldown for SessionStart only) — neither caps simultaneous task.complete/input.required across sessions. This introduces a bounded cross-process audio gate (a short global cooldown window and/or in-flight cap in .state.json) so concurrent sessions collapse to a sane number of lines while notifications/tab-titles are preserved. State writes are already atomic, so no new locking primitive is needed. The maintainer flagged audio-backend serialization as on the radar. #340 OPEN; no merged PR addresses it.'
+            status: todo
+            priority: high
+            sequence: 3
+            features:
+              global-sound-cooldown-bash:
+                id: global-sound-cooldown-bash
+                title: Cross-process global sound cooldown + optional per-category cap in peon.sh
+                status: todo
+                priority: high
+                sequence: 1
+                description: 'Add a configurable global playback cooldown (e.g. concurrent_sound_window_seconds, default small like 1.5; 0 disables) applied to ALL sound-producing categories, recorded as a single state[''last_sound_time''] (optionally per-category timestamps) via the existing atomic write_state. When a new category would play within the window, suppress the SOUND only (keep notification + tab-title intact) and log reason=''concurrent_cooldown''. Apply it at the central routing point after the category is finalized and before the sound is picked (after the per-event handlers near peon.sh ~4439-4451) so it covers task.complete, input.required, task.error, etc. across all sessions. Optionally add an in-flight cap (max simultaneous lines) keyed on a short-lived counter. Add BATS tests: two near-simultaneous PermissionRequest events from different session_ids produce one sound; window=0 disables; notification still fires when the sound is suppressed.'
+              global-sound-cooldown-windows:
+                id: global-sound-cooldown-windows
+                title: Cross-process cooldown parity in the install.ps1 Windows engine
+                status: todo
+                priority: high
+                sequence: 2
+                depends_on:
+                - global-sound-cooldown-bash
+                description: 'Mirror the global cooldown/cap in the install.ps1 here-string engine. Read concurrent_sound_window_seconds from $config, maintain state[''last_sound_time''] via Write-StateAtomic (helper at install.ps1:738), and suppress the sound (preserve notification) when inside the window, at the routing point after the event switch resolves $category and before the sound-selection/play step (after the switch block that ends ~install.ps1:2763). Add Pester cases to tests/peon-engine.Tests.ps1: two concurrent permission events collapse to one sound; window=0 disables; notification preserved.'
+              concurrency-config-chain-docs:
+                id: concurrency-config-chain-docs
+                title: Config backfill + docs for concurrent_sound_window_seconds
+                status: todo
+                priority: medium
+                sequence: 3
+                depends_on:
+                - global-sound-cooldown-bash
+                description: Add concurrent_sound_window_seconds to config.json defaults near the other rate-limit knobs (silent_window_seconds / session_start_cooldown_seconds). Backfill via the peon update migration chain AND the install.ps1 update migration block. Document in README.md + README_zh.md + docs/public/llms.txt, positioned with the other rate-limit knobs, explaining the multi-agent pileup use case. Add a BATS test asserting `peon update` backfills the key. Cross-reference suppress_team_teammates and headless suppression as the complementary multi-agent controls.
+          windows-engine-suppression-parity:
+            id: windows-engine-suppression-parity
+            title: Windows engine parity for existing multi-agent suppression knobs
+            description: 'The install.ps1-generated Windows engine has drifted from peon.sh on the suppression knobs the multi-agent features depend on. peon.sh recognizes agent_modes={''delegate'',''dangerouslySkipPermissions''}, gates delegate suppression behind suppress_delegate_sessions, tracks subagent_sessions, honors suppress_subagent_complete on Stop/PermissionRequest/SubagentStop, and stays SILENT on SubagentStart. The Windows engine only knows ''delegate'', applies delegate suppression UNCONDITIONALLY (no config gate), has NO subagent_sessions tracking or suppress_subagent_complete handling, and PLAYS a task.acknowledge sound on SubagentStart instead of staying silent. Same config → different behavior on Windows, which undermines the new headless/team/concurrency features that assume a consistent baseline. Closing it is foundational cross-platform hygiene. Prior art: merged PR #399 added SubagentStop suppression on the bash side only — Windows was never brought to parity. #481/#511 OPEN.'
+            status: todo
+            priority: high
+            sequence: 4
+            features:
+              windows-agent-modes-gate:
+                id: windows-agent-modes-gate
+                title: Match agent_modes set and gate delegate suppression by config on Windows
+                status: todo
+                priority: high
+                sequence: 1
+                description: 'In the install.ps1 engine, change $_agentModes (install.ps1:2631) to @(''delegate'',''dangerouslySkipPermissions'') for parity with peon.sh ~3790, and gate the suppression block at install.ps1:2634-2640 behind the suppress_delegate_sessions config flag (read from $config, matching peon.sh ~3931). When the flag is off, do not add the session to agent_sessions and do not early-exit. Add Pester cases to tests/peon-engine.Tests.ps1: delegate suppressed only when the flag is on; dangerouslySkipPermissions recognized; normal perm mode never suppressed.'
+              windows-subagent-tracking:
+                id: windows-subagent-tracking
+                title: Add subagent_sessions tracking + suppress_subagent_complete + silent SubagentStart to Windows engine
+                status: todo
+                priority: high
+                sequence: 2
+                depends_on:
+                - windows-agent-modes-gate
+                description: 'Bring the Windows engine to parity on subagent handling: (1) change the SubagentStart case (install.ps1:2761) to stay SILENT (no task.acknowledge) and instead record the subagent-pack-inheritance / subagent_sessions state, mirroring peon.sh (SubagentStart records pending_subagent_pack and stays silent; subagent_sessions populated with ~300s TTL pruning); (2) add a SubagentStop case to the switch block; (3) read suppress_subagent_complete from $config and suppress the Stop / PermissionRequest / SubagentStop SOUND when the session is a known subagent, mirroring peon.sh; (4) extend the SessionEnd cleanup to drop subagent_sessions entries. Add Pester cases covering: subagent Stop suppressed when flag on, plays when off, TTL expiry, and SubagentStart no longer plays a sound (update the existing Scenario at tests/peon-engine.Tests.ps1:360 which currently asserts SubagentStart plays task.acknowledge).'
+              windows-parity-status-and-assertion:
+                id: windows-parity-status-and-assertion
+                title: Windows status output + parity assertion test
+                status: todo
+                priority: medium
+                sequence: 3
+                depends_on:
+                - windows-subagent-tracking
+                description: Ensure the `peon status`-equivalent output on the Windows engine reflects suppress_subagent_complete and suppress_delegate_sessions (parity with peon.sh). Add a Pester parity test in tests/peon-engine.Tests.ps1 asserting the Windows engine recognizes the same agent_modes set and honors the same two config flags as peon.sh, so future drift is caught in Windows CI. No new config keys (these already exist), so no migration-chain change is required, but verify the install.ps1 update migration block does not strip them.
+      s9:
+        id: s9
+        title: Curate a personal cross-pack sound set and never miss a pending decision
+        description: 'Covers two long-standing personalization/attention gaps, both verified unshipped against origin/main and both still-open issues (#175, #284). Today sound selection is strictly single-pack-per-event: resolve_active_pack() returns exactly one pack, the runtime loads one manifest, chooses within one category''s sounds array with no-repeat, and a realpath sandbox confines the file to a single pack root. The only personalization knob is SUBTRACTIVE: disabled_sounds (shipped in PR #502, merged 2026-04-29). There is no ADDITIVE way to assemble a favourite set of specific lines drawn from multiple packs (#175). Separately, when a prompt needs a human decision, it fires once and the IDE''s ~60s idle re-fires are actively suppressed — so a pending approval the user walks away from is announced once and never again (#284). This milestone makes both real with full cross-platform parity (peon.sh + the install.ps1 here-string engine + relay.sh), the standard config-enforcement chain, and the no-daemon hook-driven constraint respected via hook-piggyback re-notification (mirroring the trainer''s last_reminder_ts pattern).'
+        status: todo
+        success_criteria:
+        - A user can define a custom/virtual pack mapping CESP categories to specific {pack,file} line references drawn from two or more installed packs, select it as the active pack, and hear ONLY those lines with no-repeat working across the cross-pack set — verified on macOS (BATS) and Windows (Pester) and honored over the SSH/devcontainer relay
+        - 'The compose feature reuses and composes cleanly with the existing disabled_sounds subtractive filter (PR #502) rather than forking sound selection: a custom set still respects per-line disables, and `peon sounds list` understands custom packs'
+        - When a prompt needs a decision (PermissionRequest / input.required / idle_prompt) and remains unacknowledged, peon-ping re-notifies after a configurable delay, repeating up to a cap, and stops as soon as the decision is acknowledged (a subsequent UserPromptSubmit/Stop/PreToolUse/PostToolUse for that session) — within the hook-driven, no-daemon architecture
+        - Both features add config keys backfilled by `peon update` AND the install.ps1 engine migration, with matching BATS and Pester coverage, documented in README.md, README_zh.md, and docs/public/llms.txt
+        - New/changed CLI surface (e.g. `peon packs custom ...`, `peon reminders ...`) is wired into completions.bash/.fish/.zsh, README (all variants), and has BATS + Pester tests
+        sequence: 4
+        projects:
+          cross-pack-sound-composition:
+            id: cross-pack-sound-composition
+            title: Cross-pack custom sound sets (compose-your-own pack)
+            description: 'An ADDITIVE personalization capability letting a user assemble a personal set of specific voice lines drawn from MULTIPLE installed packs — e.g. three chosen lines from three different packs — and use only those. The complement to the already-shipped subtractive disabled_sounds toggles (PR #502). peon-ping''s value is character/voice personality, and #175 wants to curate a bespoke persona rather than accept a whole pack or merely subtract lines. This turns peon from ''pick one of N packs'' into ''compose your own pack''. Current state (verified single-pack-per-event on origin/main): resolve_active_pack() returns one pack; the runtime loads one manifest and chooses within one category''s sounds array with no-repeat; the realpath sandbox confines a chosen file to a single pack_root; the icon-resolution chain resolves against that same single pack_dir. No virtual/custom pack or cross-pack picklist exists. #175 OPEN.'
+            status: todo
+            priority: high
+            sequence: 1
+            features:
+              custom-pack-schema-and-resolver:
+                id: custom-pack-schema-and-resolver
+                title: Define custom-pack schema + cross-pack-aware sound resolver in peon.sh
+                status: todo
+                priority: high
+                sequence: 1
+                description: 'Design a ''custom pack'' as a config-defined virtual pack: add a config key (e.g. custom_packs: { <name>: { <category>: [ {pack, file} | {pack, file, label} ] } }). Recommend the config-key approach over a generated packs/<name>/openpeon.json to avoid registry/download coupling. In peon.sh, make resolve_active_pack() able to return a custom-pack name through the same 5-tuple it already returns, and refactor the runtime selection block so that when active_pack is a custom pack it reads the category''s list of {pack,file} refs instead of a single manifest''s sounds array, resolves each file under ITS OWN packs/<pack> root, and applies the existing no-repeat logic (last_played[category]) across the cross-pack candidate set. CRITICAL: extend the realpath sandbox to validate each candidate against the correct per-entry pack_root, not a single pack_root — this is the load-bearing security check. The icon-resolution chain must also use the per-entry pack dir. Add BATS coverage in tests/peon.bats with a fixture custom pack referencing >=2 mock packs, asserting only listed files are eligible and no-repeat holds across packs.'
+              custom-pack-compose-with-disabled-sounds:
+                id: custom-pack-compose-with-disabled-sounds
+                title: Compose custom packs with the disabled_sounds subtractive filter
+                status: todo
+                priority: medium
+                sequence: 2
+                depends_on:
+                - custom-pack-schema-and-resolver
+                description: 'Ensure the additive custom-pack path and the subtractive disabled_sounds path (PR #502) compose rather than conflict. Semantics: a {pack,file} entry in a custom set is still skipped if that file is listed in disabled_sounds[pack][category]. Update the candidate-filtering step in the new resolver so disabled_sounds is applied per SOURCE pack of each entry (each entry carries its own pack key). Update `peon sounds list` so that when given a custom pack name it lists the composed entries grouped by source pack and marks disabled ones with the existing disabled marker. Add BATS tests asserting (a) a disabled cross-pack line is excluded from a custom set, and (b) `peon sounds list <custom>` renders source-pack attribution.'
+              custom-pack-cli:
+                id: custom-pack-cli
+                title: peon packs custom CLI (create/add/remove/list/use)
+                status: todo
+                priority: high
+                sequence: 3
+                depends_on:
+                - custom-pack-schema-and-resolver
+                description: 'Add a CLI surface to build custom packs without hand-editing config: `peon packs custom create <name>`, `peon packs custom add <name> <category> <pack> <file>`, `peon packs custom remove ...`, `peon packs custom list [name]`, and ensure `peon packs use <name>` accepts a custom pack. Implement inside the existing `packs)` dispatch in peon.sh (the case block routes via `case "${2:-}"`); add a new `custom)` subcase. Per the change-enforcement chain: update completions.bash, completions.fish, and completions.zsh (all three exist; mirror the #502 additions for `sounds`); add the commands to README.md CLI reference, README_zh.md, and docs/public/llms.txt. Add BATS tests for create/add/list round-trips and config persistence, and validate that `peon packs custom list` errors cleanly on unknown names.'
+              custom-pack-windows-engine-parity:
+                id: custom-pack-windows-engine-parity
+                title: Windows engine parity for custom packs (install.ps1 + Pester)
+                status: todo
+                priority: high
+                sequence: 4
+                depends_on:
+                - custom-pack-schema-and-resolver
+                - custom-pack-compose-with-disabled-sounds
+                description: 'Port the cross-pack resolver (and, if implemented, the CLI) to the native Windows runtime generated from the install.ps1 here-string ($hookScript = @''). Active-pack resolution is via Get-ActivePack; the single packs\$activePack manifest load and the disabled_sounds filter + no-repeat ($lastKey) run nearby. Add custom-pack awareness: when $activePack is a custom pack, read the config-defined {pack,file} list for the category, resolve each via its own packs\<pack> dir (Split-Path/Join-Path), apply the existing no-repeat ($lastKey) and disabled_sounds filter per source pack, and keep the path-confinement check per-entry. Add Pester coverage in tests/peon-engine.Tests.ps1 using New-PeonTestEnvironment (creates ''peon'' and ''sc_kerrigan'' packs) plus -ConfigOverrides to define a custom pack spanning both packs, asserting only listed cross-pack files play and no-repeat holds.'
+              custom-pack-relay-parity:
+                id: custom-pack-relay-parity
+                title: Relay parity for custom packs (SSH/devcontainer)
+                status: todo
+                priority: medium
+                sequence: 5
+                depends_on:
+                - custom-pack-schema-and-resolver
+                description: 'Make the HTTP relay honor custom packs so remote sessions get the same composed set. relay.sh already replicates single-pack selection (active_pack from config, single packs/<active_pack> dir) and the disabled_sounds filter, with no-repeat via last_played. Extend the relay''s Python selection block to resolve a custom pack''s per-entry {pack,file} refs against the correct local packs/<pack> dirs and apply no-repeat + disabled filtering identically to peon.sh, keeping per-entry path confinement. Add a test in tests/relay.bats asserting a relayed event for a custom active pack plays only listed cross-pack lines and respects `peon pause` (the .paused honor check, #521).'
+              custom-pack-config-enforcement-and-docs:
+                id: custom-pack-config-enforcement-and-docs
+                title: Config migration backfill + docs for custom packs
+                status: todo
+                priority: medium
+                sequence: 6
+                depends_on:
+                - custom-pack-cli
+                - custom-pack-windows-engine-parity
+                description: 'Wire the new config key(s) (e.g. custom_packs) through the full change-enforcement chain. Add a migration entry in the `peon update` chain following the `if ''key'' not in cfg` pattern (e.g. the suppress_idle_prompt_repeats entry) defaulting to an empty object {} so existing installs are inert. Add the matching migration in the install.ps1 engine migration block. Add the default to config.json (empty {} so default behavior is unchanged). Document in README.md (new ''Custom packs / mix and match'' subsection near the packs CLI docs), mirror into README_zh.md, and update docs/public/llms.txt. Add a BATS test asserting `peon update` backfills the key, and a Pester test asserting the engine migration adds it. Reference #175 in CHANGELOG under Added.'
+          pending-decision-reminders:
+            id: pending-decision-reminders
+            title: Re-notify reminders for unacknowledged decisions
+            description: 'An opt-in capability to RE-notify the user about a pending decision (permission/approval, input required, or idle) after a configurable delay, repeating up to a cap, until acknowledged. peon-ping''s core promise is ''don''t make the user babysit the terminal'' — yet today a permission prompt is announced exactly once and the IDE''s idle re-fires are actively suppressed (suppress_idle_prompt_repeats). A user who steps away misses the ping and the agent stalls indefinitely (#284). The design respects the hook-driven, no-daemon/no-cron architecture: re-notification piggybacks on subsequent hook events (the trainer''s last_reminder_ts pattern), with an optional opt-in background watcher for the no-further-hooks case (precedent: the antigravity adapter''s sleep loop). Acknowledgement is detected by a subsequent UserPromptSubmit/Stop/PreToolUse/PostToolUse for that session — the same signals the auto-dismiss block already uses. #284 OPEN; no merged PR addresses it.'
+            status: todo
+            priority: high
+            sequence: 2
+            features:
+              reminder-state-machine-design:
+                id: reminder-state-machine-design
+                title: Pending-decision state machine + ack detection in peon.sh
+                status: todo
+                priority: high
+                sequence: 1
+                description: Implement durable per-session pending-decision tracking in .state.json (state['pending_decisions'][session_id] = {category, first_ts, last_notify_ts, repeats, kind}). On a decision-needing event — PermissionRequest, Notification/permission_prompt, Notification/idle_prompt and elicitation_dialog — record/refresh the pending entry. On an acknowledgement event — reuse the existing auto-dismiss signal set _dismiss_events (UserPromptSubmit/Stop/PreToolUse/PostToolUse/PostToolUseFailure/Notification) for the same session — clear the entry. Prune stale entries by the idle window. Write atomically via the existing state-write helper with lock-retry. Apply the session_id-empty guard so sessions without an id do not share a bucket. Add BATS tests feeding a PermissionRequest then a Stop, asserting the pending entry is created then cleared, and that an unrelated session does not cross-clear.
+              reminder-delivery-hook-piggyback:
+                id: reminder-delivery-hook-piggyback
+                title: Hook-piggyback re-notify with delay + repeat cap + min-gap
+                status: todo
+                priority: high
+                sequence: 2
+                depends_on:
+                - reminder-state-machine-design
+                description: 'Implement re-notification using the trainer''s proven hook-piggyback model (last_reminder_ts; reminder_interval_minutes/reminder_min_gap_minutes; the interval/min-gap throttle). On every hook invocation for a session that has a pending decision, check whether now - last_notify_ts >= reminder_delay_seconds and repeats < reminder_max_repeats; if so, re-emit the notification (notify=''1'' + appropriate notify_color/msg via notification_message) and bump last_notify_ts/repeats. This re-notifies whenever ANY hook fires (including the IDE''s own ~60s idle_prompt pokes). Add a sub-option to RE-ENABLE the currently-suppressed idle_prompt repeats when reminders are on, by gating the suppression condition on the new reminders config so re-notify and suppress_idle_prompt_repeats do not fight. Add BATS tests asserting: first ping immediate, second ping only after the configured delay, no ping past the cap, and that an ack stops further pings.'
+              reminder-windows-engine-parity:
+                id: reminder-windows-engine-parity
+                title: Windows engine parity for reminders (install.ps1 + Pester)
+                status: todo
+                priority: high
+                sequence: 3
+                depends_on:
+                - reminder-state-machine-design
+                - reminder-delivery-hook-piggyback
+                description: 'Port the pending-decision tracking, ack detection, and hook-piggyback re-notify to the native Windows engine generated from the install.ps1 here-string. Mirror the state-machine reads/writes against .state.json, the ack-event set, and the delay/cap/min-gap throttle in PowerShell. Add Pester coverage in tests/peon-engine.Tests.ps1 using New-PeonTestEnvironment with -StateOverrides and -ConfigOverrides to enable reminders: feed a permission event then a resume event and assert the pending entry is created, re-notified after the delay, and cleared on ack.'
+              reminder-optional-background-watcher:
+                id: reminder-optional-background-watcher
+                title: Optional lightweight background watcher for active re-notify (no-daemon-safe)
+                status: todo
+                priority: low
+                sequence: 4
+                depends_on:
+                - reminder-state-machine-design
+                - reminder-delivery-hook-piggyback
+                description: 'OPTIONAL, opt-in. Because hook-piggyback only fires when the IDE emits an event, add an opt-in background watcher for the case where no further hooks arrive (a permission prompt with the IDE fully idle). Model it on the antigravity adapter''s loop (while true; do sleep N; check_pending; done, cleanup via kill 0, trap, PEON_ADAPTER_TEST guard). The watcher reads .state.json pending_decisions, applies the same delay/cap/min-gap logic, and triggers the notify path (reusing notify.sh / the same audio+desktop+mobile delivery). Spawn it lazily (nohup background, single instance guarded by a PID file like relay.sh''s .relay.pid) only when reminders are enabled, and self-exit when no pending decisions remain so no process lingers. Add a BATS test that sources the watcher in test mode and asserts it re-fires for a stale pending entry and exits when cleared. PRIORITY DELIBERATELY LOW: the hook-piggyback path already covers the common case because the IDE keeps emitting idle_prompt pokes; this watcher carries lingering-process risk and should ship only if the piggyback path proves insufficient.'
+              reminder-cli-config-enforcement-docs:
+                id: reminder-cli-config-enforcement-docs
+                title: reminders config keys + CLI + migration + docs
+                status: todo
+                priority: medium
+                sequence: 5
+                depends_on:
+                - reminder-delivery-hook-piggyback
+                - reminder-windows-engine-parity
+                description: 'Add config keys following the trainer''s nested shape, e.g. reminders: { enabled:false, delay_seconds:120, max_repeats:3, min_gap_seconds:60, kinds:[''permission'',''idle''] }. Wire the full enforcement chain: add to config.json defaults (enabled:false so behavior is unchanged); backfill in the `peon update` migration chain following the `if ''reminders'' not in cfg` pattern AND the install.ps1 engine migration block; add a `peon reminders <on|off|status>` (and optional delay/repeats setters) CLI command in the peon.sh dispatch alongside the existing top-level subcommands, mirrored to completions.bash/.fish/.zsh; document in README.md (new ''Reminder notifications'' subsection), README_zh.md, and docs/public/llms.txt. Add a BATS test asserting `peon update` backfills the key and `peon reminders on/off` round-trips, plus a Pester test for the engine migration. Reference #284 in CHANGELOG under Added and bump version (minor).'
