@@ -1,3 +1,14 @@
+## v2.21.0 (2026-06-06)
+
+### Added
+- **Four new first-party agent adapters** (roadmap m3/s6 — "the Peon shows up natively"):
+  - **Qwen Code** (`QwenLM/qwen-code`, #483) — `adapters/qwen.sh` + `.ps1`. Claude-Code-style stdin-JSON hooks; allowlists `SessionStart`/`UserPromptSubmit`/`Stop`/`Notification`/`PostToolUseFailure`/`PermissionRequest`/`SessionEnd` with a `qwen-` session prefix.
+  - **iFlow CLI** (`cli.iflow.cn`, #311) — `adapters/iflow.sh` + `.ps1`. Claude-Code-style stdin-JSON hooks; maps a failed `PostToolUse` to `PostToolUseFailure`, `iflow-` prefix.
+  - **Trae** (`trae.ai`, #158) — `adapters/trae.sh` + `.ps1`. Filesystem watcher (fswatch/inotifywait; .NET `FileSystemWatcher` with `-Install/-Uninstall/-Status` daemon flags on Windows) for an MCP-only IDE with no shell hook. Env-overridable session dir; `trae-` prefix.
+  - **Pi** (`earendil-works/pi`, #233) — vendored TypeScript extension `adapters/pi/peon-ping.ts` + `adapters/pi.sh` installer (into `~/.pi/agent/extensions/`). Maps `session_start`/`agent_end`/failed `tool_result`; `pi-` prefix.
+- **`peon status` detection** for Qwen Code, iFlow CLI, Trae, and Pi; installers wire all four (install.sh remote-curl + install.ps1 `$adapterFiles`).
+- **Tests**: `tests/qwen.bats`, `tests/iflow.bats`, `tests/trae.bats`, `tests/pi.bats`, plus extended `tests/adapters-windows.Tests.ps1` (Pester) coverage.
+
 ## v2.20.0 (2026-04-14)
 
 ### Added
