@@ -721,7 +721,7 @@ milestones:
               cp glob for local installs BUT an explicit per-adapter curl list for
               remote installs (already incomplete); install.ps1 copies a HARDCODED
               $adapterFiles array — both need per-adapter edits."
-            status: todo
+            status: done
             priority: high
             sequence: 1
             features:
@@ -765,7 +765,7 @@ milestones:
               trae-adapter:
                 id: trae-adapter
                 title: Trae IDE adapter (bash + PowerShell)
-                status: todo
+                status: done
                 priority: high
                 sequence: 3
                 description: Add adapters/trae.sh + adapters/trae.ps1 for Trae
@@ -784,7 +784,7 @@ milestones:
               pi-adapter-vendor:
                 id: pi-adapter-vendor
                 title: Vendor the Pi adapter as first-party
-                status: todo
+                status: done
                 priority: medium
                 sequence: 4
                 description: "Address #233 for Pi (badlogic/pi-mono) — NOT oh-my-pi/omp,
@@ -802,7 +802,7 @@ milestones:
                 id: new-adapters-install-wiring
                 title: Wire new adapters into installers and peon status
                   detection
-                status: todo
+                status: done
                 priority: high
                 sequence: 5
                 depends_on:
@@ -824,7 +824,7 @@ milestones:
               new-adapters-tests:
                 id: new-adapters-tests
                 title: BATS + Pester coverage for the new adapters
-                status: todo
+                status: done
                 priority: high
                 sequence: 6
                 depends_on:
@@ -847,7 +847,7 @@ milestones:
               new-adapters-docs-enforcement:
                 id: new-adapters-docs-enforcement
                 title: Docs + enforcement updates for the new adapters
-                status: todo
+                status: done
                 priority: medium
                 sequence: 7
                 depends_on:
