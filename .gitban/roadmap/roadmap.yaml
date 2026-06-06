@@ -751,7 +751,7 @@ milestones:
               iflow-adapter:
                 id: iflow-adapter
                 title: iFlow CLI adapter (bash + PowerShell)
-                status: todo
+                status: done
                 priority: high
                 sequence: 2
                 description: "Add adapters/iflow.sh + adapters/iflow.ps1. First determine
