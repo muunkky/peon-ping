@@ -1,12 +1,23 @@
 #!/bin/bash
 # peon-ping adapter for OpenAI Codex CLI
-# Translates Codex notify events into peon.sh stdin JSON
+# Translates Codex events into peon.sh stdin JSON.
 #
-# Setup: Add to ~/.codex/config.toml:
+# Codex now ships a stable hook event set (SessionStart, UserPromptSubmit,
+# PreToolUse, PostToolUse, Stop) delivered as JSON on stdin with a
+# `hook_event_name` field. This adapter maps those to CESP, AND preserves the
+# legacy `notify` callback (event name passed as argv $1, fires on turn-yield)
+# as a non-breaking fallback.
+#
+# Setup (recommended — stable hooks): add to ~/.codex/config.toml, e.g.
+#   [hooks]
+#   SessionStart   = "bash ~/.claude/hooks/peon-ping/adapters/codex.sh"
+#   UserPromptSubmit = "bash ~/.claude/hooks/peon-ping/adapters/codex.sh"
+#   PostToolUse    = "bash ~/.claude/hooks/peon-ping/adapters/codex.sh"
+#   Stop           = "bash ~/.claude/hooks/peon-ping/adapters/codex.sh"
+# (Consult `codex` docs for the exact hooks config key/path for your version.)
+#
+# Setup (legacy — still supported): add to ~/.codex/config.toml:
 #   notify = ["bash", "/absolute/path/to/.claude/hooks/peon-ping/adapters/codex.sh"]
-#
-# Or if installed locally:
-#   notify = ["bash", "/absolute/path/to/peon-ping/adapters/codex.sh"]
 
 set -euo pipefail
 
@@ -22,10 +33,14 @@ else
   CODEX_STDIN="$(cat)"
 fi
 
-_CODEX_EVENT="$CODEX_EVENT" _CODEX_STDIN="$CODEX_STDIN" python3 - <<'PY' | bash "$PEON_SH"
+# Map the event to CESP. The python block prints a payload for events that
+# should sound, or nothing (exit 0) for events that are intentionally silent
+# (PreToolUse, successful PostToolUse). Only forward when non-empty.
+MAPPED_JSON="$(_CODEX_EVENT="$CODEX_EVENT" _CODEX_STDIN="$CODEX_STDIN" python3 - <<'PY'
 import json
 import os
 import re
+import sys
 
 
 def first_non_empty(*values):
@@ -62,9 +77,41 @@ raw_event = first_non_empty(
     event_data.get("type", ""),
     "agent-turn-complete",
 )
+# Normalise both snake_case ("agent_turn_complete") and PascalCase
+# ("PostToolUse" -> "posttooluse") so stable hooks and legacy notify share
+# one mapping table.
 event_key = str(raw_event).strip().lower().replace("_", "-")
 
 notif_type = str(event_data.get("notification_type", "")).strip().lower()
+
+
+def is_tool_failure():
+    if event_data.get("error"):
+        return True
+    tr = event_data.get("tool_response")
+    if isinstance(tr, dict):
+        if tr.get("error") or tr.get("is_error") or tr.get("isError"):
+            return True
+        ec = tr.get("exit_code", tr.get("exitCode"))
+        try:
+            if ec is not None and int(ec) != 0:
+                return True
+        except Exception:
+            pass
+    ec = event_data.get("exit_code", event_data.get("exitCode"))
+    try:
+        if ec is not None and int(ec) != 0:
+            return True
+    except Exception:
+        pass
+    if str(event_data.get("success", "")).lower() == "false":
+        return True
+    return False
+
+
+mapped_event = None
+mapped_ntype = notif_type
+
 if (
     event_key.startswith("permission")
     or event_key.startswith("approve")
@@ -73,18 +120,36 @@ if (
 ):
     mapped_event = "Notification"
     mapped_ntype = "permission_prompt"
-elif event_key in ("start", "session-start"):
+elif event_key in ("sessionstart", "session-start", "start"):
     mapped_event = "SessionStart"
-    mapped_ntype = notif_type
+elif event_key in ("sessionend", "session-end"):
+    mapped_event = "SessionEnd"
+elif event_key in ("userpromptsubmit", "user-prompt-submit"):
+    mapped_event = "UserPromptSubmit"
 elif event_key == "idle-prompt":
     mapped_event = "Notification"
     mapped_ntype = "idle_prompt"
+elif event_key in ("pretooluse", "pre-tool-use"):
+    # Fires before every tool — far too noisy to sound on.
+    sys.exit(0)
+elif event_key in ("posttooluse", "post-tool-use"):
+    if is_tool_failure():
+        mapped_event = "PostToolUseFailure"
+    else:
+        sys.exit(0)  # successful tool call — silent
 elif event_key.startswith("error") or event_key.startswith("fail"):
     mapped_event = "PostToolUseFailure"
-    mapped_ntype = notif_type
-else:
+elif event_key in (
+    "stop",
+    "agent-turn-complete",
+    "turn-complete",
+    "complete",
+    "done",
+):
     mapped_event = "Stop"
-    mapped_ntype = notif_type
+else:
+    # Unknown event — preserve the legacy notify default (turn complete).
+    mapped_event = "Stop"
 
 cwd = str(
     first_non_empty(
@@ -123,6 +188,7 @@ payload = {
 summary = first_non_empty(
     event_data.get("transcript_summary", ""),
     event_data.get("summary", ""),
+    event_data.get("last_assistant_message", ""),
 )
 if isinstance(summary, str) and summary:
     payload["transcript_summary"] = summary[:120]
@@ -141,3 +207,9 @@ if mapped_event == "PostToolUseFailure":
 
 print(json.dumps(payload))
 PY
+)"
+
+# Only invoke peon.sh for events that produced a payload (silent events skip).
+if [ -n "$MAPPED_JSON" ]; then
+  echo "$MAPPED_JSON" | bash "$PEON_SH"
+fi
