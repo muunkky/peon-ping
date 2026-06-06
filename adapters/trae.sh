@@ -151,11 +151,6 @@ cleanup() {
   exit 0
 }
 
-# --- Test mode: skip preflight + main loop when sourced for testing ---
-if [ "${PEON_ADAPTER_TEST:-0}" = "1" ]; then
-  return 0 2>/dev/null || exit 0
-fi
-
 # --- Preflight ---
 if [ ! -f "$PEON_DIR/peon.sh" ]; then
   error "peon.sh not found at $PEON_DIR/peon.sh"
@@ -201,6 +196,11 @@ for f in "$SESSIONS_DIR"/$SESSION_GLOB; do
   sid=$(basename "$f"); sid="${sid%.*}"
   echo "${sid}:idle" >> "$SESSION_STATE_FILE"
 done
+
+# --- Test mode: state files + functions are ready; skip the watch loop ---
+if [ "${PEON_ADAPTER_TEST:-0}" = "1" ]; then
+  return 0 2>/dev/null || exit 0
+fi
 
 # --- Start watching ---
 info "${BOLD}peon-ping Trae adapter${RESET}"
