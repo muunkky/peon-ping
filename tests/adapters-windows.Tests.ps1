@@ -57,7 +57,7 @@ Describe "PowerShell Syntax Validation" {
         @{ name = "windsurf" }, @{ name = "kiro" }, @{ name = "openclaw" },
         @{ name = "deepagents" }, @{ name = "amp" }, @{ name = "antigravity" },
         @{ name = "kimi" }, @{ name = "opencode" }, @{ name = "kilo" },
-        @{ name = "qwen" }, @{ name = "iflow" }, @{ name = "trae" }
+        @{ name = "qwen" }, @{ name = "iflow" }, @{ name = "trae" }, @{ name = "kiro-ide" }
     ) {
         $path = Join-Path $script:AdaptersDir "$name.ps1"
         $path | Should -Exist
@@ -93,7 +93,7 @@ Describe "No ExecutionPolicy Bypass" {
         @{ name = "windsurf" }, @{ name = "kiro" }, @{ name = "openclaw" },
         @{ name = "deepagents" }, @{ name = "amp" }, @{ name = "antigravity" },
         @{ name = "kimi" }, @{ name = "opencode" }, @{ name = "kilo" },
-        @{ name = "qwen" }, @{ name = "iflow" }, @{ name = "trae" }
+        @{ name = "qwen" }, @{ name = "iflow" }, @{ name = "trae" }, @{ name = "kiro-ide" }
     ) {
         $path = Join-Path $script:AdaptersDir "$name.ps1"
         $content = Get-Content $path -Raw
@@ -379,6 +379,40 @@ Describe "Category A: OpenClaw Adapter" {
 
     It "accepts raw Claude Code event names" {
         $script:openclawContent | Should -Match '"SessionStart", "Stop", "Notification"'
+    }
+}
+
+Describe "Category A: Kiro IDE Adapter" {
+    BeforeAll {
+        $script:kiroIdeContent = Get-Content (Join-Path $script:AdaptersDir "kiro-ide.ps1") -Raw
+    }
+
+    It "accepts Event parameter (argv, no stdin)" {
+        $script:kiroIdeContent | Should -Match '\[string\]\$Event'
+    }
+
+    It "maps agentStop to Stop" {
+        $script:kiroIdeContent | Should -Match '"agentStop"'
+        $script:kiroIdeContent | Should -Match '\$mapped = "Stop"'
+    }
+
+    It "maps promptSubmit to UserPromptSubmit" {
+        $script:kiroIdeContent | Should -Match 'promptSubmit'
+        $script:kiroIdeContent | Should -Match '\$mapped = "UserPromptSubmit"'
+    }
+
+    It "maps preToolUse to PermissionRequest" {
+        $script:kiroIdeContent | Should -Match 'preToolUse'
+        $script:kiroIdeContent | Should -Match '\$mapped = "PermissionRequest"'
+    }
+
+    It "uses the distinct kiro-ide- session prefix" {
+        $script:kiroIdeContent | Should -Match 'kiro-ide-'
+    }
+
+    It "pipes JSON to peon.ps1" {
+        $script:kiroIdeContent | Should -Match 'peon\.ps1'
+        $script:kiroIdeContent | Should -Match 'ConvertTo-Json'
     }
 }
 
