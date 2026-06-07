@@ -877,14 +877,14 @@ milestones:
               collapses error/fail* to Stop. Detection already keys on the codex adapter
               path string, so a hooks-based registration that references it would
               still be detected — the real gap is event coverage, not status."
-            status: todo
+            status: done
             priority: high
             sequence: 2
             features:
               codex-hooks-event-mapping:
                 id: codex-hooks-event-mapping
                 title: Map the stable Codex hook event set to CESP in codex.sh
-                status: todo
+                status: done
                 priority: high
                 sequence: 1
                 description: 'From the Codex hooks docs, enumerate the stable hook
@@ -902,7 +902,7 @@ milestones:
               codex-hooks-windows-parity:
                 id: codex-hooks-windows-parity
                 title: Bring codex.ps1 to event-set parity
-                status: todo
+                status: done
                 priority: high
                 sequence: 2
                 depends_on:
@@ -919,7 +919,7 @@ milestones:
               codex-hooks-status-and-docs:
                 id: codex-hooks-status-and-docs
                 title: Codex install config + docs for hooks mode
-                status: todo
+                status: done
                 priority: medium
                 sequence: 3
                 depends_on:
@@ -938,7 +938,7 @@ milestones:
               codex-hooks-tests:
                 id: codex-hooks-tests
                 title: BATS + Pester coverage for Codex hooks mode
-                status: todo
+                status: done
                 priority: high
                 sequence: 4
                 depends_on:

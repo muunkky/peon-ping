@@ -655,15 +655,26 @@ The Codex adapter expects the peon-ping runtime to exist at `~/.claude/hooks/peo
    curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/install.sh | bash -s -- --no-rc
    ```
 
-2. Add this to `~/.codex/config.toml`:
+2. **Recommended — stable hooks (full event coverage).** Codex graduated its hook event set to stable, so the adapter can now greet you on session start, sound permission prompts and tool failures, and play the turn-complete cue — not just a single "done" sound. Register the adapter on the Codex hook events in `~/.codex/config.toml`:
+
+   ```toml
+   [hooks]
+   SessionStart = "bash ~/.claude/hooks/peon-ping/adapters/codex.sh"
+   PostToolUse  = "bash ~/.claude/hooks/peon-ping/adapters/codex.sh"
+   Stop         = "bash ~/.claude/hooks/peon-ping/adapters/codex.sh"
+   ```
+
+   Codex pipes each hook event to the adapter as stdin JSON (`hook_event_name`); consult your `codex` version's hooks docs for the exact config key/path. On Windows use `powershell -NoProfile -File %USERPROFILE%\.claude\hooks\peon-ping\adapters\codex.ps1`.
+
+3. **Legacy — turn-yield `notify` (still supported).** If your Codex version predates the stable hook set, the single `notify` callback still works (you'll only hear a turn-complete sound). The same adapter handles both modes:
 
    ```toml
    notify = ["bash", "~/.claude/hooks/peon-ping/adapters/codex.sh"]
    ```
 
-3. Restart Codex.
+4. Restart Codex.
 
-If you installed with Homebrew, the runtime files are managed under `~/.claude/hooks/peon-ping/`, and the Codex adapter forwards Codex notify events into that shared runtime.
+If you installed with Homebrew, the runtime files are managed under `~/.claude/hooks/peon-ping/`, and the Codex adapter forwards Codex events into that shared runtime. `peon status` detects Codex from the adapter path referenced in your config (`notify` line or hook entry).
 
 ### Amp setup
 

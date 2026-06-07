@@ -9,6 +9,9 @@
 - **`peon status` detection** for Qwen Code, iFlow CLI, Trae, and Pi; installers wire all four (install.sh remote-curl + install.ps1 `$adapterFiles`).
 - **Tests**: `tests/qwen.bats`, `tests/iflow.bats`, `tests/trae.bats`, `tests/pi.bats`, plus extended `tests/adapters-windows.Tests.ps1` (Pester) coverage.
 
+### Changed
+- **Codex adapter upgraded to the stable hook event set** (#513). `adapters/codex.sh` + `adapters/codex.ps1` now consume the full Codex hook set via stdin JSON (`SessionStart`, `UserPromptSubmit`, `PostToolUse`→`PostToolUseFailure` on failure, `Stop`; `PreToolUse` and successful `PostToolUse` are silent), so Codex users hear session-start greetings, tool-failure cues, and turn-complete sounds — not just a single "done". The legacy turn-yield `notify` argv path is preserved as a non-breaking fallback. `codex.ps1` now parses stdin (previously argv-only) and maps failures to `PostToolUseFailure` (previously collapsed to `Stop`).
+
 ## v2.20.0 (2026-04-14)
 
 ### Added

@@ -116,24 +116,49 @@ Describe "Category A: Codex Adapter" {
         $script:codexContent = Get-Content (Join-Path $script:AdaptersDir "codex.ps1") -Raw
     }
 
-    It "accepts Event parameter" {
+    It "accepts Event parameter (legacy notify)" {
         $script:codexContent | Should -Match 'param\('
         $script:codexContent | Should -Match '\[string\]\$Event'
     }
 
+    It "reads JSON from stdin (stable hooks)" {
+        $script:codexContent | Should -Match 'IsInputRedirected'
+        $script:codexContent | Should -Match 'StreamReader'
+    }
+
     It "maps agent-turn-complete to Stop" {
-        $script:codexContent | Should -Match '"agent-turn-complete".*"complete".*"done"'
+        $script:codexContent | Should -Match '"agent-turn-complete"'
         $script:codexContent | Should -Match '\$mapped = "Stop"'
     }
 
-    It "maps start/session-start to SessionStart" {
-        $script:codexContent | Should -Match '"start".*"session-start"'
+    It "maps SessionStart to SessionStart" {
+        $script:codexContent | Should -Match '"session-start"'
         $script:codexContent | Should -Match '\$mapped = "SessionStart"'
+    }
+
+    It "maps UserPromptSubmit to UserPromptSubmit" {
+        $script:codexContent | Should -Match 'user-prompt-submit'
+        $script:codexContent | Should -Match '\$mapped = "UserPromptSubmit"'
+    }
+
+    It "maps a failed PostToolUse to PostToolUseFailure" {
+        $script:codexContent | Should -Match 'post-tool-use'
+        $script:codexContent | Should -Match '\$mapped = "PostToolUseFailure"'
+        $script:codexContent | Should -Match 'Test-ToolFailure'
+    }
+
+    It "is silent for PreToolUse and successful PostToolUse" {
+        $script:codexContent | Should -Match 'pre-tool-use'
+        $script:codexContent | Should -Match 'exit 0'
     }
 
     It "maps permission events to Notification with permission_prompt" {
         $script:codexContent | Should -Match 'permission'
         $script:codexContent | Should -Match '\$ntype = "permission_prompt"'
+    }
+
+    It "uses the codex- session prefix" {
+        $script:codexContent | Should -Match 'codex-'
     }
 
     It "pipes JSON to peon.ps1" {

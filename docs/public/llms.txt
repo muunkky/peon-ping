@@ -67,7 +67,7 @@ MCP resources: `peon-ping://catalog`, `peon-ping://pack/{name}`
 - Amp (adapter — filesystem watcher for ampcode.com thread files)
 - Gemini CLI (adapter)
 - GitHub Copilot (adapter)
-- OpenAI Codex
+- OpenAI Codex (adapter — consumes the stable Codex hook event set via stdin JSON; legacy turn-yield `notify` callback still supported by the same adapter)
 - Cursor
 - OpenCode
 - Kilo CLI
