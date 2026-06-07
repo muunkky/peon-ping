@@ -9,6 +9,8 @@
 - **`peon status` detection** for Qwen Code, iFlow CLI, Trae, and Pi; installers wire all four (install.sh remote-curl + install.ps1 `$adapterFiles`).
 - **Tests**: `tests/qwen.bats`, `tests/iflow.bats`, `tests/trae.bats`, `tests/pi.bats`, plus extended `tests/adapters-windows.Tests.ps1` (Pester) coverage.
 
+- **Distinct Kiro IDE adapter** (#509). `adapters/kiro-ide.sh` + `.ps1` — an argv-event adapter for Kiro IDE's `.kiro/hooks/*.kiro.hook` `runCommand` actions (agentStop→Stop, promptSubmit→UserPromptSubmit, preToolUse→PermissionRequest, sessionStart→SessionStart), with a distinct `kiro-ide-` session prefix so `peon status` can tell it apart from the Kiro CLI. The README "Kiro" row is now split into honest "Kiro CLI" and "Kiro IDE" rows + setup sections, and `peon status` now detects both.
+
 ### Changed
 - **Codex adapter upgraded to the stable hook event set** (#513). `adapters/codex.sh` + `adapters/codex.ps1` now consume the full Codex hook set via stdin JSON (`SessionStart`, `UserPromptSubmit`, `PostToolUse`→`PostToolUseFailure` on failure, `Stop`; `PreToolUse` and successful `PostToolUse` are silent), so Codex users hear session-start greetings, tool-failure cues, and turn-complete sounds — not just a single "done". The legacy turn-yield `notify` argv path is preserved as a non-breaking fallback. `codex.ps1` now parses stdin (previously argv-only) and maps failures to `PostToolUseFailure` (previously collapsed to `Stop`).
 
