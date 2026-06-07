@@ -579,15 +579,26 @@ Codex 适配器要求 peon-ping 运行时位于 `~/.claude/hooks/peon-ping/`，�
    curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/install.sh | bash -s -- --no-rc
    ```
 
-2. 添加以下内容到 `~/.codex/config.toml`：
+2. **推荐 — 稳定钩子（完整事件覆盖）。** Codex 已将其钩子事件集升级为稳定版，因此适配器现在可以在会话开始时问候你、为权限提示和工具失败发声，并播放回合完成提示音 —— 而不仅仅是单一的「完成」音效。在 `~/.codex/config.toml` 中将适配器注册到 Codex 钩子事件上：
+
+   ```toml
+   [hooks]
+   SessionStart = "bash ~/.claude/hooks/peon-ping/adapters/codex.sh"
+   PostToolUse  = "bash ~/.claude/hooks/peon-ping/adapters/codex.sh"
+   Stop         = "bash ~/.claude/hooks/peon-ping/adapters/codex.sh"
+   ```
+
+   Codex 以 stdin JSON（`hook_event_name`）方式将每个钩子事件传给适配器；具体的配置键/路径请参阅你的 `codex` 版本的钩子文档。Windows 上使用 `powershell -NoProfile -File %USERPROFILE%\.claude\hooks\peon-ping\adapters\codex.ps1`。
+
+3. **旧版 — 回合让出 `notify`（仍受支持）。** 如果你的 Codex 版本早于稳定钩子集，单一的 `notify` 回调仍然有效（你只会听到回合完成音效）。同一个适配器同时处理两种模式：
 
    ```toml
    notify = ["bash", "~/.claude/hooks/peon-ping/adapters/codex.sh"]
    ```
 
-3. 重启 Codex。
+4. 重启 Codex。
 
-如果通过 Homebrew 安装，运行时文件在 `~/.claude/hooks/peon-ping/` 下管理，Codex 适配器将 Codex notify 事件转发到该共享运行时。
+如果通过 Homebrew 安装，运行时文件在 `~/.claude/hooks/peon-ping/` 下管理，Codex 适配器将 Codex 事件转发到该共享运行时。`peon status` 通过你配置中引用的适配器路径（`notify` 行或钩子条目）检测 Codex。
 
 ### Amp 设置
 
