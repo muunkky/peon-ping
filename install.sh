@@ -17,6 +17,7 @@ for arg in "$@"; do
     --global) LOCAL_MODE=false ;;
     --local) LOCAL_MODE=true ;;
     --openclaw) OPENCLAW_MODE=true ;;
+    --openpeon) OPENPEON_MODE=true ;;
     --init-local-config) INIT_LOCAL_CONFIG=true ;;
     --all) INSTALL_ALL=true ;;
     --no-rc) NO_RC=true ;;
@@ -31,6 +32,7 @@ Options:
   --global             Install globally (default)
   --local              Install in current project (.claude)
   --openclaw           Install as OpenClaw skill (~/.openclaw/skills)
+  --openpeon           Install the runtime to ~/.openpeon (tool-agnostic root)
   --init-local-config  Create local config only, then exit
   --all                Install all packs
   --no-rc              Skip .bashrc/.zshrc/fish config modifications
@@ -46,6 +48,14 @@ done
 GLOBAL_BASE="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
 LOCAL_BASE="$PWD/.claude"
 OPENCLAW_BASE="$HOME/.openclaw"
+
+# --openpeon: install the runtime under the tool-agnostic ~/.openpeon root
+# instead of ~/.claude. Adapters already resolve PEON_DIR to ~/.openpeon when
+# ~/.claude lacks packs/ (PR #523), so any tool (ECA, etc.) can point at this
+# shared runtime. Default (~/.claude) is unchanged for full back-compat.
+if [ "${OPENPEON_MODE:-false}" = true ]; then
+  GLOBAL_BASE="$HOME/.openpeon"
+fi
 
 # --- Handle --rovodev-only mode (for homebrew delegation) ---
 if [ "$ROVODEV_ONLY" = true ]; then
@@ -238,7 +248,7 @@ if [ "$NO_RC" = false ]; then
 fi
 
 # Auto-detect OpenClaw if present and Claude Code is not
-if [ "$OPENCLAW_MODE" = false ] && [ "$LOCAL_MODE" = false ]; then
+if [ "$OPENCLAW_MODE" = false ] && [ "$LOCAL_MODE" = false ] && [ "${OPENPEON_MODE:-false}" = false ]; then
   if [ -d "$OPENCLAW_BASE" ] && [ ! -d "$GLOBAL_BASE" ]; then
     OPENCLAW_MODE=true
     echo "Auto-detected OpenClaw installation (no Claude Code found)."
@@ -588,6 +598,7 @@ else
   curl -fsSL "$REPO_BASE/adapters/trae.sh" -o "$INSTALL_DIR/adapters/trae.sh" 2>/dev/null || true
   curl -fsSL "$REPO_BASE/adapters/pi.sh" -o "$INSTALL_DIR/adapters/pi.sh" 2>/dev/null || true
   curl -fsSL "$REPO_BASE/adapters/kiro-ide.sh" -o "$INSTALL_DIR/adapters/kiro-ide.sh" 2>/dev/null || true
+  curl -fsSL "$REPO_BASE/adapters/eca.sh" -o "$INSTALL_DIR/adapters/eca.sh" 2>/dev/null || true
   mkdir -p "$INSTALL_DIR/scripts"
   curl -fsSL "$REPO_BASE/scripts/hook-handle-use.sh" -o "$INSTALL_DIR/scripts/hook-handle-use.sh" 2>/dev/null || true
   curl -fsSL "$REPO_BASE/scripts/hook-handle-use.ps1" -o "$INSTALL_DIR/scripts/hook-handle-use.ps1" 2>/dev/null || true

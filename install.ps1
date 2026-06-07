@@ -7,7 +7,8 @@ param(
     [Parameter()]
     $Packs = @(),
     [switch]$All,
-    [string]$Lang = ""
+    [string]$Lang = "",
+    [switch]$OpenPeon
 )
 
 # When run via Invoke-Expression (one-liner install), $PSScriptRoot is empty.
@@ -45,7 +46,11 @@ if ($policy -eq "Restricted") {
 
 
 # --- Paths ---
-$ClaudeDir = Join-Path $env:USERPROFILE ".claude"
+# -OpenPeon installs the runtime under the tool-agnostic ~/.openpeon root
+# instead of ~/.claude (adapters resolve PEON_DIR to ~/.openpeon when ~/.claude
+# lacks packs/). Default (~/.claude) is unchanged for full back-compat.
+$ClaudeDir = if ($OpenPeon) { Join-Path $env:USERPROFILE ".openpeon" }
+             else { Join-Path $env:USERPROFILE ".claude" }
 $InstallDir = Join-Path $ClaudeDir "hooks\peon-ping"
 $SettingsFile = Join-Path $ClaudeDir "settings.json"
 $RegistryUrl = "https://peonping.github.io/registry/index.json"
@@ -2728,7 +2733,7 @@ $adapterFiles = @(
     "codex.ps1", "gemini.ps1", "copilot.ps1", "windsurf.ps1",
     "kiro.ps1", "openclaw.ps1", "amp.ps1", "antigravity.ps1",
     "kimi.ps1", "opencode.ps1", "kilo.ps1", "deepagents.ps1",
-    "qwen.ps1", "iflow.ps1", "trae.ps1", "kiro-ide.ps1"
+    "qwen.ps1", "iflow.ps1", "trae.ps1", "kiro-ide.ps1", "eca.ps1"
 )
 
 $sourceAdaptersDir = Join-Path $ScriptDir "adapters"
