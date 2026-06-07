@@ -6,11 +6,11 @@
 ![macOS](https://img.shields.io/badge/macOS-blue) ![WSL2](https://img.shields.io/badge/WSL2-blue) ![Linux](https://img.shields.io/badge/Linux-blue) ![Windows](https://img.shields.io/badge/Windows-blue) ![MSYS2](https://img.shields.io/badge/MSYS2-blue) ![SSH](https://img.shields.io/badge/SSH-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-![Claude Code](https://img.shields.io/badge/Claude_Code-hook-ffab01) ![Amp](https://img.shields.io/badge/Amp-adapter-ffab01) ![Gemini CLI](https://img.shields.io/badge/Gemini_CLI-adapter-ffab01) ![GitHub Copilot](https://img.shields.io/badge/GitHub_Copilot-adapter-ffab01) ![Codex](https://img.shields.io/badge/Codex-adapter-ffab01) ![Cursor](https://img.shields.io/badge/Cursor-adapter-ffab01) ![OpenCode](https://img.shields.io/badge/OpenCode-adapter-ffab01) ![Kilo CLI](https://img.shields.io/badge/Kilo_CLI-adapter-ffab01) ![Kiro CLI](https://img.shields.io/badge/Kiro_CLI-adapter-ffab01) ![Kiro IDE](https://img.shields.io/badge/Kiro_IDE-adapter-ffab01) ![Kimi Code](https://img.shields.io/badge/Kimi_Code-adapter-ffab01) ![Windsurf](https://img.shields.io/badge/Windsurf-adapter-ffab01) ![Antigravity](https://img.shields.io/badge/Antigravity-adapter-ffab01) ![OpenClaw](https://img.shields.io/badge/OpenClaw-adapter-ffab01) ![Rovo Dev CLI](https://img.shields.io/badge/Rovo_Dev_CLI-adapter-ffab01) ![DeepAgents](https://img.shields.io/badge/DeepAgents-adapter-ffab01) ![Qwen Code](https://img.shields.io/badge/Qwen_Code-adapter-ffab01) ![iFlow CLI](https://img.shields.io/badge/iFlow_CLI-adapter-ffab01) ![Trae](https://img.shields.io/badge/Trae-adapter-ffab01) ![Pi](https://img.shields.io/badge/Pi-adapter-ffab01)
+![Claude Code](https://img.shields.io/badge/Claude_Code-hook-ffab01) ![Amp](https://img.shields.io/badge/Amp-adapter-ffab01) ![Gemini CLI](https://img.shields.io/badge/Gemini_CLI-adapter-ffab01) ![GitHub Copilot](https://img.shields.io/badge/GitHub_Copilot-adapter-ffab01) ![Codex](https://img.shields.io/badge/Codex-adapter-ffab01) ![Cursor](https://img.shields.io/badge/Cursor-adapter-ffab01) ![OpenCode](https://img.shields.io/badge/OpenCode-adapter-ffab01) ![Kilo CLI](https://img.shields.io/badge/Kilo_CLI-adapter-ffab01) ![Kiro CLI](https://img.shields.io/badge/Kiro_CLI-adapter-ffab01) ![Kiro IDE](https://img.shields.io/badge/Kiro_IDE-adapter-ffab01) ![Kimi Code](https://img.shields.io/badge/Kimi_Code-adapter-ffab01) ![Windsurf](https://img.shields.io/badge/Windsurf-adapter-ffab01) ![Antigravity](https://img.shields.io/badge/Antigravity-adapter-ffab01) ![OpenClaw](https://img.shields.io/badge/OpenClaw-adapter-ffab01) ![Rovo Dev CLI](https://img.shields.io/badge/Rovo_Dev_CLI-adapter-ffab01) ![DeepAgents](https://img.shields.io/badge/DeepAgents-adapter-ffab01) ![Qwen Code](https://img.shields.io/badge/Qwen_Code-adapter-ffab01) ![iFlow CLI](https://img.shields.io/badge/iFlow_CLI-adapter-ffab01) ![Trae](https://img.shields.io/badge/Trae-adapter-ffab01) ![Pi](https://img.shields.io/badge/Pi-adapter-ffab01) ![ECA](https://img.shields.io/badge/ECA-adapter-ffab01)
 
 **Game character voice lines + visual overlay notifications when your AI coding agent needs attention — or let the agent pick its own sound via MCP.**
 
-AI coding agents don't notify you when they finish or need permission. You tab away, lose focus, and waste 15 minutes getting back into flow. peon-ping fixes this with voice lines and bold on-screen banners from Warcraft, StarCraft, Portal, Zelda, and more — works with **Claude Code**, **Amp**, **GitHub Copilot**, **Codex**, **Cursor**, **OpenCode**, **Kilo CLI**, **Kiro CLI**, **Kiro IDE**, **Kimi Code**, **Windsurf**, **Google Antigravity**, **Rovo Dev CLI**, **DeepAgents**, **Qwen Code**, **iFlow CLI**, **Trae**, **Pi**, and any MCP client.
+AI coding agents don't notify you when they finish or need permission. You tab away, lose focus, and waste 15 minutes getting back into flow. peon-ping fixes this with voice lines and bold on-screen banners from Warcraft, StarCraft, Portal, Zelda, and more — works with **Claude Code**, **Amp**, **GitHub Copilot**, **Codex**, **Cursor**, **OpenCode**, **Kilo CLI**, **Kiro CLI**, **Kiro IDE**, **Kimi Code**, **Windsurf**, **Google Antigravity**, **Rovo Dev CLI**, **DeepAgents**, **Qwen Code**, **iFlow CLI**, **Trae**, **Pi**, **ECA**, and any MCP client.
 
 **See it in action** &rarr; [peonping.com](https://peonping.com/)
 
@@ -633,6 +633,7 @@ peon-ping works with any agentic IDE that supports hooks. Adapters translate IDE
 | **iFlow CLI** | Adapter | Add hooks pointing to `adapters/iflow.sh` (or `.ps1` on Windows) in `~/.iflow/settings.json` ([setup](#iflow-cli-setup)) |
 | **Trae** | Adapter | `bash adapters/trae.sh` / `powershell adapters/trae.ps1 -Install` (filesystem watcher) ([setup](#trae-setup)) |
 | **Pi** | Adapter | `bash adapters/pi.sh` installs a TypeScript extension into `~/.pi/agent/extensions/` ([setup](#pi-setup)) |
+| **ECA** | Adapter | Add `shell` hooks in your ECA config calling `adapters/eca.sh <type>` (or `.ps1`) ([setup](#eca-setup)) |
 
 > **Windows:** All adapters have native PowerShell (`.ps1`) versions. The Windows installer (`install.ps1`) copies them to `~/.claude/hooks/peon-ping/adapters/`. Filesystem watchers (Amp, Antigravity, Kimi, Trae) use .NET `FileSystemWatcher` instead of fswatch/inotifywait — no extra dependencies needed. Pi loads a TypeScript extension and works on any platform with Node.js.
 
@@ -1118,6 +1119,31 @@ curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/adapters/pi
 ```
 
 Restart Pi (or run `/reload`). The extension maps `session_start` → greeting, `agent_end` → completion, and a failed tool call → error sound, shelling out to peon.sh (or peon.ps1 on Windows). Uninstall with `bash adapters/pi.sh --uninstall`.
+
+### ECA setup
+
+[ECA](https://eca.dev) (Editor Code Assistant) is an editor-agnostic LLM-agent integration. Its hooks pipe JSON on stdin. Add a `shell` hook for each event you want in your ECA config:
+
+```json
+{
+  "hooks": {
+    "sessionStart": [{ "actions": [{ "type": "shell", "command": "bash ~/.claude/hooks/peon-ping/adapters/eca.sh sessionStart" }] }],
+    "preToolCall":  [{ "actions": [{ "type": "shell", "command": "bash ~/.claude/hooks/peon-ping/adapters/eca.sh preToolCall" }] }],
+    "postRequest":  [{ "actions": [{ "type": "shell", "command": "bash ~/.claude/hooks/peon-ping/adapters/eca.sh postRequest" }] }]
+  }
+}
+```
+
+On Windows use `powershell -NoProfile -File %USERPROFILE%\.claude\hooks\peon-ping\adapters\eca.ps1 sessionStart`. (Originally contributed in [#261](https://github.com/PeonPing/peon-ping/issues/261).)
+
+**Tool-agnostic install root.** If you don't use Claude Code, install the peon-ping runtime under `~/.openpeon` instead of `~/.claude` so any tool can reference the shared runtime:
+
+```bash
+curl -fsSL https://peonping.com/install | bash -s -- --openpeon
+# Windows: powershell -File install.ps1 -OpenPeon
+```
+
+Every adapter already resolves `~/.openpeon` automatically when `~/.claude` has no `packs/`, so `adapters/eca.sh` (and the rest) finds the runtime there with no further config.
 
 ## Remote development (SSH / Devcontainers / Codespaces)
 
