@@ -9,6 +9,7 @@
 - **`peon status` detection** for Qwen Code, iFlow CLI, Trae, and Pi; installers wire all four (install.sh remote-curl + install.ps1 `$adapterFiles`).
 - **Tests**: `tests/qwen.bats`, `tests/iflow.bats`, `tests/trae.bats`, `tests/pi.bats`, plus extended `tests/adapters-windows.Tests.ps1` (Pester) coverage.
 
+- **First-party ECA adapter** (Editor Code Assistant, #261). `adapters/eca.sh` + `.ps1` map ECA's stdin-JSON hook types (sessionStart/chatStart→SessionStart, preRequest→UserPromptSubmit, postRequest/subagentPostRequest/postToolCall→Stop, preToolCall→PermissionRequest, sessionEnd→SessionEnd) with an `eca-` session prefix derived from `db_cache_path`. Plus a new **`install.sh --openpeon` / `install.ps1 -OpenPeon`** flag that installs the runtime to the tool-agnostic `~/.openpeon` root (default `~/.claude` unchanged), so any editor-agnostic tool can reference the shared runtime.
 - **Distinct Kiro IDE adapter** (#509). `adapters/kiro-ide.sh` + `.ps1` — an argv-event adapter for Kiro IDE's `.kiro/hooks/*.kiro.hook` `runCommand` actions (agentStop→Stop, promptSubmit→UserPromptSubmit, preToolUse→PermissionRequest, sessionStart→SessionStart), with a distinct `kiro-ide-` session prefix so `peon status` can tell it apart from the Kiro CLI. The README "Kiro" row is now split into honest "Kiro CLI" and "Kiro IDE" rows + setup sections, and `peon status` now detects both.
 
 ### Changed

@@ -6,11 +6,11 @@
 ![macOS](https://img.shields.io/badge/macOS-blue) ![WSL2](https://img.shields.io/badge/WSL2-blue) ![Linux](https://img.shields.io/badge/Linux-blue) ![Windows](https://img.shields.io/badge/Windows-blue) ![MSYS2](https://img.shields.io/badge/MSYS2-blue) ![SSH](https://img.shields.io/badge/SSH-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-![Claude Code](https://img.shields.io/badge/Claude_Code-hook-ffab01) ![Amp](https://img.shields.io/badge/Amp-adapter-ffab01) ![Gemini CLI](https://img.shields.io/badge/Gemini_CLI-adapter-ffab01) ![GitHub Copilot](https://img.shields.io/badge/GitHub_Copilot-adapter-ffab01) ![Codex](https://img.shields.io/badge/Codex-adapter-ffab01) ![Cursor](https://img.shields.io/badge/Cursor-adapter-ffab01) ![OpenCode](https://img.shields.io/badge/OpenCode-adapter-ffab01) ![Kilo CLI](https://img.shields.io/badge/Kilo_CLI-adapter-ffab01) ![Kiro CLI](https://img.shields.io/badge/Kiro_CLI-adapter-ffab01) ![Kiro IDE](https://img.shields.io/badge/Kiro_IDE-adapter-ffab01) ![Kimi Code](https://img.shields.io/badge/Kimi_Code-adapter-ffab01) ![Windsurf](https://img.shields.io/badge/Windsurf-adapter-ffab01) ![Antigravity](https://img.shields.io/badge/Antigravity-adapter-ffab01) ![OpenClaw](https://img.shields.io/badge/OpenClaw-adapter-ffab01) ![Rovo Dev CLI](https://img.shields.io/badge/Rovo_Dev_CLI-adapter-ffab01) ![DeepAgents](https://img.shields.io/badge/DeepAgents-adapter-ffab01) ![Qwen Code](https://img.shields.io/badge/Qwen_Code-adapter-ffab01) ![iFlow CLI](https://img.shields.io/badge/iFlow_CLI-adapter-ffab01) ![Trae](https://img.shields.io/badge/Trae-adapter-ffab01) ![Pi](https://img.shields.io/badge/Pi-adapter-ffab01)
+![Claude Code](https://img.shields.io/badge/Claude_Code-hook-ffab01) ![Amp](https://img.shields.io/badge/Amp-adapter-ffab01) ![Gemini CLI](https://img.shields.io/badge/Gemini_CLI-adapter-ffab01) ![GitHub Copilot](https://img.shields.io/badge/GitHub_Copilot-adapter-ffab01) ![Codex](https://img.shields.io/badge/Codex-adapter-ffab01) ![Cursor](https://img.shields.io/badge/Cursor-adapter-ffab01) ![OpenCode](https://img.shields.io/badge/OpenCode-adapter-ffab01) ![Kilo CLI](https://img.shields.io/badge/Kilo_CLI-adapter-ffab01) ![Kiro CLI](https://img.shields.io/badge/Kiro_CLI-adapter-ffab01) ![Kiro IDE](https://img.shields.io/badge/Kiro_IDE-adapter-ffab01) ![Kimi Code](https://img.shields.io/badge/Kimi_Code-adapter-ffab01) ![Windsurf](https://img.shields.io/badge/Windsurf-adapter-ffab01) ![Antigravity](https://img.shields.io/badge/Antigravity-adapter-ffab01) ![OpenClaw](https://img.shields.io/badge/OpenClaw-adapter-ffab01) ![Rovo Dev CLI](https://img.shields.io/badge/Rovo_Dev_CLI-adapter-ffab01) ![DeepAgents](https://img.shields.io/badge/DeepAgents-adapter-ffab01) ![Qwen Code](https://img.shields.io/badge/Qwen_Code-adapter-ffab01) ![iFlow CLI](https://img.shields.io/badge/iFlow_CLI-adapter-ffab01) ![Trae](https://img.shields.io/badge/Trae-adapter-ffab01) ![Pi](https://img.shields.io/badge/Pi-adapter-ffab01) ![ECA](https://img.shields.io/badge/ECA-adapter-ffab01)
 
 **当你的 AI 编程助手需要关注时，播放游戏角色语音 + 显示视觉覆盖通知 — 或通过 MCP 让 AI 自行选择音效。**
 
-AI 编程助手完成任务或需要权限时不会通知你。你切换标签页、失去焦点，然后浪费 15 分钟重新进入状态。peon-ping 通过魔兽争霸、星际争霸、传送门、塞尔达等游戏的角色语音和醒目的屏幕横幅来解决这个问题 — 支持 **Claude Code**、**Amp**、**Gemini CLI**、**GitHub Copilot**、**Codex**、**Cursor**、**OpenCode**、**Kilo CLI**、**Kiro CLI**、**Kiro IDE**、**Kimi Code**、**Windsurf**、**Google Antigravity**、**Rovo Dev CLI**、**DeepAgents**、**Qwen Code**、**iFlow CLI**、**Trae**、**Pi** 及任何 MCP 客户端.
+AI 编程助手完成任务或需要权限时不会通知你。你切换标签页、失去焦点，然后浪费 15 分钟重新进入状态。peon-ping 通过魔兽争霸、星际争霸、传送门、塞尔达等游戏的角色语音和醒目的屏幕横幅来解决这个问题 — 支持 **Claude Code**、**Amp**、**Gemini CLI**、**GitHub Copilot**、**Codex**、**Cursor**、**OpenCode**、**Kilo CLI**、**Kiro CLI**、**Kiro IDE**、**Kimi Code**、**Windsurf**、**Google Antigravity**、**Rovo Dev CLI**、**DeepAgents**、**Qwen Code**、**iFlow CLI**、**Trae**、**Pi**、**ECA** 及任何 MCP 客户端.
 
 **查看演示** &rarr; [peonping.com](https://peonping.com/)
 
@@ -557,6 +557,7 @@ peon-ping 适用于任何支持钩子的代理式 IDE。适配器将 IDE 特定�
 | **iFlow CLI** | 适配器 | 在 `~/.iflow/settings.json` 中添加指向 `adapters/iflow.sh`（Windows 上为 `.ps1`）的钩子（[设置](#iflow-cli-设置)） |
 | **Trae** | 适配器 | `bash adapters/trae.sh` / `powershell adapters/trae.ps1 -Install`（文件系统监视器）（[设置](#trae-设置)） |
 | **Pi** | 适配器 | `bash adapters/pi.sh` 将 TypeScript 扩展安装到 `~/.pi/agent/extensions/`（[设置](#pi-设置)） |
+| **ECA** | 适配器 | 在 ECA 配置中添加调用 `adapters/eca.sh <type>`（或 `.ps1`）的 `shell` 钩子（[设置](#eca-设置)） |
 
 > **Windows：** 所有适配器都有原生 PowerShell（`.ps1`）版本。Windows 安装程序（`install.ps1`）会将其复制到 `~/.claude/hooks/peon-ping/adapters/`。文件系统监视器（Amp、Antigravity、Kimi、Trae）使用 .NET `FileSystemWatcher` 而非 fswatch/inotifywait — 无需额外依赖。Pi 加载 TypeScript 扩展，可在任何安装了 Node.js 的平台上运行。
 
@@ -1041,6 +1042,31 @@ curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/adapters/pi
 ```
 
 重启 Pi（或运行 `/reload`）。该扩展将 `session_start` → 问候、`agent_end` → 完成、工具调用失败 → 错误音效，通过调用 peon.sh（Windows 上为 peon.ps1）实现。卸载：`bash adapters/pi.sh --uninstall`。
+
+### ECA 设置
+
+[ECA](https://eca.dev)（Editor Code Assistant）是一个编辑器无关的 LLM-agent 集成。其钩子通过 stdin 传递 JSON。为你想要的每个事件添加一个 `shell` 钩子：
+
+```json
+{
+  "hooks": {
+    "sessionStart": [{ "actions": [{ "type": "shell", "command": "bash ~/.claude/hooks/peon-ping/adapters/eca.sh sessionStart" }] }],
+    "preToolCall":  [{ "actions": [{ "type": "shell", "command": "bash ~/.claude/hooks/peon-ping/adapters/eca.sh preToolCall" }] }],
+    "postRequest":  [{ "actions": [{ "type": "shell", "command": "bash ~/.claude/hooks/peon-ping/adapters/eca.sh postRequest" }] }]
+  }
+}
+```
+
+Windows 上使用 `powershell -NoProfile -File %USERPROFILE%\.claude\hooks\peon-ping\adapters\eca.ps1 sessionStart`。（最初由 [#261](https://github.com/PeonPing/peon-ping/issues/261) 贡献。）
+
+**工具无关的安装根目录。** 如果你不使用 Claude Code，可将 peon-ping 运行时安装到 `~/.openpeon` 而非 `~/.claude`，以便任何工具引用共享运行时：
+
+```bash
+curl -fsSL https://peonping.com/install | bash -s -- --openpeon
+# Windows: powershell -File install.ps1 -OpenPeon
+```
+
+当 `~/.claude` 没有 `packs/` 时，每个适配器都会自动解析到 `~/.openpeon`，因此 `adapters/eca.sh`（以及其余适配器）无需额外配置即可在那里找到运行时。
 
 ## 远程开发（SSH / Devcontainers / Codespaces）
 

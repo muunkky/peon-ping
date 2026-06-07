@@ -205,6 +205,21 @@ print('OK')
   [ -f "$LOCAL_INSTALL_DIR/packs/peon/openpeon.json" ]
 }
 
+@test "--openpeon installs the runtime under ~/.openpeon (tool-agnostic root)" {
+  bash "$CLONE_DIR/install.sh" --openpeon
+  # Runtime lands under ~/.openpeon, NOT ~/.claude
+  [ -f "$TEST_HOME/.openpeon/hooks/peon-ping/peon.sh" ]
+  [ -f "$TEST_HOME/.openpeon/hooks/peon-ping/packs/peon/openpeon.json" ]
+  [ ! -f "$INSTALL_DIR/peon.sh" ]
+}
+
+@test "default install (no --openpeon) still lands in ~/.claude (back-compat)" {
+  bash "$CLONE_DIR/install.sh"
+  [ -f "$INSTALL_DIR/peon.sh" ]
+  # The agnostic root must NOT be created when the flag is absent
+  [ ! -f "$TEST_HOME/.openpeon/hooks/peon-ping/peon.sh" ]
+}
+
 @test "--local registers hooks in project-level settings.json" {
   cd "$PROJECT_DIR"
   bash "$CLONE_DIR/install.sh" --local

@@ -2,7 +2,7 @@
 
 > Game character voice lines + visual overlay notifications when your AI coding agent needs attention.
 
-peon-ping plays voice lines and shows bold on-screen overlay banners from Warcraft, StarCraft, Portal, Zelda, and 90+ other games when your AI coding agent finishes a task, needs permission, or hits an error. Works with Claude Code, Amp, GitHub Copilot, Cursor, OpenCode, Codex, Kiro CLI, Kiro IDE, Kimi Code, Windsurf, DeepAgents, Qwen Code, iFlow CLI, Trae, Pi, and any MCP-compatible AI agent.
+peon-ping plays voice lines and shows bold on-screen overlay banners from Warcraft, StarCraft, Portal, Zelda, and 90+ other games when your AI coding agent finishes a task, needs permission, or hits an error. Works with Claude Code, Amp, GitHub Copilot, Cursor, OpenCode, Codex, Kiro CLI, Kiro IDE, Kimi Code, Windsurf, DeepAgents, Qwen Code, iFlow CLI, Trae, Pi, ECA, and any MCP-compatible AI agent.
 
 ## Links
 
@@ -83,6 +83,7 @@ MCP resources: `peon-ping://catalog`, `peon-ping://pack/{name}`
 - iFlow CLI (cli.iflow.cn — adapter; Claude-Code-style stdin-JSON hooks in ~/.iflow/settings.json)
 - Trae (trae.ai — adapter; filesystem watcher, MCP-only IDE with no shell hook)
 - Pi (earendil-works/pi — TypeScript extension installed into ~/.pi/agent/extensions/)
+- ECA (Editor Code Assistant, eca.dev — adapter; stdin-JSON hooks sessionStart/preToolCall/postRequest/etc., eca- session prefix). Install the runtime to the tool-agnostic ~/.openpeon root with `install.sh --openpeon` / `install.ps1 -OpenPeon` so any tool can reference the shared runtime.
 
 All adapters have native Windows PowerShell (.ps1) versions alongside the bash (.sh) originals (Pi is a cross-platform TypeScript extension). Filesystem watchers (Amp, Antigravity, Kimi, Trae) use .NET FileSystemWatcher on Windows instead of fswatch/inotifywait. The Windows installer (install.ps1) copies adapter scripts to ~/.claude/hooks/peon-ping/adapters/.
 

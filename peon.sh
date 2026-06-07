@@ -1519,6 +1519,22 @@ if os.path.isdir(kiro_ide_hooks):
         pass
     ides.append(('Kiro IDE', kiro_ide_hooks, 'installed' if kiro_ide_installed else 'detected (not set up)'))
 
+# ECA (Editor Code Assistant, eca.dev) — config under ~/.config/eca
+eca_dir = os.path.join(os.environ.get('XDG_CONFIG_HOME', os.path.join(home, '.config')), 'eca')
+if os.path.isdir(eca_dir):
+    eca_installed = False
+    try:
+        for _fn in os.listdir(eca_dir):
+            _fp = os.path.join(eca_dir, _fn)
+            if os.path.isfile(_fp) and (_fn.endswith('.json') or _fn.endswith('.edn')):
+                _txt = open(_fp).read()
+                if 'eca.sh' in _txt or 'eca.ps1' in _txt:
+                    eca_installed = True
+                    break
+    except Exception:
+        pass
+    ides.append(('ECA', eca_dir, 'installed' if eca_installed else 'detected (not set up)'))
+
 if ides:
     for name, path, st in ides:
         marker = '[x]' if st == 'installed' else '[ ]'
@@ -4235,7 +4251,7 @@ if not project:
     _sid = str(session_id)
     # Newly supported agents emit an agent-prefixed session id; keep the label
     # agent-specific when launched outside a workspace (empty/root cwd).
-    _prefix_labels = (('qwen-', 'qwen'), ('iflow-', 'iflow'), ('trae-', 'trae'), ('pi-', 'pi'), ('kiro-ide-', 'kiro-ide'), ('kiro-', 'kiro'))
+    _prefix_labels = (('qwen-', 'qwen'), ('iflow-', 'iflow'), ('trae-', 'trae'), ('pi-', 'pi'), ('kiro-ide-', 'kiro-ide'), ('kiro-', 'kiro'), ('eca-', 'eca'))
     _matched = next((label for pfx, label in _prefix_labels if _sid.startswith(pfx)), '')
     if _matched:
         project = _matched
