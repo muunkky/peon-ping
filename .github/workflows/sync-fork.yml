@@ -1,13 +1,15 @@
 name: Sync fork with upstream
 
-# Keeps muunkky/peon-ping main in lockstep with PeonPing/peon-ping so the fork
-# never falls behind. Branch your feature work off origin/main anyway — this
-# just keeps the fork tidy as a second line of defence.
+# Keeps muunkky/peon-ping main current with PeonPing/peon-ping by MERGING
+# upstream (never force-resetting), so this workflow file survives every sync.
+# Branch your feature work off origin/main regardless — this just keeps the
+# fork main tidy as a second line of defence. A merge conflict fails the run
+# loudly rather than destroying anything.
 
 on:
   schedule:
     - cron: "0 6 * * *"      # daily 06:00 UTC
-  workflow_dispatch:          # also runnable on demand from the Actions tab
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -16,7 +18,21 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Sync main from upstream PeonPing/peon-ping
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh repo sync muunkky/peon-ping --branch main --source PeonPing/peon-ping
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Merge upstream main into fork main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add upstream https://github.com/PeonPing/peon-ping.git
+          git fetch upstream main
+          if git merge --no-edit upstream/main; then
+            git push origin main
+            echo "Synced fork main with upstream."
+          else
+            echo "::error::Merge conflict syncing upstream/main into fork main. Resolve manually (or reset the fork to upstream)."
+            exit 1
+          fi
