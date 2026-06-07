@@ -6,11 +6,11 @@
 ![macOS](https://img.shields.io/badge/macOS-blue) ![WSL2](https://img.shields.io/badge/WSL2-blue) ![Linux](https://img.shields.io/badge/Linux-blue) ![Windows](https://img.shields.io/badge/Windows-blue) ![MSYS2](https://img.shields.io/badge/MSYS2-blue) ![SSH](https://img.shields.io/badge/SSH-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-![Claude Code](https://img.shields.io/badge/Claude_Code-hook-ffab01) ![Amp](https://img.shields.io/badge/Amp-adapter-ffab01) ![Gemini CLI](https://img.shields.io/badge/Gemini_CLI-adapter-ffab01) ![GitHub Copilot](https://img.shields.io/badge/GitHub_Copilot-adapter-ffab01) ![Codex](https://img.shields.io/badge/Codex-adapter-ffab01) ![Cursor](https://img.shields.io/badge/Cursor-adapter-ffab01) ![OpenCode](https://img.shields.io/badge/OpenCode-adapter-ffab01) ![Kilo CLI](https://img.shields.io/badge/Kilo_CLI-adapter-ffab01) ![Kiro](https://img.shields.io/badge/Kiro-adapter-ffab01) ![Kimi Code](https://img.shields.io/badge/Kimi_Code-adapter-ffab01) ![Windsurf](https://img.shields.io/badge/Windsurf-adapter-ffab01) ![Antigravity](https://img.shields.io/badge/Antigravity-adapter-ffab01) ![OpenClaw](https://img.shields.io/badge/OpenClaw-adapter-ffab01) ![Rovo Dev CLI](https://img.shields.io/badge/Rovo_Dev_CLI-adapter-ffab01) ![DeepAgents](https://img.shields.io/badge/DeepAgents-adapter-ffab01) ![Qwen Code](https://img.shields.io/badge/Qwen_Code-adapter-ffab01) ![iFlow CLI](https://img.shields.io/badge/iFlow_CLI-adapter-ffab01) ![Trae](https://img.shields.io/badge/Trae-adapter-ffab01) ![Pi](https://img.shields.io/badge/Pi-adapter-ffab01)
+![Claude Code](https://img.shields.io/badge/Claude_Code-hook-ffab01) ![Amp](https://img.shields.io/badge/Amp-adapter-ffab01) ![Gemini CLI](https://img.shields.io/badge/Gemini_CLI-adapter-ffab01) ![GitHub Copilot](https://img.shields.io/badge/GitHub_Copilot-adapter-ffab01) ![Codex](https://img.shields.io/badge/Codex-adapter-ffab01) ![Cursor](https://img.shields.io/badge/Cursor-adapter-ffab01) ![OpenCode](https://img.shields.io/badge/OpenCode-adapter-ffab01) ![Kilo CLI](https://img.shields.io/badge/Kilo_CLI-adapter-ffab01) ![Kiro CLI](https://img.shields.io/badge/Kiro_CLI-adapter-ffab01) ![Kiro IDE](https://img.shields.io/badge/Kiro_IDE-adapter-ffab01) ![Kimi Code](https://img.shields.io/badge/Kimi_Code-adapter-ffab01) ![Windsurf](https://img.shields.io/badge/Windsurf-adapter-ffab01) ![Antigravity](https://img.shields.io/badge/Antigravity-adapter-ffab01) ![OpenClaw](https://img.shields.io/badge/OpenClaw-adapter-ffab01) ![Rovo Dev CLI](https://img.shields.io/badge/Rovo_Dev_CLI-adapter-ffab01) ![DeepAgents](https://img.shields.io/badge/DeepAgents-adapter-ffab01) ![Qwen Code](https://img.shields.io/badge/Qwen_Code-adapter-ffab01) ![iFlow CLI](https://img.shields.io/badge/iFlow_CLI-adapter-ffab01) ![Trae](https://img.shields.io/badge/Trae-adapter-ffab01) ![Pi](https://img.shields.io/badge/Pi-adapter-ffab01)
 
 **Game character voice lines + visual overlay notifications when your AI coding agent needs attention — or let the agent pick its own sound via MCP.**
 
-AI coding agents don't notify you when they finish or need permission. You tab away, lose focus, and waste 15 minutes getting back into flow. peon-ping fixes this with voice lines and bold on-screen banners from Warcraft, StarCraft, Portal, Zelda, and more — works with **Claude Code**, **Amp**, **GitHub Copilot**, **Codex**, **Cursor**, **OpenCode**, **Kilo CLI**, **Kiro**, **Kimi Code**, **Windsurf**, **Google Antigravity**, **Rovo Dev CLI**, **DeepAgents**, **Qwen Code**, **iFlow CLI**, **Trae**, **Pi**, and any MCP client.
+AI coding agents don't notify you when they finish or need permission. You tab away, lose focus, and waste 15 minutes getting back into flow. peon-ping fixes this with voice lines and bold on-screen banners from Warcraft, StarCraft, Portal, Zelda, and more — works with **Claude Code**, **Amp**, **GitHub Copilot**, **Codex**, **Cursor**, **OpenCode**, **Kilo CLI**, **Kiro CLI**, **Kiro IDE**, **Kimi Code**, **Windsurf**, **Google Antigravity**, **Rovo Dev CLI**, **DeepAgents**, **Qwen Code**, **iFlow CLI**, **Trae**, **Pi**, and any MCP client.
 
 **See it in action** &rarr; [peonping.com](https://peonping.com/)
 
@@ -621,7 +621,8 @@ peon-ping works with any agentic IDE that supports hooks. Adapters translate IDE
 | **Cursor** | Built-in | `curl \| bash`, `peon-ping-setup`, or Windows `install.ps1` auto-detect and register hooks. On Windows, enable **Settings → Features → Third-party skills** so Cursor loads `~/.claude/settings.json` for SessionStart/Stop sounds. |
 | **OpenCode** | Adapter | `bash adapters/opencode.sh` / `powershell adapters/opencode.ps1` ([setup](#opencode-setup)) |
 | **Kilo CLI** | Adapter | `bash adapters/kilo.sh` / `powershell adapters/kilo.ps1` ([setup](#kilo-cli-setup)) |
-| **Kiro** | Adapter | Add hook entries pointing to `adapters/kiro.sh` (or `.ps1`) ([setup](#kiro-setup)) |
+| **Kiro CLI** | Adapter | Add hook entries pointing to `adapters/kiro.sh` (or `.ps1`) in `~/.kiro/agents/peon-ping.json` ([setup](#kiro-cli-setup)) |
+| **Kiro IDE** | Adapter | Add `.kiro/hooks/*.kiro.hook` runCommand entries calling `adapters/kiro-ide.sh <event>` (or `.ps1`) ([setup](#kiro-ide-setup)) |
 | **Windsurf** | Adapter | Add hook entries pointing to `adapters/windsurf.sh` (or `.ps1`) ([setup](#windsurf-setup)) |
 | **Google Antigravity** | Adapter | `bash adapters/antigravity.sh` / `powershell adapters/antigravity.ps1` |
 | **Kimi Code** | Adapter | `bash adapters/kimi.sh --install` / `powershell adapters/kimi.ps1 -Install` ([setup](#kimi-code-setup)) |
@@ -939,7 +940,7 @@ Add to `~/.codeium/windsurf/hooks.json` (user-level) or `.windsurf/hooks.json` (
 }
 ```
 
-### Kiro setup
+### Kiro CLI setup
 
 Create `~/.kiro/agents/peon-ping.json`:
 
@@ -961,6 +962,27 @@ Create `~/.kiro/agents/peon-ping.json`:
 ```
 
 `preToolUse`/`postToolUse` are intentionally excluded — they fire on every tool call and would be extremely noisy.
+
+### Kiro IDE setup
+
+Kiro IDE (distinct from the Kiro CLI above) uses **Agent Hooks** — `.kiro/hooks/*.kiro.hook` JSON files with a `when`/`then` shape. The `then.runCommand` action runs a shell command with the event name as an argument (no stdin payload), so peon-ping ships a separate `kiro-ide.sh` adapter.
+
+Create one hook file per event in your project's `.kiro/hooks/`, e.g. `.kiro/hooks/peon-ping-stop.kiro.hook`:
+
+```json
+{
+  "version": "1.0.0",
+  "enabled": true,
+  "name": "peon-ping-stop",
+  "when": { "type": "agentStop" },
+  "then": {
+    "type": "runCommand",
+    "command": "bash ~/.claude/hooks/peon-ping/adapters/kiro-ide.sh agentStop"
+  }
+}
+```
+
+Add matching files with `"when": { "type": "promptSubmit" }` → `...kiro-ide.sh promptSubmit` and `"when": { "type": "preToolUse", "toolTypes": [...] }` → `...kiro-ide.sh preToolUse`. On Windows use `powershell -NoProfile -File %USERPROFILE%\.claude\hooks\peon-ping\adapters\kiro-ide.ps1 agentStop`. Kiro IDE has no native session-start event, so greetings only fire if you wire a `sessionStart` hook manually.
 
 ### Rovo Dev CLI setup
 

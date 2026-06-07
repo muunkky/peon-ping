@@ -968,14 +968,14 @@ milestones:
               adapters/kiro.sh self-describes as 'Kiro CLI'; README lists a single
               'Kiro' row and CLI setup section; no Kiro IDE adapter/config/detection
               exists; #509 OPEN."
-            status: todo
+            status: done
             priority: medium
             sequence: 3
             features:
               kiro-ide-adapter-impl:
                 id: kiro-ide-adapter-impl
                 title: Implement adapters/kiro-ide.sh and kiro-ide.ps1
-                status: todo
+                status: done
                 priority: medium
                 sequence: 1
                 description: "Determine Kiro IDE's hook implementation (config location
@@ -993,7 +993,7 @@ milestones:
               kiro-ide-status-install-docs:
                 id: kiro-ide-status-install-docs
                 title: Kiro IDE status detection, install wiring, and docs
-                status: todo
+                status: done
                 priority: medium
                 sequence: 2
                 depends_on:
@@ -1012,7 +1012,7 @@ milestones:
               kiro-ide-tests:
                 id: kiro-ide-tests
                 title: BATS + Pester coverage for Kiro IDE adapter
-                status: todo
+                status: done
                 priority: medium
                 sequence: 3
                 depends_on:

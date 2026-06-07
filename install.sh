@@ -587,6 +587,7 @@ else
   curl -fsSL "$REPO_BASE/adapters/iflow.sh" -o "$INSTALL_DIR/adapters/iflow.sh" 2>/dev/null || true
   curl -fsSL "$REPO_BASE/adapters/trae.sh" -o "$INSTALL_DIR/adapters/trae.sh" 2>/dev/null || true
   curl -fsSL "$REPO_BASE/adapters/pi.sh" -o "$INSTALL_DIR/adapters/pi.sh" 2>/dev/null || true
+  curl -fsSL "$REPO_BASE/adapters/kiro-ide.sh" -o "$INSTALL_DIR/adapters/kiro-ide.sh" 2>/dev/null || true
   mkdir -p "$INSTALL_DIR/scripts"
   curl -fsSL "$REPO_BASE/scripts/hook-handle-use.sh" -o "$INSTALL_DIR/scripts/hook-handle-use.sh" 2>/dev/null || true
   curl -fsSL "$REPO_BASE/scripts/hook-handle-use.ps1" -o "$INSTALL_DIR/scripts/hook-handle-use.ps1" 2>/dev/null || true

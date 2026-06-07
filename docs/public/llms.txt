@@ -2,7 +2,7 @@
 
 > Game character voice lines + visual overlay notifications when your AI coding agent needs attention.
 
-peon-ping plays voice lines and shows bold on-screen overlay banners from Warcraft, StarCraft, Portal, Zelda, and 90+ other games when your AI coding agent finishes a task, needs permission, or hits an error. Works with Claude Code, Amp, GitHub Copilot, Cursor, OpenCode, Codex, Kiro, Kimi Code, Windsurf, DeepAgents, Qwen Code, iFlow CLI, Trae, Pi, and any MCP-compatible AI agent.
+peon-ping plays voice lines and shows bold on-screen overlay banners from Warcraft, StarCraft, Portal, Zelda, and 90+ other games when your AI coding agent finishes a task, needs permission, or hits an error. Works with Claude Code, Amp, GitHub Copilot, Cursor, OpenCode, Codex, Kiro CLI, Kiro IDE, Kimi Code, Windsurf, DeepAgents, Qwen Code, iFlow CLI, Trae, Pi, and any MCP-compatible AI agent.
 
 ## Links
 
@@ -71,7 +71,8 @@ MCP resources: `peon-ping://catalog`, `peon-ping://pack/{name}`
 - Cursor
 - OpenCode
 - Kilo CLI
-- Kiro (Amazon)
+- Kiro CLI (Amazon — adapter; stdin-JSON hooks in ~/.kiro/agents/*.json)
+- Kiro IDE (Amazon — adapter; .kiro/hooks/*.kiro.hook runCommand actions pass the event name as argv, distinct kiro-ide- session prefix)
 - Kimi Code (MoonshotAI — filesystem watcher for Wire Mode events)
 - Windsurf (Codeium)
 - Google Antigravity

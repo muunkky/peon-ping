@@ -1489,6 +1489,36 @@ if os.path.isdir(pi_dir):
     else:
         ides.append(('Pi', pi_dir, 'detected (not set up)'))
 
+# Kiro CLI (Amazon) — global ~/.kiro/agents/*.json referencing kiro.sh/.ps1
+kiro_cli_dir = os.path.join(home, '.kiro', 'agents')
+if os.path.isdir(kiro_cli_dir):
+    kiro_cli_installed = False
+    try:
+        for _fn in os.listdir(kiro_cli_dir):
+            if _fn.endswith('.json'):
+                _txt = open(os.path.join(kiro_cli_dir, _fn)).read()
+                if 'kiro.sh' in _txt or 'kiro.ps1' in _txt:
+                    kiro_cli_installed = True
+                    break
+    except Exception:
+        pass
+    ides.append(('Kiro CLI', kiro_cli_dir, 'installed' if kiro_cli_installed else 'detected (not set up)'))
+
+# Kiro IDE — project-level .kiro/hooks/*.kiro.hook referencing kiro-ide.sh/.ps1
+kiro_ide_hooks = os.path.join(os.getcwd(), '.kiro', 'hooks')
+if os.path.isdir(kiro_ide_hooks):
+    kiro_ide_installed = False
+    try:
+        for _fn in os.listdir(kiro_ide_hooks):
+            if _fn.endswith('.kiro.hook'):
+                _txt = open(os.path.join(kiro_ide_hooks, _fn)).read()
+                if 'kiro-ide.sh' in _txt or 'kiro-ide.ps1' in _txt:
+                    kiro_ide_installed = True
+                    break
+    except Exception:
+        pass
+    ides.append(('Kiro IDE', kiro_ide_hooks, 'installed' if kiro_ide_installed else 'detected (not set up)'))
+
 if ides:
     for name, path, st in ides:
         marker = '[x]' if st == 'installed' else '[ ]'
@@ -4205,7 +4235,7 @@ if not project:
     _sid = str(session_id)
     # Newly supported agents emit an agent-prefixed session id; keep the label
     # agent-specific when launched outside a workspace (empty/root cwd).
-    _prefix_labels = (('qwen-', 'qwen'), ('iflow-', 'iflow'), ('trae-', 'trae'), ('pi-', 'pi'))
+    _prefix_labels = (('qwen-', 'qwen'), ('iflow-', 'iflow'), ('trae-', 'trae'), ('pi-', 'pi'), ('kiro-ide-', 'kiro-ide'), ('kiro-', 'kiro'))
     _matched = next((label for pfx, label in _prefix_labels if _sid.startswith(pfx)), '')
     if _matched:
         project = _matched
