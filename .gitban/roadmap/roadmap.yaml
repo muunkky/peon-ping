@@ -683,7 +683,7 @@ milestones:
           shipped (peon.sh resolves and defaults to ~/.openpeon, extended to hook
           handlers in PR #523), so the agnostic-root work is narrowed to an installer
           write-target flag plus docs."
-        status: todo
+        status: done
         success_criteria:
           - Qwen Code, iFlow CLI, Trae, and Pi each have a working bash +
             PowerShell adapter translating native events to CESP, with passing
