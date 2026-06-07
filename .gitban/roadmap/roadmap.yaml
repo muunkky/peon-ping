@@ -1041,14 +1041,14 @@ milestones:
               here), NOT a structural refactor. Current state (verified): no adapters/eca.*
               exists; #261 OPEN; install.sh/install.ps1 still WRITE the runtime under
               ~/.claude with no flag to target ~/.openpeon."
-            status: todo
+            status: done
             priority: medium
             sequence: 4
             features:
               eca-adapter-firstparty:
                 id: eca-adapter-firstparty
                 title: Ship the ECA adapter as first-party (bash + PowerShell)
-                status: todo
+                status: done
                 priority: medium
                 sequence: 1
                 description: "Vendor and clean up the working adapter from #261 as
@@ -1065,7 +1065,7 @@ milestones:
               eca-install-and-agnostic-root-flag:
                 id: eca-install-and-agnostic-root-flag
                 title: ECA detection + optional ~/.openpeon install target
-                status: todo
+                status: done
                 priority: medium
                 sequence: 2
                 depends_on:
@@ -1084,7 +1084,7 @@ milestones:
               eca-docs-tests:
                 id: eca-docs-tests
                 title: ECA docs + tests (adapter and install root)
-                status: todo
+                status: done
                 priority: medium
                 sequence: 3
                 depends_on:
