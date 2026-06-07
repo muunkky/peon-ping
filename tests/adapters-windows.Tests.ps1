@@ -57,7 +57,8 @@ Describe "PowerShell Syntax Validation" {
         @{ name = "windsurf" }, @{ name = "kiro" }, @{ name = "openclaw" },
         @{ name = "deepagents" }, @{ name = "amp" }, @{ name = "antigravity" },
         @{ name = "kimi" }, @{ name = "opencode" }, @{ name = "kilo" },
-        @{ name = "qwen" }, @{ name = "iflow" }, @{ name = "trae" }, @{ name = "kiro-ide" }
+        @{ name = "qwen" }, @{ name = "iflow" }, @{ name = "trae" }, @{ name = "kiro-ide" },
+        @{ name = "eca" }
     ) {
         $path = Join-Path $script:AdaptersDir "$name.ps1"
         $path | Should -Exist
@@ -93,7 +94,8 @@ Describe "No ExecutionPolicy Bypass" {
         @{ name = "windsurf" }, @{ name = "kiro" }, @{ name = "openclaw" },
         @{ name = "deepagents" }, @{ name = "amp" }, @{ name = "antigravity" },
         @{ name = "kimi" }, @{ name = "opencode" }, @{ name = "kilo" },
-        @{ name = "qwen" }, @{ name = "iflow" }, @{ name = "trae" }, @{ name = "kiro-ide" }
+        @{ name = "qwen" }, @{ name = "iflow" }, @{ name = "trae" }, @{ name = "kiro-ide" },
+        @{ name = "eca" }
     ) {
         $path = Join-Path $script:AdaptersDir "$name.ps1"
         $content = Get-Content $path -Raw
@@ -379,6 +381,33 @@ Describe "Category A: OpenClaw Adapter" {
 
     It "accepts raw Claude Code event names" {
         $script:openclawContent | Should -Match '"SessionStart", "Stop", "Notification"'
+    }
+}
+
+Describe "Category A: ECA Adapter" {
+    BeforeAll {
+        $script:ecaContent = Get-Content (Join-Path $script:AdaptersDir "eca.ps1") -Raw
+    }
+
+    It "reads JSON from stdin" {
+        $script:ecaContent | Should -Match 'IsInputRedirected'
+        $script:ecaContent | Should -Match 'StreamReader'
+    }
+
+    It "maps the ECA hook type_map" {
+        $script:ecaContent | Should -Match 'sessionStart'
+        $script:ecaContent | Should -Match 'preToolCall'
+        $script:ecaContent | Should -Match 'PermissionRequest'
+    }
+
+    It "derives the session id from db_cache_path with eca- prefix" {
+        $script:ecaContent | Should -Match 'db_cache_path'
+        $script:ecaContent | Should -Match 'eca-'
+    }
+
+    It "pipes JSON to peon.ps1" {
+        $script:ecaContent | Should -Match 'peon\.ps1'
+        $script:ecaContent | Should -Match 'ConvertTo-Json'
     }
 }
 
