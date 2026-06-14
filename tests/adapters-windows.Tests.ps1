@@ -56,7 +56,8 @@ Describe "PowerShell Syntax Validation" {
         @{ name = "codex" }, @{ name = "gemini" }, @{ name = "copilot" },
         @{ name = "windsurf" }, @{ name = "kiro" }, @{ name = "openclaw" },
         @{ name = "deepagents" }, @{ name = "amp" }, @{ name = "antigravity" },
-        @{ name = "kimi" }, @{ name = "opencode" }, @{ name = "kilo" }
+        @{ name = "kimi" }, @{ name = "opencode" }, @{ name = "kilo" },
+        @{ name = "qwen" }, @{ name = "iflow" }, @{ name = "trae" }
     ) {
         $path = Join-Path $script:AdaptersDir "$name.ps1"
         $path | Should -Exist
@@ -91,7 +92,8 @@ Describe "No ExecutionPolicy Bypass" {
         @{ name = "codex" }, @{ name = "gemini" }, @{ name = "copilot" },
         @{ name = "windsurf" }, @{ name = "kiro" }, @{ name = "openclaw" },
         @{ name = "deepagents" }, @{ name = "amp" }, @{ name = "antigravity" },
-        @{ name = "kimi" }, @{ name = "opencode" }, @{ name = "kilo" }
+        @{ name = "kimi" }, @{ name = "opencode" }, @{ name = "kilo" },
+        @{ name = "qwen" }, @{ name = "iflow" }, @{ name = "trae" }
     ) {
         $path = Join-Path $script:AdaptersDir "$name.ps1"
         $content = Get-Content $path -Raw
@@ -168,6 +170,65 @@ Describe "Category A: Gemini Adapter" {
 
     It "returns empty JSON object to Gemini" {
         $script:geminiContent | Should -Match 'Write-Output "\{\}"'
+    }
+}
+
+Describe "Category A: Qwen Adapter" {
+    BeforeAll {
+        $script:qwenContent = Get-Content (Join-Path $script:AdaptersDir "qwen.ps1") -Raw
+    }
+
+    It "reads JSON from stdin" {
+        $script:qwenContent | Should -Match 'IsInputRedirected'
+        $script:qwenContent | Should -Match 'StreamReader'
+    }
+
+    It "allowlists CESP PascalCase events" {
+        $script:qwenContent | Should -Match 'SessionStart'
+        $script:qwenContent | Should -Match 'UserPromptSubmit'
+        $script:qwenContent | Should -Match 'PostToolUseFailure'
+    }
+
+    It "tags session id with qwen- prefix" {
+        $script:qwenContent | Should -Match 'qwen-'
+    }
+
+    It "carries tool_name and error on PostToolUseFailure" {
+        $script:qwenContent | Should -Match 'tool_name'
+        $script:qwenContent | Should -Match 'error'
+    }
+
+    It "pipes JSON to peon.ps1" {
+        $script:qwenContent | Should -Match 'peon\.ps1'
+        $script:qwenContent | Should -Match 'ConvertTo-Json'
+    }
+}
+
+Describe "Category A: iFlow Adapter" {
+    BeforeAll {
+        $script:iflowContent = Get-Content (Join-Path $script:AdaptersDir "iflow.ps1") -Raw
+    }
+
+    It "reads JSON from stdin" {
+        $script:iflowContent | Should -Match 'IsInputRedirected'
+    }
+
+    It "passes through lifecycle events" {
+        $script:iflowContent | Should -Match 'SessionStart'
+        $script:iflowContent | Should -Match '"Stop"'
+    }
+
+    It "maps a failed PostToolUse to PostToolUseFailure" {
+        $script:iflowContent | Should -Match 'PostToolUse'
+        $script:iflowContent | Should -Match 'PostToolUseFailure'
+    }
+
+    It "tags session id with iflow- prefix" {
+        $script:iflowContent | Should -Match 'iflow-'
+    }
+
+    It "pipes JSON to peon.ps1" {
+        $script:iflowContent | Should -Match 'peon\.ps1'
     }
 }
 
@@ -385,6 +446,55 @@ Describe "Category B: Amp Adapter" {
     It "Handle-ThreadChange function is extractable via AST" {
         $script:ampHandleThreadChange | Should -Not -BeNullOrEmpty
         $script:ampHandleThreadChange.Count | Should -Be 1
+    }
+}
+
+Describe "Category B: Trae Adapter" {
+    BeforeAll {
+        $script:traePath = Join-Path $script:AdaptersDir "trae.ps1"
+        $script:traeContent = Get-Content $script:traePath -Raw
+        $script:traeEmitEvent = Get-FunctionAst $script:traePath "Emit-Event"
+    }
+
+    It "has Install/Uninstall/Status daemon flags" {
+        $script:traeContent | Should -Match '\[switch\]\$Install'
+        $script:traeContent | Should -Match '\[switch\]\$Uninstall'
+        $script:traeContent | Should -Match '\[switch\]\$Status'
+    }
+
+    It "uses FileSystemWatcher" {
+        $script:traeContent | Should -Match 'System\.IO\.FileSystemWatcher'
+    }
+
+    It "has idle detection logic" {
+        $script:traeContent | Should -Match 'IdleSeconds'
+        $script:traeContent | Should -Match 'StopCooldown'
+    }
+
+    It "has PID file management" {
+        $script:traeContent | Should -Match '\.trae-adapter\.pid'
+    }
+
+    It "uses an overridable Trae data dir" {
+        $script:traeContent | Should -Match 'TRAE_DATA_DIR'
+        $script:traeContent | Should -Match 'TRAE_SESSIONS_DIR'
+    }
+
+    It "Emit-Event function is extractable via AST" {
+        $script:traeEmitEvent | Should -Not -BeNullOrEmpty
+        $script:traeEmitEvent.Count | Should -Be 1
+    }
+
+    It "Emit-Event builds session_id with trae- prefix" {
+        $body = $script:traeEmitEvent[0].Extent.Text
+        $body | Should -Match 'trae-'
+        $body | Should -Match 'session_id'
+    }
+
+    It "Emit-Event pipes JSON to peon.ps1" {
+        $body = $script:traeEmitEvent[0].Extent.Text
+        $body | Should -Match 'ConvertTo-Json'
+        $body | Should -Match 'PeonScript'
     }
 }
 
@@ -653,7 +763,7 @@ Describe "install.ps1 Adapter Installation" {
         $script:installContent | Should -Match 'adapters'
     }
 
-    It "installs all 11 adapter files" {
+    It "installs all 14 adapter files" {
         $script:installContent | Should -Match 'codex\.ps1'
         $script:installContent | Should -Match 'gemini\.ps1'
         $script:installContent | Should -Match 'copilot\.ps1'
@@ -665,6 +775,9 @@ Describe "install.ps1 Adapter Installation" {
         $script:installContent | Should -Match 'kimi\.ps1'
         $script:installContent | Should -Match 'opencode\.ps1'
         $script:installContent | Should -Match 'kilo\.ps1'
+        $script:installContent | Should -Match 'qwen\.ps1'
+        $script:installContent | Should -Match 'iflow\.ps1'
+        $script:installContent | Should -Match 'trae\.ps1'
     }
 
     It "calls Unblock-File on installed adapters" {

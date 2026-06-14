@@ -2727,7 +2727,8 @@ New-Item -ItemType Directory -Path $adaptersDir -Force | Out-Null
 $adapterFiles = @(
     "codex.ps1", "gemini.ps1", "copilot.ps1", "windsurf.ps1",
     "kiro.ps1", "openclaw.ps1", "amp.ps1", "antigravity.ps1",
-    "kimi.ps1", "opencode.ps1", "kilo.ps1", "deepagents.ps1"
+    "kimi.ps1", "opencode.ps1", "kilo.ps1", "deepagents.ps1",
+    "qwen.ps1", "iflow.ps1", "trae.ps1"
 )
 
 $sourceAdaptersDir = Join-Path $ScriptDir "adapters"

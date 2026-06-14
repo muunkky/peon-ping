@@ -1449,6 +1449,46 @@ if os.path.isdir(codex_dir):
     else:
         ides.append(('OpenAI Codex', codex_dir, 'detected (not set up)'))
 
+qwen_dir = os.path.join(home, '.qwen')
+qwen_settings = os.path.join(qwen_dir, 'settings.json')
+if os.path.isfile(qwen_settings):
+    try:
+        with open(qwen_settings) as f:
+            settings = json.load(f)
+            hooks = settings.get('hooks', {})
+            if any('qwen.sh' in str(h) or 'qwen.ps1' in str(h) for h in hooks.values()):
+                ides.append(('Qwen Code', qwen_dir, 'installed'))
+            else:
+                ides.append(('Qwen Code', qwen_dir, 'detected (not set up)'))
+    except Exception:
+        ides.append(('Qwen Code', qwen_dir, 'detected'))
+
+iflow_dir = os.path.join(home, '.iflow')
+iflow_settings = os.path.join(iflow_dir, 'settings.json')
+if os.path.isfile(iflow_settings):
+    try:
+        with open(iflow_settings) as f:
+            settings = json.load(f)
+            hooks = settings.get('hooks', {})
+            if any('iflow.sh' in str(h) or 'iflow.ps1' in str(h) for h in hooks.values()):
+                ides.append(('iFlow CLI', iflow_dir, 'installed'))
+            else:
+                ides.append(('iFlow CLI', iflow_dir, 'detected (not set up)'))
+    except Exception:
+        ides.append(('iFlow CLI', iflow_dir, 'detected'))
+
+trae_dir = os.environ.get('TRAE_DATA_DIR', os.path.join(home, '.trae'))
+if os.path.isdir(trae_dir):
+    ides.append(('Trae IDE', trae_dir, 'detected (not set up)'))
+
+pi_dir = os.path.join(home, '.pi')
+pi_ext = os.path.join(pi_dir, 'agent', 'extensions', 'peon-ping.ts')
+if os.path.isdir(pi_dir):
+    if os.path.exists(pi_ext):
+        ides.append(('Pi', pi_dir, 'installed'))
+    else:
+        ides.append(('Pi', pi_dir, 'detected (not set up)'))
+
 if ides:
     for name, path, st in ides:
         marker = '[x]' if st == 'installed' else '[ ]'
@@ -4162,7 +4202,14 @@ if not project:
     # Codex adapter can emit empty/root cwd when launched outside a workspace.
     # Keep labels agent-specific instead of falling back to "claude".
     _bundle = os.environ.get('__CFBundleIdentifier', '')
-    if str(session_source).lower() == 'codex' or str(session_id).startswith('codex-') or _bundle == 'com.openai.codex':
+    _sid = str(session_id)
+    # Newly supported agents emit an agent-prefixed session id; keep the label
+    # agent-specific when launched outside a workspace (empty/root cwd).
+    _prefix_labels = (('qwen-', 'qwen'), ('iflow-', 'iflow'), ('trae-', 'trae'), ('pi-', 'pi'))
+    _matched = next((label for pfx, label in _prefix_labels if _sid.startswith(pfx)), '')
+    if _matched:
+        project = _matched
+    elif str(session_source).lower() == 'codex' or _sid.startswith('codex-') or _bundle == 'com.openai.codex':
         project = 'codex'
     else:
         project = 'claude'

@@ -6,11 +6,11 @@
 ![macOS](https://img.shields.io/badge/macOS-blue) ![WSL2](https://img.shields.io/badge/WSL2-blue) ![Linux](https://img.shields.io/badge/Linux-blue) ![Windows](https://img.shields.io/badge/Windows-blue) ![MSYS2](https://img.shields.io/badge/MSYS2-blue) ![SSH](https://img.shields.io/badge/SSH-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-![Claude Code](https://img.shields.io/badge/Claude_Code-hook-ffab01) ![Amp](https://img.shields.io/badge/Amp-adapter-ffab01) ![Gemini CLI](https://img.shields.io/badge/Gemini_CLI-adapter-ffab01) ![GitHub Copilot](https://img.shields.io/badge/GitHub_Copilot-adapter-ffab01) ![Codex](https://img.shields.io/badge/Codex-adapter-ffab01) ![Cursor](https://img.shields.io/badge/Cursor-adapter-ffab01) ![OpenCode](https://img.shields.io/badge/OpenCode-adapter-ffab01) ![Kilo CLI](https://img.shields.io/badge/Kilo_CLI-adapter-ffab01) ![Kiro](https://img.shields.io/badge/Kiro-adapter-ffab01) ![Kimi Code](https://img.shields.io/badge/Kimi_Code-adapter-ffab01) ![Windsurf](https://img.shields.io/badge/Windsurf-adapter-ffab01) ![Antigravity](https://img.shields.io/badge/Antigravity-adapter-ffab01) ![OpenClaw](https://img.shields.io/badge/OpenClaw-adapter-ffab01) ![Rovo Dev CLI](https://img.shields.io/badge/Rovo_Dev_CLI-adapter-ffab01) ![DeepAgents](https://img.shields.io/badge/DeepAgents-adapter-ffab01)
+![Claude Code](https://img.shields.io/badge/Claude_Code-hook-ffab01) ![Amp](https://img.shields.io/badge/Amp-adapter-ffab01) ![Gemini CLI](https://img.shields.io/badge/Gemini_CLI-adapter-ffab01) ![GitHub Copilot](https://img.shields.io/badge/GitHub_Copilot-adapter-ffab01) ![Codex](https://img.shields.io/badge/Codex-adapter-ffab01) ![Cursor](https://img.shields.io/badge/Cursor-adapter-ffab01) ![OpenCode](https://img.shields.io/badge/OpenCode-adapter-ffab01) ![Kilo CLI](https://img.shields.io/badge/Kilo_CLI-adapter-ffab01) ![Kiro](https://img.shields.io/badge/Kiro-adapter-ffab01) ![Kimi Code](https://img.shields.io/badge/Kimi_Code-adapter-ffab01) ![Windsurf](https://img.shields.io/badge/Windsurf-adapter-ffab01) ![Antigravity](https://img.shields.io/badge/Antigravity-adapter-ffab01) ![OpenClaw](https://img.shields.io/badge/OpenClaw-adapter-ffab01) ![Rovo Dev CLI](https://img.shields.io/badge/Rovo_Dev_CLI-adapter-ffab01) ![DeepAgents](https://img.shields.io/badge/DeepAgents-adapter-ffab01) ![Qwen Code](https://img.shields.io/badge/Qwen_Code-adapter-ffab01) ![iFlow CLI](https://img.shields.io/badge/iFlow_CLI-adapter-ffab01) ![Trae](https://img.shields.io/badge/Trae-adapter-ffab01) ![Pi](https://img.shields.io/badge/Pi-adapter-ffab01)
 
 **Game character voice lines + visual overlay notifications when your AI coding agent needs attention — or let the agent pick its own sound via MCP.**
 
-AI coding agents don't notify you when they finish or need permission. You tab away, lose focus, and waste 15 minutes getting back into flow. peon-ping fixes this with voice lines and bold on-screen banners from Warcraft, StarCraft, Portal, Zelda, and more — works with **Claude Code**, **Amp**, **GitHub Copilot**, **Codex**, **Cursor**, **OpenCode**, **Kilo CLI**, **Kiro**, **Kimi Code**, **Windsurf**, **Google Antigravity**, **Rovo Dev CLI**, **DeepAgents**, and any MCP client.
+AI coding agents don't notify you when they finish or need permission. You tab away, lose focus, and waste 15 minutes getting back into flow. peon-ping fixes this with voice lines and bold on-screen banners from Warcraft, StarCraft, Portal, Zelda, and more — works with **Claude Code**, **Amp**, **GitHub Copilot**, **Codex**, **Cursor**, **OpenCode**, **Kilo CLI**, **Kiro**, **Kimi Code**, **Windsurf**, **Google Antigravity**, **Rovo Dev CLI**, **DeepAgents**, **Qwen Code**, **iFlow CLI**, **Trae**, **Pi**, and any MCP client.
 
 **See it in action** &rarr; [peonping.com](https://peonping.com/)
 
@@ -628,8 +628,12 @@ peon-ping works with any agentic IDE that supports hooks. Adapters translate IDE
 | **OpenClaw** | Adapter | Call `adapters/openclaw.sh <event>` (or `openclaw.ps1`) from your OpenClaw skill |
 | **Rovo Dev CLI** | Adapter | Auto-registered by `install.sh` if `~/.rovodev` exists, or add hooks to `~/.rovodev/config.yml` manually ([setup](#rovo-dev-cli-setup)) |
 | **DeepAgents** | Adapter | `bash adapters/deepagents.sh` / `powershell adapters/deepagents.ps1` ([setup](#deepagents-setup)) |
+| **Qwen Code** | Adapter | Add hooks pointing to `adapters/qwen.sh` (or `.ps1` on Windows) in `~/.qwen/settings.json` ([setup](#qwen-code-setup)) |
+| **iFlow CLI** | Adapter | Add hooks pointing to `adapters/iflow.sh` (or `.ps1` on Windows) in `~/.iflow/settings.json` ([setup](#iflow-cli-setup)) |
+| **Trae** | Adapter | `bash adapters/trae.sh` / `powershell adapters/trae.ps1 -Install` (filesystem watcher) ([setup](#trae-setup)) |
+| **Pi** | Adapter | `bash adapters/pi.sh` installs a TypeScript extension into `~/.pi/agent/extensions/` ([setup](#pi-setup)) |
 
-> **Windows:** All adapters have native PowerShell (`.ps1`) versions. The Windows installer (`install.ps1`) copies them to `~/.claude/hooks/peon-ping/adapters/`. Filesystem watchers (Amp, Antigravity, Kimi) use .NET `FileSystemWatcher` instead of fswatch/inotifywait — no extra dependencies needed.
+> **Windows:** All adapters have native PowerShell (`.ps1`) versions. The Windows installer (`install.ps1`) copies them to `~/.claude/hooks/peon-ping/adapters/`. Filesystem watchers (Amp, Antigravity, Kimi, Trae) use .NET `FileSystemWatcher` instead of fswatch/inotifywait — no extra dependencies needed. Pi loads a TypeScript extension and works on any platform with Node.js.
 
 ### OpenAI Codex setup
 
@@ -1011,6 +1015,76 @@ Requires `fswatch` (`brew install fswatch`) on macOS or `inotifywait` (`apt inst
 - Agent finishes turn → Completion sound (*"Work, work."*, *"Job's done!"*)
 - Context compaction → Token limit sound
 - Sub-agent spawned → Sub-agent tracking
+
+### Qwen Code setup
+
+Qwen Code (`QwenLM/qwen-code`) ships a Claude-Code-style hook system. The peon-ping runtime must exist at `~/.claude/hooks/peon-ping/`. Add to `~/.qwen/settings.json`:
+
+```json
+{
+  "hooks": {
+    "SessionStart":       [{ "hooks": [{ "type": "command", "command": "bash ~/.claude/hooks/peon-ping/adapters/qwen.sh" }] }],
+    "UserPromptSubmit":   [{ "hooks": [{ "type": "command", "command": "bash ~/.claude/hooks/peon-ping/adapters/qwen.sh" }] }],
+    "Stop":               [{ "hooks": [{ "type": "command", "command": "bash ~/.claude/hooks/peon-ping/adapters/qwen.sh" }] }],
+    "Notification":       [{ "hooks": [{ "type": "command", "command": "bash ~/.claude/hooks/peon-ping/adapters/qwen.sh" }] }],
+    "PostToolUseFailure": [{ "hooks": [{ "type": "command", "command": "bash ~/.claude/hooks/peon-ping/adapters/qwen.sh" }] }],
+    "SessionEnd":         [{ "hooks": [{ "type": "command", "command": "bash ~/.claude/hooks/peon-ping/adapters/qwen.sh" }] }]
+  }
+}
+```
+
+On Windows, swap each command for `powershell -NoProfile -File %USERPROFILE%\.claude\hooks\peon-ping\adapters\qwen.ps1`.
+
+### iFlow CLI setup
+
+iFlow CLI (`cli.iflow.cn`) also uses a Claude-Code-style hook system. Add to `~/.iflow/settings.json` (or project-level `./.iflow/settings.json`):
+
+```json
+{
+  "hooks": {
+    "SessionStart":     [{ "hooks": [{ "type": "command", "command": "bash ~/.claude/hooks/peon-ping/adapters/iflow.sh" }] }],
+    "UserPromptSubmit": [{ "hooks": [{ "type": "command", "command": "bash ~/.claude/hooks/peon-ping/adapters/iflow.sh" }] }],
+    "Stop":             [{ "hooks": [{ "type": "command", "command": "bash ~/.claude/hooks/peon-ping/adapters/iflow.sh" }] }],
+    "Notification":     [{ "hooks": [{ "type": "command", "command": "bash ~/.claude/hooks/peon-ping/adapters/iflow.sh" }] }],
+    "PostToolUse":      [{ "hooks": [{ "type": "command", "command": "bash ~/.claude/hooks/peon-ping/adapters/iflow.sh" }] }],
+    "SessionEnd":       [{ "hooks": [{ "type": "command", "command": "bash ~/.claude/hooks/peon-ping/adapters/iflow.sh" }] }]
+  }
+}
+```
+
+Only a *failed* `PostToolUse` plays the error sound; successful tool calls are silent. On Windows, use `powershell -NoProfile -File %USERPROFILE%\.claude\hooks\peon-ping\adapters\iflow.ps1`.
+
+### Trae setup
+
+Trae (`trae.ai`) is a VS Code-derived IDE that exposes MCP but no synchronous shell hook, so peon-ping uses a filesystem watcher (like Amp/Antigravity). Run it as a background daemon:
+
+```bash
+# macOS/Linux (needs fswatch or inotify-tools)
+bash ~/.claude/hooks/peon-ping/adapters/trae.sh &
+```
+
+```powershell
+# Windows (native .NET FileSystemWatcher, no extra deps)
+powershell -NoProfile -File "$env:USERPROFILE\.claude\hooks\peon-ping\adapters\trae.ps1" -Install
+```
+
+Trae's on-disk session layout varies by platform/version. If sounds don't fire, point the watcher at your session storage:
+
+```bash
+export TRAE_SESSIONS_DIR="/path/to/trae/sessions"   # or TRAE_DATA_DIR / TRAE_SESSION_GLOB
+```
+
+### Pi setup
+
+Pi (`earendil-works/pi`) loads TypeScript extensions from `~/.pi/agent/extensions/`. Install the peon-ping extension:
+
+```bash
+bash ~/.claude/hooks/peon-ping/adapters/pi.sh
+# or directly:
+curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/adapters/pi.sh | bash
+```
+
+Restart Pi (or run `/reload`). The extension maps `session_start` → greeting, `agent_end` → completion, and a failed tool call → error sound, shelling out to peon.sh (or peon.ps1 on Windows). Uninstall with `bash adapters/pi.sh --uninstall`.
 
 ## Remote development (SSH / Devcontainers / Codespaces)
 

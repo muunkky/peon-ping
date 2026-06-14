@@ -6,11 +6,11 @@
 ![macOS](https://img.shields.io/badge/macOS-blue) ![WSL2](https://img.shields.io/badge/WSL2-blue) ![Linux](https://img.shields.io/badge/Linux-blue) ![Windows](https://img.shields.io/badge/Windows-blue) ![MSYS2](https://img.shields.io/badge/MSYS2-blue) ![SSH](https://img.shields.io/badge/SSH-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-![Claude Code](https://img.shields.io/badge/Claude_Code-hook-ffab01) ![Amp](https://img.shields.io/badge/Amp-adapter-ffab01) ![Gemini CLI](https://img.shields.io/badge/Gemini_CLI-adapter-ffab01) ![GitHub Copilot](https://img.shields.io/badge/GitHub_Copilot-adapter-ffab01) ![Codex](https://img.shields.io/badge/Codex-adapter-ffab01) ![Cursor](https://img.shields.io/badge/Cursor-adapter-ffab01) ![OpenCode](https://img.shields.io/badge/OpenCode-adapter-ffab01) ![Kilo CLI](https://img.shields.io/badge/Kilo_CLI-adapter-ffab01) ![Kiro](https://img.shields.io/badge/Kiro-adapter-ffab01) ![Kimi Code](https://img.shields.io/badge/Kimi_Code-adapter-ffab01) ![Windsurf](https://img.shields.io/badge/Windsurf-adapter-ffab01) ![Antigravity](https://img.shields.io/badge/Antigravity-adapter-ffab01) ![OpenClaw](https://img.shields.io/badge/OpenClaw-adapter-ffab01) ![Rovo Dev CLI](https://img.shields.io/badge/Rovo_Dev_CLI-adapter-ffab01) ![DeepAgents](https://img.shields.io/badge/DeepAgents-adapter-ffab01)
+![Claude Code](https://img.shields.io/badge/Claude_Code-hook-ffab01) ![Amp](https://img.shields.io/badge/Amp-adapter-ffab01) ![Gemini CLI](https://img.shields.io/badge/Gemini_CLI-adapter-ffab01) ![GitHub Copilot](https://img.shields.io/badge/GitHub_Copilot-adapter-ffab01) ![Codex](https://img.shields.io/badge/Codex-adapter-ffab01) ![Cursor](https://img.shields.io/badge/Cursor-adapter-ffab01) ![OpenCode](https://img.shields.io/badge/OpenCode-adapter-ffab01) ![Kilo CLI](https://img.shields.io/badge/Kilo_CLI-adapter-ffab01) ![Kiro](https://img.shields.io/badge/Kiro-adapter-ffab01) ![Kimi Code](https://img.shields.io/badge/Kimi_Code-adapter-ffab01) ![Windsurf](https://img.shields.io/badge/Windsurf-adapter-ffab01) ![Antigravity](https://img.shields.io/badge/Antigravity-adapter-ffab01) ![OpenClaw](https://img.shields.io/badge/OpenClaw-adapter-ffab01) ![Rovo Dev CLI](https://img.shields.io/badge/Rovo_Dev_CLI-adapter-ffab01) ![DeepAgents](https://img.shields.io/badge/DeepAgents-adapter-ffab01) ![Qwen Code](https://img.shields.io/badge/Qwen_Code-adapter-ffab01) ![iFlow CLI](https://img.shields.io/badge/iFlow_CLI-adapter-ffab01) ![Trae](https://img.shields.io/badge/Trae-adapter-ffab01) ![Pi](https://img.shields.io/badge/Pi-adapter-ffab01)
 
 **当你的 AI 编程助手需要关注时，播放游戏角色语音 + 显示视觉覆盖通知 — 或通过 MCP 让 AI 自行选择音效。**
 
-AI 编程助手完成任务或需要权限时不会通知你。你切换标签页、失去焦点，然后浪费 15 分钟重新进入状态。peon-ping 通过魔兽争霸、星际争霸、传送门、塞尔达等游戏的角色语音和醒目的屏幕横幅来解决这个问题 — 支持 **Claude Code**、**Amp**、**Gemini CLI**、**GitHub Copilot**、**Codex**、**Cursor**、**OpenCode**、**Kilo CLI**、**Kiro**、**Kimi Code**、**Windsurf**、**Google Antigravity**、**Rovo Dev CLI**、**DeepAgents** 及任何 MCP 客户端.
+AI 编程助手完成任务或需要权限时不会通知你。你切换标签页、失去焦点，然后浪费 15 分钟重新进入状态。peon-ping 通过魔兽争霸、星际争霸、传送门、塞尔达等游戏的角色语音和醒目的屏幕横幅来解决这个问题 — 支持 **Claude Code**、**Amp**、**Gemini CLI**、**GitHub Copilot**、**Codex**、**Cursor**、**OpenCode**、**Kilo CLI**、**Kiro**、**Kimi Code**、**Windsurf**、**Google Antigravity**、**Rovo Dev CLI**、**DeepAgents**、**Qwen Code**、**iFlow CLI**、**Trae**、**Pi** 及任何 MCP 客户端.
 
 **查看演示** &rarr; [peonping.com](https://peonping.com/)
 
@@ -552,8 +552,12 @@ peon-ping 适用于任何支持钩子的代理式 IDE。适配器将 IDE 特定�
 | **OpenClaw** | 适配器 | 调用 `adapters/openclaw.sh <event>`（或 `openclaw.ps1`），支持所有 CESP 分类和原生 Claude Code 事件名 |
 | **Rovo Dev CLI** | 适配器 | 如果 `~/.rovodev` 存在，`install.sh` 会自动注册，或手动添加钩子到 `~/.rovodev/config.yml`（[设置](#rovo-dev-cli-设置)） |
 | **DeepAgents** | 适配器 | `bash adapters/deepagents.sh` / `powershell adapters/deepagents.ps1`（[设置](#deepagents-设置)） |
+| **Qwen Code** | 适配器 | 在 `~/.qwen/settings.json` 中添加指向 `adapters/qwen.sh`（Windows 上为 `.ps1`）的钩子（[设置](#qwen-code-设置)） |
+| **iFlow CLI** | 适配器 | 在 `~/.iflow/settings.json` 中添加指向 `adapters/iflow.sh`（Windows 上为 `.ps1`）的钩子（[设置](#iflow-cli-设置)） |
+| **Trae** | 适配器 | `bash adapters/trae.sh` / `powershell adapters/trae.ps1 -Install`（文件系统监视器）（[设置](#trae-设置)） |
+| **Pi** | 适配器 | `bash adapters/pi.sh` 将 TypeScript 扩展安装到 `~/.pi/agent/extensions/`（[设置](#pi-设置)） |
 
-> **Windows：** 所有适配器都有原生 PowerShell（`.ps1`）版本。Windows 安装程序（`install.ps1`）会将其复制到 `~/.claude/hooks/peon-ping/adapters/`。文件系统监视器（Amp、Antigravity、Kimi）使用 .NET `FileSystemWatcher` 而非 fswatch/inotifywait — 无需额外依赖。
+> **Windows：** 所有适配器都有原生 PowerShell（`.ps1`）版本。Windows 安装程序（`install.ps1`）会将其复制到 `~/.claude/hooks/peon-ping/adapters/`。文件系统监视器（Amp、Antigravity、Kimi、Trae）使用 .NET `FileSystemWatcher` 而非 fswatch/inotifywait — 无需额外依赖。Pi 加载 TypeScript 扩展，可在任何安装了 Node.js 的平台上运行。
 
 ### OpenAI Codex 设置
 
@@ -934,6 +938,76 @@ macOS 需要 `fswatch`（`brew install fswatch`），Linux 需要 `inotifywait`�
 - Agent 完成回合 → 完成音效（*"Work, work."*、*"Job's done!"*）
 - 上下文压缩 → Token 限制音效
 - 子 Agent 启动 → 子 Agent 跟踪
+
+### Qwen Code 设置
+
+Qwen Code（`QwenLM/qwen-code`）采用与 Claude Code 风格一致的钩子系统。peon-ping 运行时需存在于 `~/.claude/hooks/peon-ping/`。在 `~/.qwen/settings.json` 中添加：
+
+```json
+{
+  "hooks": {
+    "SessionStart":       [{ "hooks": [{ "type": "command", "command": "bash ~/.claude/hooks/peon-ping/adapters/qwen.sh" }] }],
+    "UserPromptSubmit":   [{ "hooks": [{ "type": "command", "command": "bash ~/.claude/hooks/peon-ping/adapters/qwen.sh" }] }],
+    "Stop":               [{ "hooks": [{ "type": "command", "command": "bash ~/.claude/hooks/peon-ping/adapters/qwen.sh" }] }],
+    "Notification":       [{ "hooks": [{ "type": "command", "command": "bash ~/.claude/hooks/peon-ping/adapters/qwen.sh" }] }],
+    "PostToolUseFailure": [{ "hooks": [{ "type": "command", "command": "bash ~/.claude/hooks/peon-ping/adapters/qwen.sh" }] }],
+    "SessionEnd":         [{ "hooks": [{ "type": "command", "command": "bash ~/.claude/hooks/peon-ping/adapters/qwen.sh" }] }]
+  }
+}
+```
+
+在 Windows 上，将每条命令替换为 `powershell -NoProfile -File %USERPROFILE%\.claude\hooks\peon-ping\adapters\qwen.ps1`。
+
+### iFlow CLI 设置
+
+iFlow CLI（`cli.iflow.cn`）同样使用 Claude Code 风格的钩子系统。在 `~/.iflow/settings.json`（或项目级 `./.iflow/settings.json`）中添加：
+
+```json
+{
+  "hooks": {
+    "SessionStart":     [{ "hooks": [{ "type": "command", "command": "bash ~/.claude/hooks/peon-ping/adapters/iflow.sh" }] }],
+    "UserPromptSubmit": [{ "hooks": [{ "type": "command", "command": "bash ~/.claude/hooks/peon-ping/adapters/iflow.sh" }] }],
+    "Stop":             [{ "hooks": [{ "type": "command", "command": "bash ~/.claude/hooks/peon-ping/adapters/iflow.sh" }] }],
+    "Notification":     [{ "hooks": [{ "type": "command", "command": "bash ~/.claude/hooks/peon-ping/adapters/iflow.sh" }] }],
+    "PostToolUse":      [{ "hooks": [{ "type": "command", "command": "bash ~/.claude/hooks/peon-ping/adapters/iflow.sh" }] }],
+    "SessionEnd":       [{ "hooks": [{ "type": "command", "command": "bash ~/.claude/hooks/peon-ping/adapters/iflow.sh" }] }]
+  }
+}
+```
+
+只有**失败的** `PostToolUse` 才会播放错误音效；成功的工具调用保持静默。Windows 上请使用 `powershell -NoProfile -File %USERPROFILE%\.claude\hooks\peon-ping\adapters\iflow.ps1`。
+
+### Trae 设置
+
+Trae（`trae.ai`）是基于 VS Code 的 IDE，提供 MCP 但没有同步的 shell 钩子，因此 peon-ping 使用文件系统监视器（类似 Amp/Antigravity）。以后台守护进程运行：
+
+```bash
+# macOS/Linux（需要 fswatch 或 inotify-tools）
+bash ~/.claude/hooks/peon-ping/adapters/trae.sh &
+```
+
+```powershell
+# Windows（原生 .NET FileSystemWatcher，无需额外依赖）
+powershell -NoProfile -File "$env:USERPROFILE\.claude\hooks\peon-ping\adapters\trae.ps1" -Install
+```
+
+Trae 的会话存储路径因平台/版本而异。如果没有声音，请将监视器指向你的会话目录：
+
+```bash
+export TRAE_SESSIONS_DIR="/path/to/trae/sessions"   # 或 TRAE_DATA_DIR / TRAE_SESSION_GLOB
+```
+
+### Pi 设置
+
+Pi（`earendil-works/pi`）从 `~/.pi/agent/extensions/` 加载 TypeScript 扩展。安装 peon-ping 扩展：
+
+```bash
+bash ~/.claude/hooks/peon-ping/adapters/pi.sh
+# 或直接：
+curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/adapters/pi.sh | bash
+```
+
+重启 Pi（或运行 `/reload`）。该扩展将 `session_start` → 问候、`agent_end` → 完成、工具调用失败 → 错误音效，通过调用 peon.sh（Windows 上为 peon.ps1）实现。卸载：`bash adapters/pi.sh --uninstall`。
 
 ## 远程开发（SSH / Devcontainers / Codespaces）
 
